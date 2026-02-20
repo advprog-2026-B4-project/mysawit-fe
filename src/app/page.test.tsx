@@ -39,4 +39,13 @@ describe('Index page', () => {
       screen.getByText(/thank you for waiting with us\./i),
     ).toBeInTheDocument();
   });
+
+  it('renders system status link to health page', () => {
+    render(<Home />);
+
+    const statusLabel = screen.getByText(/system status/i);
+    const statusLink = statusLabel.closest('a');
+    expect(statusLink).toBeInTheDocument();
+    expect(statusLink).toHaveAttribute('href', '/health');
+  });
 });
