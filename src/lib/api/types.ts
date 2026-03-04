@@ -1,14 +1,14 @@
-export interface ApiResponse<T = unknown> {
+export interface ApiResponse<T> {
   success: boolean;
   message: string;
-  data: T | null;
-  error?: unknown;
+  data?: T;
+  error?: Record<string, string>;
   timestamp: string;
 }
 
 export function unwrapResponse<T>(response: ApiResponse<T>): T {
-  if (!response.success || response.data === null) {
-    throw new Error(response.message || "Operation failed");
+  if (!response.success) {
+    throw new Error(response.message ?? "Request failed");
   }
-  return response.data;
+  return response.data as T;
 }

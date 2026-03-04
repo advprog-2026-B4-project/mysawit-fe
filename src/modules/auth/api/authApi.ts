@@ -33,11 +33,6 @@ export interface GoogleOAuthUrlResponse {
   state: string;
 }
 
-export interface GoogleOAuthCallbackRequest {
-  code: string;
-  state: string;
-}
-
 export const authApi = {
   loginWithEmail: async (payload: LoginRequest): Promise<AuthTokenDTO> => {
     const { data } = await apiClient.post<AuthTokenDTO>("/api/auth/login", payload);
@@ -50,28 +45,20 @@ export const authApi = {
   },
 
   getGoogleOAuthUrl: async (): Promise<GoogleOAuthUrlResponse> => {
-    const { data } = await apiClient.get<GoogleOAuthUrlResponse>("/api/auth/oauth2/google/url");
+    const { data } = await apiClient.get<GoogleOAuthUrlResponse>("/api/auth/oauth2/url");
     return data;
   },
 
-  handleGoogleOAuthCallback: async (payload: GoogleOAuthCallbackRequest): Promise<AuthTokenDTO> => {
-    const { data } = await apiClient.post<AuthTokenDTO>("/api/auth/oauth2/google/callback", payload);
+  handleGoogleOAuthCallback: async (code: string, state: string): Promise<AuthTokenDTO> => {
+    const { data } = await apiClient.get<AuthTokenDTO>(
+      `/api/auth/oauth2/callback?code=${code}&state=${state}`
+    );
     return data;
   },
 
   logout: async (): Promise<void> => {
     await apiClient.post("/api/auth/logout");
     if (typeof window !== "undefined") delete window.__mysawit_access_token;
-  },
-
-  getCurrentUser: async (): Promise<UserDTO> => {
-    const { data } = await apiClient.get<UserDTO>("/api/users/me");
-    return data;
-  },
-
-  getUserById: async (userId: string): Promise<UserDTO> => {
-    const { data } = await apiClient.get<UserDTO>(`/api/users/${userId}`);
-    return data;
   },
 
   listUsers: async (roleFilter?: UserRole): Promise<UserDTO[]> => {
@@ -81,7 +68,12 @@ export const authApi = {
     return data;
   },
 
-  editUser: async (userId: string, payload: Partial<RegisterRequest>): Promise<UserDTO> => {
+  getUserById: async (userId: string): Promise<UserDTO> => {
+    const { data } = await apiClient.get<UserDTO>(`/api/users/${userId}`);
+    return data;
+  },
+
+  editUser: async (userId: string, payload: Partial<Pick<UserDTO, "name" | "role" | "email">>): Promise<UserDTO> => {
     const { data } = await apiClient.put<UserDTO>(`/api/users/${userId}`, payload);
     return data;
   },
@@ -91,7 +83,7 @@ export const authApi = {
   },
 
   assignBuruhToMandor: async (buruhId: string, mandorId: string): Promise<void> => {
-    await apiClient.post(`/api/users/buruh/${buruhId}/assign`, { mandorId });
+    await apiClient.post(`/api/users/${buruhId}/assign-mandor/${mandorId}`);
   },
 
   getBuruhByMandorId: async (mandorId: string): Promise<UserDTO[]> => {
