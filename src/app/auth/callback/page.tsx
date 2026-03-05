@@ -1,9 +1,17 @@
 "use client";
 
+import { Suspense } from "react";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function AuthCallback() {
+const ROLE_ROUTES: Record<string, string> = {
+  ADMIN:  "/admin/users",
+  MANDOR: "/mandor",
+  BURUH:  "/buruh",
+  SUPIR:  "/supir",
+};
+
+function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -12,12 +20,9 @@ export default function AuthCallback() {
     const role  = searchParams.get("role");
 
     if (token && role) {
-      // Simpan token di window (in-memory)
       window.__mysawit_access_token = token;
-      // Redirect ke dashboard sesuai role
-      router.push(`/${role.toLowerCase()}`);
+      router.push(ROLE_ROUTES[role] ?? "/login");
     } else {
-      // Kalau tidak ada token, fallback ke login
       router.push("/login");
     }
   }, [searchParams, router]);
@@ -42,5 +47,13 @@ export default function AuthCallback() {
         Mengautentikasi akun Anda…
       </p>
     </div>
+  );
+}
+
+export default function AuthCallback() {
+  return (
+    <Suspense fallback={null}>
+      <CallbackHandler />
+    </Suspense>
   );
 }
