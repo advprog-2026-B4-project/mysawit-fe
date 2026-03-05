@@ -2,13 +2,20 @@ import { useRouter } from "next/navigation";
 import { authApi, type LoginRequest, type RegisterRequest } from "../api/authApi";
 import { initiateGoogleLogin, handleGoogleCallback } from "../utils/googleOAuthHelper";
 
+const ROLE_ROUTES: Record<string, string> = {
+  ADMIN:  "/admin/users",
+  MANDOR: "/mandor",
+  BURUH:  "/buruh",
+  SUPIR:  "/supir",
+};
+
 export function useAuth() {
   const router = useRouter();
 
   const loginWithEmail = async (credentials: LoginRequest) => {
     const { accessToken, role } = await authApi.loginWithEmail(credentials);
     window.__mysawit_access_token = accessToken;
-    router.push(`/${role.toLowerCase()}`);
+    router.push(ROLE_ROUTES[role] ?? "/login"); 
     return { accessToken, role };
   };
 
@@ -24,7 +31,7 @@ export function useAuth() {
   const handleOAuthCallback = async (searchParams: URLSearchParams) => {
     const role = await handleGoogleCallback(searchParams);
     if (role) {
-      router.push(`/${role.toLowerCase()}`);
+      router.push(ROLE_ROUTES[role] ?? "/login"); 
     } else {
       router.push("/login");
     }

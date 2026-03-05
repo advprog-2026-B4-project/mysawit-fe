@@ -13,16 +13,20 @@ const navItems = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router   = useRouter();
-  const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
+    const router   = useRouter();
+    const pathname = usePathname();
+    const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    if (typeof window !== "undefined" && !window.__mysawit_access_token) {
-      router.push("/login");
-    }
-  }, [router]);
+    useEffect(() => {
+        setMounted(true);
+        if (typeof window !== "undefined") {
+            if (!window.__mysawit_access_token) {
+            router.push("/login");
+            } else if (pathname === "/admin") {
+            router.push("/admin/users");
+            }
+        }
+    }, [router, pathname]);
 
   if (!mounted) return null;
 
