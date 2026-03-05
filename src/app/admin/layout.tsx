@@ -12,8 +12,6 @@ const navItems = [
   { href: "/admin/pembayaran", label: "Pembayaran" },
 ];
 
-// useSyncExternalStore is the React-recommended way to handle client-only
-// rendering without setState inside an effect.
 function subscribe() { return () => {}; }
 function getSnapshot() { return true; }
 function getServerSnapshot() { return false; }
@@ -22,7 +20,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router   = useRouter();
   const pathname = usePathname();
 
-  // `mounted` is true only on the client — no useState, no useEffect, no lint error.
   const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
