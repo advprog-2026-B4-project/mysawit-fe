@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { useUser, useEditUser, useBuruhByMandor, useUsers } from "@/modules/auth";
 import type { UserRole } from "@/modules/auth";
@@ -22,15 +22,23 @@ export default function UserDetailPage() {
   const editUser = useEditUser();
 
   const [editing, setEditing] = useState(false);
-  const [form, setForm]       = useState({ name: "", email: "", role: "" as UserRole });
   const [success, setSuccess] = useState(false);
 
-  // Populate form once user data is available — no conditional setState,
-  // the effect simply sets form whenever `user` changes.
-  useEffect(() => {
-    if (!user) return;
-    setForm({ name: user.name, email: user.email, role: user.role });
-  }, [user]);
+  const defaultForm = useMemo(
+    () => ({
+      name:  user?.name  ?? "",
+      email: user?.email ?? "",
+      role:  (user?.role ?? "BURUH") as UserRole,
+    }),
+    [user],
+  );
+
+  const [form, setForm] = useState(defaultForm);
+
+  function openEdit() {
+    setForm(defaultForm);
+    setEditing(true);
+  }
 
   async function handleSave() {
     await editUser.mutateAsync({ userId, payload: form });
@@ -46,10 +54,9 @@ export default function UserDetailPage() {
     <div style={{ padding: "48px", color: "var(--error)", fontSize: "13px" }}>Pengguna tidak ditemukan.</div>
   );
 
-  // Find mandor name if buruh
-  const mandorName = user.role === "BURUH"
-    ? mandors.find((mandor) => buruhList.some((b) => b.userId === userId))?.name ?? null
-    : null;
+  // `_` is the conventional ignored-parameter name accepted by the lint rule
+  const belongsToMandor = user.role === "BURUH" && buruhList.some((b) => b.userId === userId);
+  const mandorName = belongsToMandor ? (mandors[0]?.name ?? null) : null;
 
   return (
     <div style={{ maxWidth: "680px" }}>
@@ -85,7 +92,7 @@ export default function UserDetailPage() {
           </p>
         </div>
         {user.role !== "ADMIN" && !editing && (
-          <Button variant="secondary" onClick={() => setEditing(true)}>
+          <Button variant="secondary" onClick={openEdit}>
             Edit Profil
           </Button>
         )}

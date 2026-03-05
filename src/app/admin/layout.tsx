@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
@@ -12,23 +12,25 @@ const navItems = [
   { href: "/admin/pembayaran", label: "Pembayaran" },
 ];
 
+// useSyncExternalStore is the React-recommended way to handle client-only
+// rendering without setState inside an effect.
+function subscribe() { return () => {}; }
+function getSnapshot() { return true; }
+function getServerSnapshot() { return false; }
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router   = useRouter();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // `mounted` is true only on the client — no useState, no useEffect, no lint error.
+  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
     if (!mounted) return;
-    if (typeof window !== "undefined") {
-      if (!window.__mysawit_access_token) {
-        router.push("/login");
-      } else if (pathname === "/admin") {
-        router.push("/admin/users");
-      }
+    if (!window.__mysawit_access_token) {
+      router.push("/login");
+    } else if (pathname === "/admin") {
+      router.push("/admin/users");
     }
   }, [mounted, router, pathname]);
 
