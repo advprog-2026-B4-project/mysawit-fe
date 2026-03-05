@@ -1,32 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
 const navItems = [
-  { href: "/admin/users",  label: "Pengguna" },
-  { href: "/admin/kebun",  label: "Kebun" },
-  { href: "/admin/panen",  label: "Panen" },
+  { href: "/admin/users",      label: "Pengguna" },
+  { href: "/admin/kebun",      label: "Kebun" },
+  { href: "/admin/panen",      label: "Panen" },
   { href: "/admin/pengiriman", label: "Pengiriman" },
   { href: "/admin/pembayaran", label: "Pembayaran" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    const router   = useRouter();
-    const pathname = usePathname();
-    const [mounted, setMounted] = useState(false);
+  const router   = useRouter();
+  const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-        if (typeof window !== "undefined") {
-            if (!window.__mysawit_access_token) {
-            router.push("/login");
-            } else if (pathname === "/admin") {
-            router.push("/admin/users");
-            }
-        }
-    }, [router, pathname]);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    if (typeof window !== "undefined") {
+      if (!window.__mysawit_access_token) {
+        router.push("/login");
+      } else if (pathname === "/admin") {
+        router.push("/admin/users");
+      }
+    }
+  }, [mounted, router, pathname]);
 
   if (!mounted) return null;
 

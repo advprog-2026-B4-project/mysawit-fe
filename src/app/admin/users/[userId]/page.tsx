@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useUser, useEditUser, useBuruhByMandor, useUsers } from "@/modules/auth";
 import type { UserRole } from "@/modules/auth";
 import { RoleBadge } from "@/components/ui/Badge";
@@ -13,7 +13,6 @@ const EDITABLE_ROLES: UserRole[] = ["MANDOR", "BURUH", "SUPIR"];
 
 export default function UserDetailPage() {
   const { userId } = useParams<{ userId: string }>();
-  const router     = useRouter();
 
   const { data: user, isLoading } = useUser(userId);
   const { data: mandors = [] }    = useUsers("MANDOR");
@@ -26,8 +25,11 @@ export default function UserDetailPage() {
   const [form, setForm]       = useState({ name: "", email: "", role: "" as UserRole });
   const [success, setSuccess] = useState(false);
 
+  // Populate form once user data is available — no conditional setState,
+  // the effect simply sets form whenever `user` changes.
   useEffect(() => {
-    if (user) setForm({ name: user.name, email: user.email, role: user.role });
+    if (!user) return;
+    setForm({ name: user.name, email: user.email, role: user.role });
   }, [user]);
 
   async function handleSave() {
@@ -45,8 +47,8 @@ export default function UserDetailPage() {
   );
 
   // Find mandor name if buruh
-  const mandorInfo = user.role === "BURUH"
-    ? mandors.find((m) => buruhList.some((b) => b.userId === userId))
+  const mandorName = user.role === "BURUH"
+    ? mandors.find((mandor) => buruhList.some((b) => b.userId === userId))?.name ?? null
     : null;
 
   return (
@@ -155,6 +157,7 @@ export default function UserDetailPage() {
               { label: "Username",     value: `@${user.username}` },
               { label: "Email",        value: user.email },
               { label: "Peran",        value: user.role },
+              ...(mandorName ? [{ label: "Mandor", value: mandorName }] : []),
             ].map(({ label, value }) => (
               <div key={label}>
                 <div style={{

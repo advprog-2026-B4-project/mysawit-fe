@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useUsers, useDeleteUser, useAssignBuruh, useBuruhByMandor } from "@/modules/auth";
+import { useUsers, useDeleteUser, useAssignBuruh } from "@/modules/auth";
 import type { UserRole, UserDTO } from "@/modules/auth";
 import { RoleBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";

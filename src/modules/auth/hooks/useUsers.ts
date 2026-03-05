@@ -38,7 +38,7 @@ export function useEditUser() {
       userId: string;
       payload: Partial<Pick<UserDTO, "name" | "role" | "email">>;
     }) => authApi.editUser(userId, payload),
-    onSuccess: (_, { userId }) => {
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: userKeys.all });
     },
   });
