@@ -3,6 +3,19 @@ import apiClient from "@/lib/api/client";
 export type PayrollStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type WalletTransactionType = "CREDIT" | "DEBIT";
 export type ReferenceType = "PANEN" | "PENGIRIMAN";
+export type VariableKey = "UPAH_BURUH" | "UPAH_SUPIR" | "UPAH_MANDOR";
+
+export interface VariabelPokokDTO {
+  key: VariableKey;
+  label: string;
+  description: string;
+  value: number;
+}
+
+export interface UpdateVariabelPokokRequest {
+  key: VariableKey;
+  newValue: number;
+}
 
 export interface PayrollDTO {
   payrollId: string;
@@ -57,16 +70,28 @@ export interface PayrollListFilter {
   status?: PayrollStatus;
 }
 
-export interface UpdateWageRateRequest {
-  type: "BURUH" | "SUPIR" | "MANDOR";
-  newRatePerGram: number;
-}
-
 export const pembayaranApi = {
-  getPayrollStatus: async (payrollId: string): Promise<PayrollStatusDTO> => {
-    const { data } = await apiClient.get<PayrollStatusDTO>(
-      `/api/pembayaran/payroll/${payrollId}/status`
+  getAllVariabelPokok: async (): Promise<VariabelPokokDTO[]> => {
+    const { data } = await apiClient.get<VariabelPokokDTO[]>("/api/pembayaran/variabel-pokok");
+    return data;
+  },
+
+  getVariabelPokok: async (key: VariableKey): Promise<VariabelPokokDTO> => {
+    const { data } = await apiClient.get<VariabelPokokDTO>(`/api/pembayaran/variabel-pokok/${key}`);
+    return data;
+  },
+
+  /** Requires ADMIN role. newValue must be > 0. */
+  updateVariabelPokok: async (key: VariableKey, newValue: number): Promise<VariabelPokokDTO> => {
+    const { data } = await apiClient.put<VariabelPokokDTO>(
+      `/api/pembayaran/variabel-pokok/${key}`,
+      { key, newValue } satisfies UpdateVariabelPokokRequest,
     );
+    return data;
+  },
+
+  getPayrollStatus: async (payrollId: string): Promise<PayrollStatusDTO> => {
+    const { data } = await apiClient.get<PayrollStatusDTO>(`/api/pembayaran/payroll/${payrollId}/status`);
     return data;
   },
 
@@ -100,20 +125,12 @@ export const pembayaranApi = {
   },
 
   getWalletTransactions: async (userId: string): Promise<WalletTransactionDTO[]> => {
-    const { data } = await apiClient.get<WalletTransactionDTO[]>(
-      `/api/pembayaran/wallet/${userId}/transactions`
-    );
+    const { data } = await apiClient.get<WalletTransactionDTO[]>(`/api/pembayaran/wallet/${userId}/transactions`);
     return data;
   },
 
-  updateWageRate: async (payload: UpdateWageRateRequest): Promise<void> => {
-    await apiClient.post("/api/pembayaran/wage-rate", payload);
-  },
-
   initiateTopUp: async (amount: number): Promise<{ paymentUrl: string }> => {
-    const { data } = await apiClient.post<{ paymentUrl: string }>("/api/pembayaran/wallet/top-up", {
-      amount,
-    });
+    const { data } = await apiClient.post<{ paymentUrl: string }>("/api/pembayaran/wallet/top-up", { amount });
     return data;
   },
 } as const;

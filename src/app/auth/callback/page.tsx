@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { saveAuth } from "@/lib/api/tokenStorage";
 
 const ROLE_ROUTES: Record<string, string> = {
   ADMIN:  "/admin/users",
@@ -20,7 +21,7 @@ function CallbackHandler() {
     const role  = searchParams.get("role");
 
     if (token && role) {
-      window.__mysawit_access_token = token;
+      saveAuth(token, role);
       router.push(ROLE_ROUTES[role] ?? "/login");
     } else {
       router.push("/login");
@@ -44,7 +45,7 @@ function CallbackHandler() {
         fontFamily: "'DM Sans', sans-serif",
         fontSize: "13px", color: "var(--text-light)",
       }}>
-        Mengautentikasi akun Anda…
+        Mengautentikasi akun Anda...
       </p>
     </div>
   );

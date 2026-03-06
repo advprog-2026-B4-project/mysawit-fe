@@ -1,4 +1,5 @@
 import { authApi } from "@/modules/auth/api/authApi";
+import { saveAuth } from "@/lib/api/tokenStorage";
 
 /**
  * Initiate Google OAuth login - redirects to Google.
@@ -19,10 +20,8 @@ export async function handleGoogleCallback(searchParams: URLSearchParams): Promi
   if (!code || !state) return null;
 
   try {
-    const { accessToken, role } = await authApi.handleGoogleOAuthCallback( code, state );
-    if (typeof window !== "undefined") {
-      window.__mysawit_access_token = accessToken;
-    }
+    const { accessToken, role } = await authApi.handleGoogleOAuthCallback(code, state);
+    saveAuth(accessToken, role);
     return role;
   } catch {
     return null;

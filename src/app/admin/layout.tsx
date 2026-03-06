@@ -3,6 +3,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { clearAuth, getToken } from "@/lib/api/tokenStorage";
 
 const navItems = [
   { href: "/admin/users",      label: "Pengguna" },
@@ -24,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!mounted) return;
-    if (!window.__mysawit_access_token) {
+    if (!getToken()) {
       router.push("/login");
     } else if (pathname === "/admin") {
       router.push("/admin/users");
@@ -34,49 +35,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!mounted) return null;
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--cream-dark)", display: "flex" }}>
+    <div className="min-h-screen bg-cream-dark flex">
       {/* Sidebar */}
-      <aside style={{
-        width: "220px", minHeight: "100vh",
-        background: "var(--forest)",
-        display: "flex", flexDirection: "column",
-        padding: "32px 0", flexShrink: 0,
-        position: "sticky", top: 0,
-      }}>
-        <div style={{ padding: "0 28px 32px" }}>
-          <div style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: "22px", fontWeight: 500,
-            color: "var(--cream)", letterSpacing: "0.02em",
-          }}>MySawit</div>
-          <div style={{ width: "24px", height: "1px", background: "var(--gold)", marginTop: "8px" }} />
-          <div style={{
-            marginTop: "8px", fontSize: "10px", fontWeight: 400,
-            letterSpacing: "0.14em", textTransform: "uppercase",
-            color: "rgba(245,240,232,0.35)",
-          }}>
+      <aside className="w-[220px] min-h-screen bg-forest flex flex-col py-8 shrink-0 sticky top-0">
+        <div className="px-7 pb-8">
+          <div className="font-serif text-[22px] font-medium text-cream tracking-[0.02em]">
+            MySawit
+          </div>
+          <div className="w-6 h-px bg-gold mt-2" />
+          <div className="mt-2 text-[10px] font-normal tracking-[0.14em] uppercase text-cream/35">
             Admin Utama
           </div>
         </div>
 
-        <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px", padding: "0 12px" }}>
+        <nav className="flex-1 flex flex-col gap-0.5 px-3">
           {navItems.map((item) => {
             const active = pathname.startsWith(item.href);
             return (
-              <Link key={item.href} href={item.href} style={{
-                display: "block",
-                padding: "10px 16px",
-                borderRadius: "4px",
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "13px", fontWeight: active ? 400 : 300,
-                color: active ? "var(--cream)" : "rgba(245,240,232,0.5)",
-                background: active ? "rgba(255,255,255,0.08)" : "transparent",
-                textDecoration: "none",
-                transition: "all 0.15s",
-                letterSpacing: "0.02em",
-              }}
-                onMouseOver={(e) => { if (!active) e.currentTarget.style.color = "rgba(245,240,232,0.85)"; }}
-                onMouseOut={(e) => { if (!active) e.currentTarget.style.color = "rgba(245,240,232,0.5)"; }}
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block px-4 py-2.5 rounded text-[13px] tracking-[0.02em] no-underline transition-all duration-150 ${
+                  active
+                    ? "font-normal text-cream bg-white/[.08]"
+                    : "font-light text-cream/50 hover:text-cream/85"
+                }`}
               >
                 {item.label}
               </Link>
@@ -85,24 +68,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Logout */}
-        <div style={{ padding: "0 12px" }}>
+        <div className="px-3">
           <button
             onClick={() => {
-              if (typeof window !== "undefined") delete window.__mysawit_access_token;
+              clearAuth();
               router.push("/login");
             }}
-            style={{
-              width: "100%", padding: "10px 16px",
-              background: "transparent", border: "none",
-              borderRadius: "4px", cursor: "pointer",
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: "13px", fontWeight: 300,
-              color: "rgba(245,240,232,0.35)",
-              textAlign: "left", letterSpacing: "0.02em",
-              transition: "color 0.15s",
-            }}
-            onMouseOver={(e) => (e.currentTarget.style.color = "rgba(245,240,232,0.7)")}
-            onMouseOut={(e) => (e.currentTarget.style.color = "rgba(245,240,232,0.35)")}
+            className="w-full px-4 py-2.5 bg-transparent border-none rounded cursor-pointer font-sans text-[13px] font-light text-cream/35 hover:text-cream/70 text-left tracking-[0.02em] transition-colors duration-150"
           >
             Keluar
           </button>
@@ -110,7 +82,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main content */}
-      <main style={{ flex: 1, padding: "48px", overflowY: "auto" }}>
+      <main className="flex-1 p-12 overflow-y-auto">
         {children}
       </main>
     </div>

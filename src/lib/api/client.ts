@@ -1,10 +1,17 @@
 import axios from "axios";
 import type { ApiResponse } from "./types";
+import { getToken, clearAuth } from "./tokenStorage";
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080",
   headers: { "Content-Type": "application/json" },
 });
+
+// Restore token from cookie on module load so refreshes stay authenticated
+if (typeof window !== "undefined") {
+  const stored = getToken();
+  if (stored) window.__mysawit_access_token = stored;
+}
 
 // Attach JWT token to every request
 apiClient.interceptors.request.use((config) => {
@@ -28,15 +35,15 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Extract the backend message from the error response body
+    const backendMsg = error.response?.data?.message as string | undefined;
     if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        delete window.__mysawit_access_token;
-        if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
-        }
+      clearAuth();
+      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+        window.location.href = "/login";
       }
     }
-    return Promise.reject(error);
+    return Promise.reject(new Error(backendMsg ?? error.message ?? "Request failed"));
   }
 );
 
