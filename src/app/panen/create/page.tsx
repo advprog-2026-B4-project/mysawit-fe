@@ -1,10 +1,17 @@
 import { CreatePanenForm } from '@/modules/panen/components/CreatePanenForm';
-// import { BuruhGuard } from '@/components/guards/BuruhGuard';
+// import { useDaftarKebun } from '@/lib/services/kebunService'; 
 
 export default function CreatePanenPage() {
+  // const { data, isLoading } = useDaftarKebun();
+
   return (
-    <main className="container mx-auto py-8">
-        <CreatePanenForm />
-    </main>
+    <div className="min-h-screen bg-cream flex justify-center py-10">
+      <CreatePanenForm 
+         // daftarKebun={data} 
+         // isKebunLoading={isLoading}
+         daftarKebun={[]} // <-- Ganti dengan data asli nanti
+         isKebunLoading={false} 
+      />
+    </div>
   );
 }
