@@ -22,6 +22,13 @@ export interface PengirimanDTO {
   timestamp: string;
 }
 
+export interface AssignedSupirDTO {
+  supirId: string;
+  username: string;
+  name: string;
+  email: string;
+}
+
 export interface AssignDeliveryRequest {
   supirId: string;
   panenIds: string[];
@@ -67,6 +74,13 @@ export const pengirimanApi = {
 
   listDeliveriesBySupir: async (filter?: PengirimanListFilter): Promise<PengirimanDTO[]> => {
     const { data } = await apiClient.get<PengirimanDTO[]>("/api/pengiriman/supir", { params: filter });
+    return data;
+  },
+
+  listSupirForMandor: async (searchNama?: string): Promise<AssignedSupirDTO[]> => {
+    const { data } = await apiClient.get<AssignedSupirDTO[]>("/api/pengiriman/mandor/supir", {
+      params: { searchNama },
+    });
     return data;
   },
 
