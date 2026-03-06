@@ -4,6 +4,8 @@ export type PengirimanStatus =
   | "ASSIGNED"
   | "IN_TRANSIT"
   | "TIBA"
+  | "APPROVED"
+  | "REJECTED"
   | "APPROVED_MANDOR"
   | "APPROVED_ADMIN"
   | "PARTIAL"
