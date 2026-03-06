@@ -1,63 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --forest:       #1a2e1a;
-  --forest-mid:   #2d4a2d;
-  --forest-light: #3d6b3d;
-  --bark:         #6b4c2a;
-  --bark-light:   #8a6340;
-  --cream:        #f5f0e8;
-  --cream-dark:   #ede5d4;
-  --sand:         #d4c4a0;
-  --gold:         #c9a84c;
-  --text-dark:    #1a1a14;
-  --text-mid:     #4a4a3a;
-  --text-light:   #8a8a7a;
-  --surface:      #fefcf8;
-  --error:        #8b2e2e;
-  --success:      #2e5c2e;
-}
+@theme inline {
+  /* Brand palette */
+  --color-forest:       #1a2e1a;
+  --color-forest-mid:   #2d4a2d;
+  --color-forest-light: #3d6b3d;
+  --color-bark:         #6b4c2a;
+  --color-bark-light:   #8a6340;
+  --color-cream:        #f5f0e8;
+  --color-cream-dark:   #ede5d4;
+  --color-sand:         #d4c4a0;
+  --color-gold:         #c9a84c;
 
-@theme {
-  --color-forest:       var(--forest);
-  --color-forest-mid:   var(--forest-mid);
-  --color-forest-light: var(--forest-light);
-  --color-bark:         var(--bark);
-  --color-bark-light:   var(--bark-light);
-  --color-cream:        var(--cream);
-  --color-cream-dark:   var(--cream-dark);
-  --color-sand:         var(--sand);
-  --color-gold:         var(--gold);
-  --color-text-dark:    var(--text-dark);
-  --color-text-mid:     var(--text-mid);
-  --color-text-light:   var(--text-light);
-  --color-surface:      var(--surface);
-  --color-error:        var(--error);
-  --color-success:      var(--success);
+  /* Semantic text */
+  --color-text-dark:    #1a1a14;
+  --color-text-mid:     #4a4a3a;
+  --color-text-light:   #8a8a7a;
 
+  /* Surface & state */
+  --color-surface:      #fefcf8;
+  --color-error:        #8b2e2e;
+  --color-success:      #2e5c2e;
+
+  /* Typography */
   --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
   --font-sans:  var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+@layer base {
+  :root {
+    --forest:       var(--color-forest);
+    --forest-mid:   var(--color-forest-mid);
+    --forest-light: var(--color-forest-light);
+    --bark:         var(--color-bark);
+    --bark-light:   var(--color-bark-light);
+    --cream:        var(--color-cream);
+    --cream-dark:   var(--color-cream-dark);
+    --sand:         var(--color-sand);
+    --gold:         var(--color-gold);
+    --text-dark:    var(--color-text-dark);
+    --text-mid:     var(--color-text-mid);
+    --text-light:   var(--color-text-light);
+    --surface:      var(--color-surface);
+    --error:        var(--color-error);
+    --success:      var(--color-success);
+  }
 
-html { scroll-behavior: smooth; }
+  html {
+    @apply scroll-smooth;
+  }
 
-body {
-  font-family: var(--font-dm-sans), "DM Sans", sans-serif;
-  font-weight: 300;
-  background: var(--cream);
-  color: var(--text-dark);
-  -webkit-font-smoothing: antialiased;
-}
+  body {
+    @apply font-sans font-light bg-cream text-text-dark antialiased;
+  }
 
-h1, h2, h3, h4 {
-  font-family: var(--font-cormorant), "Cormorant Garamond", serif;
-  font-weight: 400;
-  letter-spacing: -0.01em;
-}
-
-.divider {
-  height: 1px;
-  background-color: var(--sand);
+  h1, h2, h3, h4 {
+    @apply font-serif font-normal tracking-tight;
+  }
 }

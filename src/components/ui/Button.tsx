@@ -6,27 +6,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  primary: {
-    background: "var(--forest)",
-    color: "var(--cream)",
-    border: "1px solid var(--forest)",
-  },
-  secondary: {
-    background: "transparent",
-    color: "var(--forest)",
-    border: "1px solid var(--forest)",
-  },
-  ghost: {
-    background: "transparent",
-    color: "var(--text-mid)",
-    border: "1px solid var(--sand)",
-  },
-  danger: {
-    background: "transparent",
-    color: "var(--error)",
-    border: "1px solid var(--error)",
-  },
+const variantClasses: Record<string, string> = {
+  primary:   "bg-forest text-cream border border-forest",
+  secondary: "bg-transparent text-forest border border-forest",
+  ghost:     "bg-transparent text-text-mid border border-sand",
+  danger:    "bg-transparent text-error border border-error",
 };
 
 export function Button({
@@ -34,29 +18,13 @@ export function Button({
   loading = false,
   children,
   disabled,
-  style,
+  className = "",
   ...props
 }: ButtonProps) {
   return (
     <button
       disabled={disabled || loading}
-      style={{
-        ...styles[variant],
-        padding: "11px 24px",
-        borderRadius: "4px",
-        fontFamily: "'DM Sans', sans-serif",
-        fontSize: "13px",
-        fontWeight: 400,
-        letterSpacing: "0.06em",
-        cursor: disabled || loading ? "not-allowed" : "pointer",
-        opacity: disabled || loading ? 0.6 : 1,
-        transition: "all 0.2s",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        whiteSpace: "nowrap",
-        ...style,
-      }}
+      className={`${variantClasses[variant]} px-6 py-[11px] rounded font-sans text-[13px] font-normal tracking-[0.06em] transition-all duration-200 inline-flex items-center gap-2 whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60 ${className}`}
       {...props}
     >
       {loading ? "Memproses..." : children}
