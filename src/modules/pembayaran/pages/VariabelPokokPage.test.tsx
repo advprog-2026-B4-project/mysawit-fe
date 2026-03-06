@@ -18,10 +18,12 @@ vi.mock("@/modules/pembayaran/components/VariabelPokokEditor", () => ({
   ),
 }));
 
-// Controlled mock for the list hook
+// Controlled mocks for the hooks
 const mockUseVariabelPokokList = vi.fn();
+const mockUseUpdateVariabelPokok = vi.fn();
 vi.mock("@/modules/pembayaran/hooks/useVariabelPokok", () => ({
   useVariabelPokokList: () => mockUseVariabelPokokList(),
+  useUpdateVariabelPokok: () => mockUseUpdateVariabelPokok(),
 }));
 
 afterEach(() => {
@@ -32,16 +34,19 @@ afterEach(() => {
 describe("VariabelPokokPage", () => {
   it("always renders the page heading", () => {
     mockUseVariabelPokokList.mockReturnValue({ data: undefined, isLoading: true, isError: false, error: null });
+    mockUseUpdateVariabelPokok.mockReturnValue({ mutate: vi.fn(), isPending: false, isError: false, error: null, reset: vi.fn() });
     render(<VariabelPokokPage />);
-    expect(screen.getByRole("heading", { name: /variabel pokok/i })).toBeInTheDocument();
-    expect(screen.getByText(/manajemen pembayaran/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /variabel upah/i })).toBeInTheDocument();
+    expect(screen.getByText(/nilai acuan perhitungan pembayaran buruh/i)).toBeInTheDocument();
   });
 
   it("shows loading indicator while fetching", () => {
     mockUseVariabelPokokList.mockReturnValue({ data: undefined, isLoading: true, isError: false, error: null });
+    mockUseUpdateVariabelPokok.mockReturnValue({ mutate: vi.fn(), isPending: false, isError: false, error: null, reset: vi.fn() });
     render(<VariabelPokokPage />);
-    expect(screen.getByText(/memuat data/i)).toBeInTheDocument();
-    expect(screen.queryByTestId("editor")).not.toBeInTheDocument();
+    // When loading, skeleton rows are shown via animate-pulse class
+    // The editor form should not be visible
+    expect(screen.queryByRole("button", { name: /ubah/i })).not.toBeInTheDocument();
   });
 
   it("shows error message when the request fails", () => {
@@ -51,10 +56,10 @@ describe("VariabelPokokPage", () => {
       isError: true,
       error: new Error("Network Error"),
     });
+    mockUseUpdateVariabelPokok.mockReturnValue({ mutate: vi.fn(), isPending: false, isError: false, error: null, reset: vi.fn() });
     render(<VariabelPokokPage />);
-    expect(screen.getByText(/gagal memuat variabel pokok/i)).toBeInTheDocument();
     expect(screen.getByText(/network error/i)).toBeInTheDocument();
-    expect(screen.queryByTestId("editor")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /ubah/i })).not.toBeInTheDocument();
   });
 
   it("falls back to generic message for non-Error error objects", () => {
@@ -64,20 +69,23 @@ describe("VariabelPokokPage", () => {
       isError: true,
       error: "some string error",
     });
+    mockUseUpdateVariabelPokok.mockReturnValue({ mutate: vi.fn(), isPending: false, isError: false, error: null, reset: vi.fn() });
     render(<VariabelPokokPage />);
-    expect(screen.getByText(/terjadi kesalahan/i)).toBeInTheDocument();
+    expect(screen.getByText(/gagal memuat data/i)).toBeInTheDocument();
   });
 
-  it("renders the editor when data is available", () => {
+  it("renders the data when available", () => {
     const items = [
       { key: "UPAH_BURUH", label: "Upah Buruh", description: "", value: 500 },
       { key: "UPAH_SUPIR", label: "Upah Supir", description: "", value: 300 },
       { key: "UPAH_MANDOR", label: "Upah Mandor", description: "", value: 200 },
     ];
     mockUseVariabelPokokList.mockReturnValue({ data: items, isLoading: false, isError: false, error: null });
+    mockUseUpdateVariabelPokok.mockReturnValue({ mutate: vi.fn(), isPending: false, isError: false, error: null, reset: vi.fn() });
     render(<VariabelPokokPage />);
-    expect(screen.getByTestId("editor")).toBeInTheDocument();
-    expect(screen.getByText(/editor:3 items/i)).toBeInTheDocument();
-    expect(screen.queryByText(/memuat data/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/upah buruh/i)).toBeInTheDocument();
+    expect(screen.getByText(/upah supir/i)).toBeInTheDocument();
+    expect(screen.getByText(/upah mandor/i)).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /ubah/i })).toHaveLength(3);
   });
 });

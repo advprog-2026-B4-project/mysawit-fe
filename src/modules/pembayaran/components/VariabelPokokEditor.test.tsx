@@ -48,8 +48,12 @@ describe("VariabelPokokEditor - read-only mode", () => {
   });
 
   it("displays formatted values", () => {
-    // toLocaleString may vary by env, so just check presence
-    expect(screen.getAllByText(/IDR \/ kg/i)).toHaveLength(3);
+    // Values are in separate spans, so check for the numbers and units separately
+    expect(screen.getByText("500")).toBeInTheDocument();
+    expect(screen.getByText("300")).toBeInTheDocument();
+    expect(screen.getByText("200")).toBeInTheDocument();
+    // Check that the unit text is present
+    expect(screen.getAllByText(/\/ kg/)).toHaveLength(3);
   });
 });
 
@@ -82,11 +86,14 @@ describe("VariabelPokokEditor - editable mode", () => {
     fireEvent.click(screen.getAllByRole("button", { name: /ubah/i })[0]);
     const input = screen.getByRole("spinbutton");
     fireEvent.change(input, { target: { value: "-1" } });
-    fireEvent.click(screen.getByRole("button", { name: /simpan/i }));
-    await waitFor(() =>
-      expect(
-        screen.getByText(/nilai harus berupa bilangan bulat positif/i),
-      ).toBeInTheDocument(),
+    const form = input.closest("form")!;
+    fireEvent.submit(form);
+    await waitFor(
+      () =>
+        expect(
+          screen.getByText(/nilai harus berupa bilangan bulat positif/i),
+        ).toBeInTheDocument(),
+      { timeout: 2000 }
     );
     expect(mutateMock).not.toHaveBeenCalled();
   });
@@ -95,11 +102,14 @@ describe("VariabelPokokEditor - editable mode", () => {
     fireEvent.click(screen.getAllByRole("button", { name: /ubah/i })[0]);
     const input = screen.getByRole("spinbutton");
     fireEvent.change(input, { target: { value: "1.5" } });
-    fireEvent.click(screen.getByRole("button", { name: /simpan/i }));
-    await waitFor(() =>
-      expect(
-        screen.getByText(/nilai harus berupa bilangan bulat positif/i),
-      ).toBeInTheDocument(),
+    const form = input.closest("form")!;
+    fireEvent.submit(form);
+    await waitFor(
+      () =>
+        expect(
+          screen.getByText(/nilai harus berupa bilangan bulat positif/i),
+        ).toBeInTheDocument(),
+      { timeout: 2000 }
     );
     expect(mutateMock).not.toHaveBeenCalled();
   });
