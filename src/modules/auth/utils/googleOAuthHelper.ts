@@ -19,7 +19,7 @@ export async function handleGoogleCallback(searchParams: URLSearchParams): Promi
   if (!code || !state) return null;
 
   try {
-    const { accessToken, role } = await authApi.handleGoogleOAuthCallback({ code, state });
+    const { accessToken, role } = await authApi.handleGoogleOAuthCallback( code, state );
     if (typeof window !== "undefined") {
       window.__mysawit_access_token = accessToken;
     }
