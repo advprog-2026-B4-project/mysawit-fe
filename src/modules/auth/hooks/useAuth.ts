@@ -1,8 +1,9 @@
 import { useRouter } from "next/navigation";
 import { authApi, type LoginRequest, type RegisterRequest } from "../api/authApi";
 import { initiateGoogleLogin, handleGoogleCallback } from "../utils/googleOAuthHelper";
+import { saveAuth, clearAuth, getToken, getRole } from "@/lib/api/tokenStorage";
 
-const ROLE_ROUTES: Record<string, string> = {
+export const ROLE_ROUTES: Record<string, string> = {
   ADMIN:  "/admin/users",
   MANDOR: "/mandor",
   BURUH:  "/buruh",
@@ -14,8 +15,8 @@ export function useAuth() {
 
   const loginWithEmail = async (credentials: LoginRequest) => {
     const { accessToken, role } = await authApi.loginWithEmail(credentials);
-    window.__mysawit_access_token = accessToken;
-    router.push(ROLE_ROUTES[role] ?? "/login"); 
+    saveAuth(accessToken, role);
+    router.push(ROLE_ROUTES[role] ?? "/login");
     return { accessToken, role };
   };
 
@@ -31,7 +32,7 @@ export function useAuth() {
   const handleOAuthCallback = async (searchParams: URLSearchParams) => {
     const role = await handleGoogleCallback(searchParams);
     if (role) {
-      router.push(ROLE_ROUTES[role] ?? "/login"); 
+      router.push(ROLE_ROUTES[role] ?? "/login");
     } else {
       router.push("/login");
     }
@@ -39,19 +40,17 @@ export function useAuth() {
   };
 
   const logout = async () => {
-    await authApi.logout();
+    try { await authApi.logout(); } catch { /* ignore network errors on logout */ }
+    clearAuth();
     router.push("/login");
-  };
-
-  const getToken = (): string | undefined => {
-    if (typeof window !== "undefined") {
-      return window.__mysawit_access_token;
-    }
-    return undefined;
   };
 
   const isAuthenticated = (): boolean => {
     return !!getToken();
+  };
+
+  const getStoredRole = (): string | undefined => {
+    return getRole();
   };
 
   return {
@@ -60,7 +59,7 @@ export function useAuth() {
     loginWithGoogle,
     handleOAuthCallback,
     logout,
-    getToken,
     isAuthenticated,
+    getStoredRole,
   };
 }

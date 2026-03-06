@@ -7,49 +7,21 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className = "", ...props }, ref) => (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <div className="flex flex-col gap-1.5">
       {label && (
-        <label style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: "11px",
-          fontWeight: 500,
-          letterSpacing: "0.12em",
-          textTransform: "uppercase",
-          color: "var(--text-mid)",
-        }}>
+        <label className="font-sans text-[11px] font-medium tracking-[0.12em] uppercase text-text-mid">
           {label}
         </label>
       )}
       <input
         ref={ref}
-        className={className}
-        style={{
-          width: "100%",
-          padding: "12px 16px",
-          background: "var(--white)",
-          border: `1px solid ${error ? "var(--error)" : "var(--sand)"}`,
-          borderRadius: "4px",
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: "14px",
-          fontWeight: 300,
-          color: "var(--text-dark)",
-          outline: "none",
-          transition: "border-color 0.2s",
-        }}
-        onFocus={(e) => {
-          e.target.style.borderColor = "var(--forest-mid)";
-          props.onFocus?.(e);
-        }}
-        onBlur={(e) => {
-          e.target.style.borderColor = error ? "var(--error)" : "var(--sand)";
-          props.onBlur?.(e);
-        }}
+        className={`w-full px-4 py-3 bg-white rounded font-sans text-sm font-light text-text-dark outline-none border transition-colors duration-200 focus:border-forest-mid ${
+          error ? "border-error" : "border-sand"
+        } ${className}`}
         {...props}
       />
       {error && (
-        <span style={{ fontSize: "12px", color: "var(--error)", fontWeight: 400 }}>
-          {error}
-        </span>
+        <span className="text-xs text-error font-normal">{error}</span>
       )}
     </div>
   )

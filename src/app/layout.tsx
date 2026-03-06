@@ -3,7 +3,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "MySawit — Manajemen Kebun Sawit",
+  title: "MySawit - Manajemen Kebun Sawit",
   description: "Platform digital pengelolaan perkebunan sawit BurhanSawit",
 };
 
