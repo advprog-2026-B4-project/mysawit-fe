@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import { useCreatePanen } from '../hooks/useCreatePanen';
+import { useDaftarKebun } from '../hooks/useKebun';
 import { CreatePanenRequestDTO } from '../api/panenApi';
 
 export const CreatePanenForm: React.FC = () => {
   const { mutate: createPanen, isPending, error, isSuccess } = useCreatePanen();
-
+  const { data: daftarKebun, isLoading: isKebunLoading } = useDaftarKebun();
   // Local state untuk form
   const [formData, setFormData] = useState<CreatePanenRequestDTO>({
     kebunId: '',
@@ -18,7 +19,7 @@ export const CreatePanenForm: React.FC = () => {
   // State sementara untuk input URL foto sebelum dimasukkan ke array
   const [tempPhotoUrl, setTempPhotoUrl] = useState('');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -65,16 +66,24 @@ export const CreatePanenForm: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label className="block text-sm font-medium mb-1">ID Kebun (UUID)</label>
-          <input
-            type="text"
+          <label className="block text-sm font-medium mb-1">Lokasi Kebun</label>
+          <select
             name="kebunId"
             required
             value={formData.kebunId}
             onChange={handleChange}
-            className="w-full border p-2 rounded"
-            placeholder="Masukkan UUID kebun..."
-          />
+            disabled={isKebunLoading}
+            className="w-full border p-2 rounded bg-white"
+          >
+            <option value="" disabled>
+              {isKebunLoading ? 'Memuat daftar kebun...' : '-- Pilih Lokasi Kebun --'}
+            </option>
+            {daftarKebun?.map((kebun) => (
+              <option key={kebun.kebunId} value={kebun.kebunId}>
+                {kebun.nama} ({kebun.kode})
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -129,7 +138,7 @@ export const CreatePanenForm: React.FC = () => {
 
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || isKebunLoading || !formData.kebunId || formData.photoUrls.length === 0}
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
         >
           {isPending ? 'Menyimpan...' : 'Simpan Laporan'}
