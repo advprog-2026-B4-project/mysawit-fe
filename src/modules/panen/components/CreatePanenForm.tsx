@@ -37,6 +37,15 @@ export const CreatePanenForm: React.FC = () => {
     }
   };
 
+  const isValidURL = (url: string) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false
+    }
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Panggil mutasi dari TanStack hook
@@ -47,6 +56,8 @@ export const CreatePanenForm: React.FC = () => {
       }
     });
   };
+  
+  const showUrlWarning = tempPhotoUrl.length > 0 && !isValidURL(tempPhotoUrl);
 
   return (
     <div className="max-w-md mx-auto p-4 border rounded shadow-sm">
@@ -87,7 +98,7 @@ export const CreatePanenForm: React.FC = () => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-1">Berat Panen (Gram)</label>
+          <label className="block text-sm font-medium mb-1">Berat Panen (Kilogram)</label>
           <input
             type="number"
             name="weight"
@@ -118,17 +129,23 @@ export const CreatePanenForm: React.FC = () => {
               type="url"
               value={tempPhotoUrl}
               onChange={(e) => setTempPhotoUrl(e.target.value)}
-              className="flex-1 border p-2 rounded"
+              className={`flex-1 border p-2 rounded focus:outline-none ${
+                showUrlWarning ? 'border-red-500 focus:ring-1 focus:ring-red-500' : 'focus:border-blue-500'
+              }`}
               placeholder="https://contoh.com/foto.jpg"
             />
             <button
               type="button"
               onClick={handleAddPhoto}
+              disabled={!isValidURL(tempPhotoUrl)}
               className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
             >
               Tambah
             </button>
           </div>
+          {showUrlWarning && (
+            <p className="text-xs text-red-500 mb-2">Format URL tidak valid.</p>
+          )}
           <ul className="list-disc pl-5 text-sm text-gray-600">
             {formData.photoUrls.map((url, idx) => (
               <li key={idx}>{url}</li>
