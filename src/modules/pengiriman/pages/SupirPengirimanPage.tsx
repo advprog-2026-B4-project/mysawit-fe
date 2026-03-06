@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { getRole, getToken } from "@/lib/api/tokenStorage";
@@ -31,26 +30,9 @@ function formatTimestamp(timestamp: string) {
   });
 }
 
-type SessionState = {
-  ready: boolean;
-  hasSession: boolean;
-  role: string | undefined;
-};
-
 export default function SupirPengirimanPage() {
-  const [session, setSession] = useState<SessionState>({
-    ready: false,
-    hasSession: false,
-    role: undefined,
-  });
-
-  useEffect(() => {
-    setSession({
-      ready: true,
-      hasSession: Boolean(getToken()),
-      role: getRole(),
-    });
-  }, []);
+  const hasSession = Boolean(getToken());
+  const role = getRole();
 
   const {
     data = [],
@@ -59,23 +41,10 @@ export default function SupirPengirimanPage() {
     error,
     refetch,
   } = useSupirDeliveries(undefined, {
-    enabled: session.ready && session.hasSession && session.role === "SUPIR",
+    enabled: hasSession && role === "SUPIR",
   });
 
-  if (!session.ready) {
-    return (
-      <div className="min-h-screen bg-cream px-6 py-12">
-        <div className="max-w-3xl mx-auto border border-cream-dark bg-white rounded-md px-8 py-10 text-center">
-          <h1 className="font-serif text-[30px] text-text-dark">Daftar Pengiriman Supir</h1>
-          <p className="mt-2 font-sans text-sm text-text-light">
-            Memuat sesi pengguna...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!session.hasSession) {
+  if (!hasSession) {
     return (
       <div className="min-h-screen bg-cream px-6 py-12">
         <div className="max-w-3xl mx-auto border border-cream-dark bg-white rounded-md px-8 py-10 text-center">
@@ -93,7 +62,7 @@ export default function SupirPengirimanPage() {
     );
   }
 
-  if (session.role !== "SUPIR") {
+  if (role !== "SUPIR") {
     return (
       <div className="min-h-screen bg-cream px-6 py-12">
         <div className="max-w-3xl mx-auto border border-cream-dark bg-white rounded-md px-8 py-10 text-center">
