@@ -42,10 +42,10 @@ export interface PanenDTO {
 
 export const panenApi = {
   createPanen: async (data: CreatePanenRequestDTO): Promise<PanenDTO> => {
-    return apiClient.post<any, PanenDTO>('/api/panen', data);
+    return apiClient.post<unknown, PanenDTO>('/api/panen', data);
   },
 
   getDaftarKebun: async (): Promise<KebunDTO[]> => {
-    return apiClient.get<any, KebunDTO[]>('/api/kebun'); 
+    return apiClient.get<unknown, KebunDTO[]>('/api/kebun'); 
   },
 };
