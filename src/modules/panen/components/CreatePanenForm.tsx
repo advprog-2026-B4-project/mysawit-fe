@@ -2,26 +2,12 @@
 
 import React, { useState } from 'react';
 import { useCreatePanen } from '../hooks/useCreatePanen';
+import { useDaftarKebun } from '../hooks/useKebun';
 import { CreatePanenRequestDTO } from '../api/panenApi';
 
-// 👇 DTO Prop khusus agar komponen ini tidak bergantung pada DTO modul lain (Liskov & Interface Segregation)
-export interface KebunOption {
-  kebunId: string;
-  nama: string;
-  kode: string;
-}
-
-// 👇 Menerima data dari luar via Props (Dependency Inversion Principle)
-interface CreatePanenFormProps {
-  daftarKebun: KebunOption[];
-  isKebunLoading: boolean;
-}
-
-export const CreatePanenForm: React.FC<CreatePanenFormProps> = ({ 
-  daftarKebun, 
-  isKebunLoading 
-}) => {
+export const CreatePanenForm: React.FC = () => {
   const { mutate: createPanen, isPending, error, isSuccess } = useCreatePanen();
+  const { data: daftarKebun, isLoading: isKebunLoading } = useDaftarKebun();
   
   const [formData, setFormData] = useState<CreatePanenRequestDTO>({
     kebunId: '',
@@ -50,6 +36,13 @@ export const CreatePanenForm: React.FC<CreatePanenFormProps> = ({
     }
   };
 
+  const handleRemovePhoto = (indexToRemove: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      photoUrls: prev.photoUrls.filter((_, index) => index !== indexToRemove),
+    }));
+  };
+
   const isValidURL = (url: string) => {
     try {
       new URL(url);
@@ -57,13 +50,6 @@ export const CreatePanenForm: React.FC<CreatePanenFormProps> = ({
     } catch (e) {
       return false;
     }
-  };
-
-  const handleRemovePhoto = (indexToRemove: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      photoUrls: prev.photoUrls.filter((_, index) => index !== indexToRemove),
-    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -79,7 +65,6 @@ export const CreatePanenForm: React.FC<CreatePanenFormProps> = ({
 
   return (
     <div className="w-full max-w-[600px] p-8 md:p-12">
-      {/* HEADER SECTION */}
       <div className="mb-10">
         <h1 className="font-serif text-[36px] font-normal text-text-dark mb-2">
           Catat Hasil Panen
@@ -89,7 +74,6 @@ export const CreatePanenForm: React.FC<CreatePanenFormProps> = ({
         </p>
       </div>
 
-      {/* ALERT MESSAGES */}
       {isSuccess && (
         <div className="mb-8 px-4 py-3 bg-[#e6f4ea] border border-[#a8dab5] rounded text-[13px] text-[#137333]">
           Berhasil mencatat laporan panen!
@@ -102,7 +86,6 @@ export const CreatePanenForm: React.FC<CreatePanenFormProps> = ({
         </div>
       )}
 
-      {/* FORM SECTION */}
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         
         <div className="flex flex-col gap-2">
@@ -127,6 +110,7 @@ export const CreatePanenForm: React.FC<CreatePanenFormProps> = ({
                 </option>
               ))}
             </select>
+            {/* Custom Arrow Icon untuk Dropdown */}
             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-text-mid">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 9l6 6 6-6" />
@@ -214,7 +198,6 @@ export const CreatePanenForm: React.FC<CreatePanenFormProps> = ({
 
         <div className="w-full h-px bg-sand my-4" />
 
-        {/* TOMBOL SUBMIT */}
         <button
           type="submit"
           disabled={isPending || isKebunLoading || !formData.kebunId || formData.photoUrls.length === 0}
