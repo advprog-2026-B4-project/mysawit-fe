@@ -1,44 +1,39 @@
 import axios from "axios";
 import type { ApiResponse } from "./types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
-
 const apiClient = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080",
+  headers: { "Content-Type": "application/json" },
 });
 
-apiClient.interceptors.request.use(
-  (config) => {
-    if (typeof window !== "undefined") {
-      const token = window.__mysawit_access_token;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// Attach JWT token to every request
+apiClient.interceptors.request.use((config) => {
+  if (typeof window !== "undefined" && window.__mysawit_access_token) {
+    config.headers.Authorization = `Bearer ${window.__mysawit_access_token}`;
+  }
+  return config;
+});
 
+// Unwrap ApiResponse<T> automatically
 apiClient.interceptors.response.use(
   (response) => {
-    if (response.data && typeof response.data === "object" && "success" in response.data) {
-      const apiResponse = response.data as ApiResponse<unknown>;
-      if (!apiResponse.success) {
-        return Promise.reject(new Error(apiResponse.message || "Operation failed"));
+    const body = response.data as ApiResponse<unknown>;
+    if (body && typeof body === "object" && "success" in body) {
+      if (!body.success) {
+        return Promise.reject(new Error(body.message ?? "Request failed"));
       }
-      response.data = apiResponse.data;
+      // Return unwrapped data so API functions get inner payload directly
+      response.data = body.data;
     }
     return response;
   },
   (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
-      delete window.__mysawit_access_token;
-      if (!window.location.pathname.startsWith("/login")) {
-        window.location.href = "/login";
+    if (error.response?.status === 401) {
+      if (typeof window !== "undefined") {
+        delete window.__mysawit_access_token;
+        if (window.location.pathname !== "/login") {
+          window.location.href = "/login";
+        }
       }
     }
     return Promise.reject(error);
@@ -46,9 +41,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-
-declare global {
-  interface Window {
-    __mysawit_access_token?: string;
-  }
-}

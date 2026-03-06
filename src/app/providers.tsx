@@ -1,25 +1,20 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 
-interface ProvidersProps {
-  children: ReactNode;
+declare global {
+  interface Window {
+    __mysawit_access_token?: string;
+  }
 }
 
-export function Providers({ children }: ProvidersProps) {
+export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
         defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000, // 1 minute
-            retry: 1,
-            refetchOnWindowFocus: false,
-          },
-          mutations: {
-            retry: 0,
-          },
+          queries: { staleTime: 60 * 1000, retry: 1 },
         },
       })
   );
