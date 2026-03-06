@@ -3,6 +3,7 @@
 import { useEffect, useSyncExternalStore } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { clearAuth, getToken } from "@/lib/api/tokenStorage";
 
 const navItems = [
   { href: "/admin/users",      label: "Pengguna" },
@@ -24,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!mounted) return;
-    if (!window.__mysawit_access_token) {
+    if (!getToken()) {
       router.push("/login");
     } else if (pathname === "/admin") {
       router.push("/admin/users");
@@ -88,7 +89,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div style={{ padding: "0 12px" }}>
           <button
             onClick={() => {
-              if (typeof window !== "undefined") delete window.__mysawit_access_token;
+              clearAuth();
               router.push("/login");
             }}
             style={{

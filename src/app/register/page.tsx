@@ -1,12 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "@/modules/auth";
+import { useState, useEffect } from "react";
+import { useAuth, ROLE_ROUTES } from "@/modules/auth";
 import type { UserRole } from "@/modules/auth";
+import { getToken, getRole } from "@/lib/api/tokenStorage";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+function mapRegisterError(err: unknown): string {
+  if (!(err instanceof Error)) return "Registrasi gagal. Silakan coba lagi.";
+  const msg = err.message;
+  if (msg.includes("already registered") || msg.includes("sudah terdaftar"))
+    return "Email ini sudah terdaftar. Silakan masuk atau gunakan email lain.";
+  if (msg.includes("Network Error") || msg.includes("ERR_NETWORK"))
+    return "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
+  return "Registrasi gagal. Silakan coba lagi.";
+}
 
 const ROLES: { value: UserRole; label: string; desc: string }[] = [
   { value: "BURUH",  label: "Buruh Sawit",  desc: "Personel lapangan pemanen" },
@@ -24,6 +35,13 @@ export default function RegisterPage() {
   const [error, setError]     = useState("");
   const [success, setSuccess] = useState(false);
 
+  useEffect(() => {
+    if (getToken()) {
+      router.replace(ROLE_ROUTES[getRole() ?? ""] ?? "/admin/users");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function set(field: string, val: string) {
     setForm((f) => ({ ...f, [field]: val }));
   }
@@ -37,7 +55,7 @@ export default function RegisterPage() {
       setSuccess(true);
       setTimeout(() => router.push("/login"), 2000);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Registrasi gagal");
+      setError(mapRegisterError(err));
     } finally {
       setLoading(false);
     }
@@ -49,18 +67,22 @@ export default function RegisterPage() {
       alignItems: "center", justifyContent: "center",
       background: "var(--cream)",
     }}>
-      <div style={{ textAlign: "center" }}>
+        <div style={{ textAlign: "center" }}>
         <div style={{
           width: "56px", height: "56px", borderRadius: "50%",
           background: "var(--forest)", color: "var(--cream)",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontSize: "24px", margin: "0 auto 20px",
-        }}>✓</div>
-        <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", marginBottom: "8px" }}>
+        }}>&#10003;</div>
+        <h2 style={{
+          fontFamily: "'Cormorant Garamond', serif",
+          fontSize: "24px", fontWeight: 400,
+          color: "var(--text-dark)", marginBottom: "8px",
+        }}>
           Akun berhasil dibuat
         </h2>
         <p style={{ fontSize: "13px", color: "var(--text-light)" }}>
-          Mengalihkan ke halaman login…
+          Mengalihkan ke halaman login...
         </p>
       </div>
     </div>
@@ -120,11 +142,11 @@ export default function RegisterPage() {
         </div>
 
         <div style={{ fontSize: "11px", color: "rgba(245,240,232,0.3)", letterSpacing: "0.08em" }}>
-          © 2025 BurhanSawit
+          (c) 2025 BurhanSawit
         </div>
       </div>
 
-      {/* Right — form */}
+      {/* Right - form */}
       <div style={{
         display: "flex", alignItems: "center",
         justifyContent: "center", padding: "60px",
@@ -196,7 +218,7 @@ export default function RegisterPage() {
                         background: "var(--gold)",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         fontSize: "10px", color: "var(--forest)", fontWeight: 600,
-                      }}>✓</div>
+                      }}>&#10003;</div>
                     )}
                   </label>
                 ))}

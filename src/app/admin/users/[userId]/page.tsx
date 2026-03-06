@@ -48,7 +48,7 @@ export default function UserDetailPage() {
   }
 
   if (isLoading) return (
-    <div style={{ padding: "48px", color: "var(--text-light)", fontSize: "13px" }}>Memuat…</div>
+    <div style={{ padding: "48px", color: "var(--text-light)", fontSize: "13px" }}>Memuat...</div>
   );
   if (!user) return (
     <div style={{ padding: "48px", color: "var(--error)", fontSize: "13px" }}>Pengguna tidak ditemukan.</div>
@@ -68,7 +68,7 @@ export default function UserDetailPage() {
         marginBottom: "32px",
         textTransform: "uppercase",
       }}>
-        ← Kembali
+        {"<-"} Kembali
       </Link>
 
       {/* Header */}
@@ -88,7 +88,7 @@ export default function UserDetailPage() {
             <RoleBadge role={user.role} />
           </div>
           <p style={{ fontSize: "13px", fontWeight: 300, color: "var(--text-light)" }}>
-            @{user.username} · {user.email}
+            @{user.username} - {user.email}
           </p>
         </div>
         {user.role !== "ADMIN" && !editing && (

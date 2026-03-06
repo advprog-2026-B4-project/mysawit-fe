@@ -59,7 +59,7 @@ export function Button({
       }}
       {...props}
     >
-      {loading ? "Memproses…" : children}
+      {loading ? "Memproses..." : children}
     </button>
   );
 }

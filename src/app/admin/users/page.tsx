@@ -69,7 +69,7 @@ export default function AdminUsersPage() {
       }}>
         {/* Search */}
         <input
-          placeholder="Cari nama atau email…"
+          placeholder="Cari nama atau email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
@@ -132,7 +132,7 @@ export default function AdminUsersPage() {
 
         {isLoading ? (
           <div style={{ padding: "48px", textAlign: "center", color: "var(--text-light)", fontSize: "13px" }}>
-            Memuat data…
+            Memuat data...
           </div>
         ) : filtered.length === 0 ? (
           <div style={{ padding: "48px", textAlign: "center", color: "var(--text-light)", fontSize: "13px" }}>
@@ -213,7 +213,7 @@ export default function AdminUsersPage() {
               fontSize: "13px", fontWeight: 300, color: "var(--text-dark)",
               outline: "none",
             }}>
-            <option value="">Pilih mandor…</option>
+            <option value="">Pilih mandor...</option>
             {mandors.map((m) => (
               <option key={m.userId} value={m.userId}>{m.name}</option>
             ))}

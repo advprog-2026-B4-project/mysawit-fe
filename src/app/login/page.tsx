@@ -1,18 +1,39 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "@/modules/auth";
+import { useState, useEffect } from "react";
+import { useAuth, ROLE_ROUTES } from "@/modules/auth";
+import { getToken, getRole } from "@/lib/api/tokenStorage";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import Link from "next/link";
 
+function mapLoginError(err: unknown): string {
+  if (!(err instanceof Error)) return "Login gagal. Silakan coba lagi.";
+  const msg = err.message;
+  if (msg.includes("terdaftar via Google")) return msg;
+  if (msg.includes("tidak terdaftar")) return "Email tidak ditemukan. Periksa kembali atau daftar akun baru.";
+  if (msg.includes("Password salah")) return "Password yang Anda masukkan salah. Silakan coba lagi.";
+  if (msg.includes("Network Error") || msg.includes("ERR_NETWORK"))
+    return "Tidak dapat terhubung ke server. Periksa koneksi internet Anda.";
+  return "Login gagal. Silakan coba lagi.";
+}
+
 export default function LoginPage() {
   const { loginWithEmail, loginWithGoogle } = useAuth();
+  const router = useRouter();
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading]   = useState(false);
   const [gLoading, setGLoading] = useState(false);
   const [error, setError]       = useState("");
+
+  useEffect(() => {
+    if (getToken()) {
+      router.replace(ROLE_ROUTES[getRole() ?? ""] ?? "/admin/users");
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -21,15 +42,17 @@ export default function LoginPage() {
     try {
       await loginWithEmail({ email, password });
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login gagal");
+      setError(mapLoginError(err));
     } finally {
       setLoading(false);
     }
   }
 
   async function handleGoogle() {
+    setError("");
     setGLoading(true);
     try { await loginWithGoogle(); }
+    catch (err: unknown) { setError(mapLoginError(err)); }
     finally { setGLoading(false); }
   }
 
@@ -40,7 +63,7 @@ export default function LoginPage() {
       gridTemplateColumns: "1fr 1fr",
       background: "var(--cream)",
     }}>
-      {/* Left — decorative panel */}
+      {/* Left - decorative panel */}
       <div style={{
         background: "var(--forest)",
         display: "flex",
@@ -107,7 +130,7 @@ export default function LoginPage() {
             lineHeight: 1.7,
             maxWidth: "320px",
           }}>
-            Platform digital terintegrasi untuk manajemen perkebunan sawit BurhanSawit — dari buruh hingga pabrik.
+            Platform digital terintegrasi untuk manajemen perkebunan sawit BurhanSawit - dari buruh hingga pabrik.
           </p>
         </div>
 
@@ -117,11 +140,11 @@ export default function LoginPage() {
           color: "rgba(245,240,232,0.3)",
           letterSpacing: "0.08em",
         }}>
-          © 2025 BurhanSawit
+          (c) 2025 BurhanSawit
         </div>
       </div>
 
-      {/* Right — form panel */}
+      {/* Right - form panel */}
       <div style={{
         display: "flex",
         alignItems: "center",
@@ -160,7 +183,7 @@ export default function LoginPage() {
             <Input
               label="Password"
               type="password"
-              placeholder="••••••••"
+              placeholder="--------"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -227,7 +250,7 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
-            {gLoading ? "Mengalihkan…" : "Lanjutkan dengan Google"}
+            {gLoading ? "Mengalihkan..." : "Lanjutkan dengan Google"}
           </button>
 
           <p style={{
