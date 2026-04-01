@@ -1,5 +1,12 @@
-import { redirect } from "next/navigation";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function MandorPage() {
-  redirect("/mandor/supir");
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/mandor/dashboard");
+  }, [router]);
+  return null;
 }

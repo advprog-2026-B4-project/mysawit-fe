@@ -57,9 +57,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen grid grid-cols-2 bg-cream">
-      {/* Left - decorative panel */}
-      <div className="bg-forest flex flex-col justify-between p-[60px] relative overflow-hidden">
+    <div className="min-h-screen bg-cream grid grid-cols-1 md:grid-cols-2">
+      {/* Left - decorative panel (hidden on mobile) */}
+      <div className="hidden md:flex bg-forest flex-col justify-between p-[60px] relative overflow-hidden">
         <div className="absolute -bottom-[120px] -left-[120px] w-[500px] h-[500px] rounded-full border border-white/[.06]" />
         <div className="absolute -bottom-[60px] -left-[60px] w-[340px] h-[340px] rounded-full border border-white/[.04]" />
         <div className="absolute top-[40%] -right-[80px] w-[260px] h-[260px] rounded-full border border-gold/[.12]" />
@@ -90,8 +90,13 @@ export default function LoginPage() {
       </div>
 
       {/* Right - form panel */}
-      <div className="flex items-center justify-center p-[60px]">
+      <div className="flex items-center justify-center p-6 md:p-[60px]">
         <div className="w-full max-w-[360px]">
+          {/* Mobile logo */}
+          <div className="md:hidden flex flex-col items-center mb-8">
+            <div className="font-serif text-[28px] font-medium text-forest tracking-[0.02em]">MySawit</div>
+            <div className="w-8 h-px bg-gold mt-2" />
+          </div>
           <div className="mb-12">
             <h1 className="font-serif text-[36px] font-normal text-text-dark mb-2">
               Selamat datang
@@ -109,6 +114,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="w-full px-6"
             />
             <Input
               label="Password"
@@ -117,6 +123,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              className="w-full px-6"
             />
 
             {error && (

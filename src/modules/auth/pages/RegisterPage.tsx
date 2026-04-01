@@ -78,9 +78,9 @@ export default function RegisterPage() {
   );
 
   return (
-    <div className="min-h-screen grid grid-cols-2 bg-cream">
-      {/* Left panel */}
-      <div className="bg-forest flex flex-col justify-between p-[60px] relative overflow-hidden">
+    <div className="min-h-screen bg-cream grid grid-cols-1 md:grid-cols-2">
+      {/* Left panel (hidden on mobile) */}
+      <div className="hidden md:flex bg-forest flex-col justify-between p-[60px] relative overflow-hidden">
         <div className="absolute -top-[100px] -right-[100px] w-[400px] h-[400px] rounded-full border border-gold/[.08]" />
         <div className="absolute bottom-[10%] -left-[80px] w-[280px] h-[280px] rounded-full border border-white/[.05]" />
 
@@ -105,8 +105,13 @@ export default function RegisterPage() {
       </div>
 
       {/* Right - form */}
-      <div className="flex items-center justify-center p-[60px] overflow-y-auto">
+      <div className="flex items-center justify-center p-6 md:p-[60px] overflow-y-auto">
         <div className="w-full max-w-[400px]">
+          {/* Mobile logo */}
+          <div className="md:hidden flex flex-col items-center mb-8">
+            <div className="font-serif text-[28px] font-medium text-forest tracking-[0.02em]">MySawit</div>
+            <div className="w-8 h-px bg-gold mt-2" />
+          </div>
           <div className="mb-10">
             <h1 className="font-serif text-[34px] font-normal text-text-dark mb-2">
               Buat akun baru
@@ -118,11 +123,11 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <Input label="Nama Lengkap" placeholder="Budi Santoso" value={form.name}
-              onChange={(e) => set("name", e.target.value)} required />
+              onChange={(e) => set("name", e.target.value)} required className="w-full px-6" />
             <Input label="Email" type="email" placeholder="nama@email.com" value={form.email}
-              onChange={(e) => set("email", e.target.value)} required />
+              onChange={(e) => set("email", e.target.value)} required className="w-full px-6" />
             <Input label="Password" type="password" placeholder="Min. 8 karakter" value={form.password}
-              onChange={(e) => set("password", e.target.value)} required minLength={8} />
+              onChange={(e) => set("password", e.target.value)} required minLength={8} className="w-full px-6" />
 
             {/* Role selector */}
             <div>

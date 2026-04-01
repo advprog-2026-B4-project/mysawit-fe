@@ -112,17 +112,30 @@ export default function UsersPage() {
               <div className="text-[13px] font-light text-text-mid">{user.email}</div>
               <RoleBadge role={user.role} />
               <div className="w-2 h-2 rounded-full bg-success" />
-              <div className="flex gap-2">
-                <Link href={`/admin/users/${user.userId}`}>
-                  <Button variant="ghost" className="py-1.5 px-3.5 text-[12px]">Detail</Button>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <Link href={`/admin/users/${user.userId}`} className="w-full sm:w-auto">
+                  <Button
+                    variant="ghost"
+                    className="py-1.5 px-3.5 text-[12px] w-full sm:w-auto hover:bg-forest/10 hover:text-forest active:bg-forest/20 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-lg hover:-translate-y-0.5"
+                  >
+                    Detail
+                  </Button>
                 </Link>
                 {user.role === "BURUH" && (
-                  <Button variant="secondary" className="py-1.5 px-3.5 text-[12px]" onClick={() => setAssignTarget(user)}>
+                  <Button
+                    variant="secondary"
+                    className="py-1.5 px-3.5 text-[12px] w-full sm:w-auto hover:bg-gold/10 hover:text-gold active:bg-gold/20 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-lg hover:-translate-y-0.5"
+                    onClick={() => setAssignTarget(user)}
+                  >
                     Tugaskan
                   </Button>
                 )}
                 {user.role !== "ADMIN" && (
-                  <Button variant="danger" className="py-1.5 px-3.5 text-[12px]" onClick={() => setDeleteTarget(user)}>
+                  <Button
+                    variant="danger"
+                    className="py-1.5 px-3.5 text-[12px] w-full sm:w-auto hover:bg-error/10 hover:text-error active:bg-error/20 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-lg hover:-translate-y-0.5"
+                    onClick={() => setDeleteTarget(user)}
+                  >
                     Hapus
                   </Button>
                 )}
