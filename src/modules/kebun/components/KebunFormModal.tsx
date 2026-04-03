@@ -55,6 +55,39 @@ function isIntegerString(value: string) {
     return /^-?\d+$/.test(value.trim());
 }
 
+function isSquareCoordinates(coordinates: CoordinateDTO[]) {
+    const latValues = coordinates.map((coordinate) => coordinate.lat);
+    const lngValues = coordinates.map((coordinate) => coordinate.lng);
+
+    const minLat = Math.min(...latValues);
+    const maxLat = Math.max(...latValues);
+    const minLng = Math.min(...lngValues);
+    const maxLng = Math.max(...lngValues);
+
+    const expected = new Set([
+        `${minLat}:${minLng}`,
+        `${minLat}:${maxLng}`,
+        `${maxLat}:${minLng}`,
+        `${maxLat}:${maxLng}`,
+    ]);
+
+    const actual = new Set(coordinates.map((coordinate) => `${coordinate.lat}:${coordinate.lng}`));
+
+    if (actual.size !== 4 || actual.size !== expected.size) {
+        return false;
+    }
+
+    for (const point of actual) {
+        if (!expected.has(point)) {
+            return false;
+        }
+    }
+
+    return maxLat - minLat > 0 &&
+        maxLng - minLng > 0 &&
+        maxLat - minLat === maxLng - minLng;
+}
+
 export default function KebunFormModal({
                                            mode,
                                            title,
@@ -102,6 +135,15 @@ export default function KebunFormModal({
             nextErrors.coordinates = "Semua latitude dan longitude harus berupa bilangan bulat";
         }
 
+        const parsedCoordinates = coordinates.map((coordinate) => ({
+            lat: Number.parseInt(coordinate.lat, 10),
+            lng: Number.parseInt(coordinate.lng, 10),
+        }));
+
+        if (!hasInvalidCoordinate && !isSquareCoordinates(parsedCoordinates)) {
+            nextErrors.coordinates = "Koordinat harus membentuk 4 sudut persegi";
+        }
+
         if (Object.keys(nextErrors).length > 0) {
             setErrors(nextErrors);
             return;
@@ -109,15 +151,16 @@ export default function KebunFormModal({
 
         setErrors({});
 
-        await onSubmit({
-            nama: nama.trim(),
-            kode: kode.trim(),
-            luas: Number.parseInt(luas, 10),
-            coordinates: coordinates.map((coordinate) => ({
-                lat: Number.parseInt(coordinate.lat, 10),
-                lng: Number.parseInt(coordinate.lng, 10),
-            })),
-        });
+        try {
+            await onSubmit({
+                nama: nama.trim(),
+                kode: kode.trim(),
+                luas: Number.parseInt(luas, 10),
+                coordinates: parsedCoordinates,
+            });
+        } catch {
+            // error backend ditampilkan oleh parent lewat errorMessage
+        }
     }
 
     function updateCoordinate(index: number, field: "lat" | "lng", value: string) {
@@ -141,8 +184,8 @@ export default function KebunFormModal({
                     <h2 className="font-serif text-[26px] font-normal text-text-dark">{title}</h2>
                     <p className="mt-1 text-[13px] font-light text-text-light">
                         {mode === "create"
-                            ? "Isi data kebun beserta empat titik koordinat ujung kebun."
-                            : "Perbarui data kebun. Kode kebun tetap dan tidak bisa diubah."}
+                            ? "Isi data kebun beserta empat titik sudut kebun berbentuk persegi."
+                            : "Perbarui data kebun berbentuk persegi. Kode kebun tetap dan tidak bisa diubah."}
                     </p>
                 </div>
 
@@ -185,7 +228,7 @@ export default function KebunFormModal({
                     <div className="mb-4">
                         <h3 className="font-serif text-[18px] font-normal text-text-dark">Koordinat Ujung Kebun</h3>
                         <p className="mt-1 text-[12px] font-light text-text-light">
-                            Masukkan tepat empat titik dengan format latitude dan longitude bilangan bulat.
+                            Masukkan tepat empat titik sudut kebun yang membentuk persegi.
                         </p>
                     </div>
 
