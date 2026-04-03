@@ -134,45 +134,61 @@ export default function KebunDetailPage() {
     async function handleAssignMandor() {
         if (!selectedMandorId) return;
 
-        await assignMandor.mutateAsync({
-            mandorId: selectedMandorId,
-            kebunId,
-        });
+        try {
+            await assignMandor.mutateAsync({
+                mandorId: selectedMandorId,
+                kebunId,
+            });
 
-        setIsAssignMandorOpen(false);
+            setIsAssignMandorOpen(false);
+        } catch {
+            // error ditampilkan lewat assignMandor.error
+        }
     }
 
     async function handleMoveMandor() {
         if (!currentMandor || !selectedTargetKebunId) return;
 
-        await moveMandor.mutateAsync({
-            mandorId: currentMandor.userId,
-            newKebunId: selectedTargetKebunId,
-        });
+        try {
+            await moveMandor.mutateAsync({
+                mandorId: currentMandor.userId,
+                newKebunId: selectedTargetKebunId,
+            });
 
-        setIsMoveMandorOpen(false);
+            setIsMoveMandorOpen(false);
+        } catch {
+            // error ditampilkan lewat moveMandor.error
+        }
     }
 
     async function handleAssignSupir() {
         if (!selectedSupirId) return;
 
-        await assignSupir.mutateAsync({
-            supirId: selectedSupirId,
-            kebunId,
-        });
+        try {
+            await assignSupir.mutateAsync({
+                supirId: selectedSupirId,
+                kebunId,
+            });
 
-        setIsAssignSupirOpen(false);
+            setIsAssignSupirOpen(false);
+        } catch {
+            // error ditampilkan lewat assignSupir.error
+        }
     }
 
     async function handleMoveSupir() {
         if (!movingSupir || !selectedSupirTargetKebunId) return;
 
-        await moveSupir.mutateAsync({
-            supirId: movingSupir.userId,
-            newKebunId: selectedSupirTargetKebunId,
-        });
+        try {
+            await moveSupir.mutateAsync({
+                supirId: movingSupir.userId,
+                newKebunId: selectedSupirTargetKebunId,
+            });
 
-        setMovingSupir(null);
+            setMovingSupir(null);
+        } catch {
+            // error ditampilkan lewat moveSupir.error
+        }
     }
 
     if (isLoading) {

@@ -42,8 +42,12 @@ export default function KebunListPage() {
         luas: number;
         coordinates: KebunDTO["coordinates"];
     }) {
-        await createKebun.mutateAsync(form);
-        setIsCreateOpen(false);
+        try {
+            await createKebun.mutateAsync(form);
+            setIsCreateOpen(false);
+        } catch {
+            // error ditampilkan lewat createKebun.error
+        }
     }
 
     async function handleEdit(form: {
@@ -54,23 +58,31 @@ export default function KebunListPage() {
     }) {
         if (!editingKebun) return;
 
-        await editKebun.mutateAsync({
-            kebunId: editingKebun.kebunId,
-            payload: {
-                nama: form.nama,
-                luas: form.luas,
-                coordinates: form.coordinates,
-            },
-        });
+        try {
+            await editKebun.mutateAsync({
+                kebunId: editingKebun.kebunId,
+                payload: {
+                    nama: form.nama,
+                    luas: form.luas,
+                    coordinates: form.coordinates,
+                },
+            });
 
-        setEditingKebun(null);
+            setEditingKebun(null);
+        } catch {
+            // error ditampilkan lewat editKebun.error
+        }
     }
 
     async function handleDelete() {
         if (!deletingKebun) return;
 
-        await deleteKebun.mutateAsync(deletingKebun.kebunId);
-        setDeletingKebun(null);
+        try {
+            await deleteKebun.mutateAsync(deletingKebun.kebunId);
+            setDeletingKebun(null);
+        } catch {
+            // error ditampilkan lewat deleteKebun.error
+        }
     }
 
     function openCreateModal() {
