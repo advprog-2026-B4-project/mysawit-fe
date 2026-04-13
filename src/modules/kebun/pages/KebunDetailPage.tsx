@@ -80,7 +80,7 @@ export default function KebunDetailPage() {
             mandorOptions.map((mandor) => ({
                 value: mandor.userId,
                 label: mandor.name,
-                description: `${mandor.email} • ${mandor.username}`,
+                description: `${mandor.email} | @${mandor.username}`,
             })),
         [mandorOptions],
     );
@@ -92,7 +92,7 @@ export default function KebunDetailPage() {
                 .map((supir) => ({
                     value: supir.userId,
                     label: supir.name,
-                    description: `${supir.email} • ${supir.username}`,
+                    description: `${supir.email} | @${supir.username}`,
                 })),
         [supirOptions, currentSupirIds],
     );
@@ -102,7 +102,7 @@ export default function KebunDetailPage() {
             otherKebunOptions.map((item) => ({
                 value: item.kebunId,
                 label: item.nama,
-                description: `${item.kode} • ${item.luas} Ha`,
+                description: `${item.kode} | ${item.luas} Ha`,
             })),
         [otherKebunOptions],
     );
@@ -221,7 +221,7 @@ export default function KebunDetailPage() {
             </span>
                     </div>
                     <p className="text-[13px] font-light text-text-light">
-                        Luas {kebun.luas} Ha • {kebun.coordinates.length} titik koordinat
+                        Luas {kebun.luas} Ha | {kebun.coordinates.length} titik koordinat
                     </p>
                 </div>
             </div>
@@ -274,7 +274,7 @@ export default function KebunDetailPage() {
                     <div className="rounded border border-cream-dark bg-cream/50 px-5 py-4">
                         <div className="text-[15px] text-text-dark">{currentMandor.name}</div>
                         <div className="mt-1 text-[12px] text-text-light">
-                            {currentMandor.email} • @{currentMandor.username}
+                            {currentMandor.email} | @{currentMandor.username}
                         </div>
                     </div>
                 ) : (
@@ -324,7 +324,7 @@ export default function KebunDetailPage() {
                                 <div>
                                     <div className="text-[14px] text-text-dark">{supir.name}</div>
                                     <div className="mt-1 text-[12px] text-text-light">
-                                        {supir.email} • @{supir.username}
+                                        {supir.email} | @{supir.username}
                                     </div>
                                 </div>
                                 <Button
@@ -376,7 +376,7 @@ export default function KebunDetailPage() {
                             >
                                 <div className="text-[14px] text-text-dark">{buruh.name}</div>
                                 <div className="mt-1 text-[12px] text-text-light">
-                                    {buruh.email} • @{buruh.username}
+                                    {buruh.email} | @{buruh.username}
                                 </div>
                             </div>
                         ))}
