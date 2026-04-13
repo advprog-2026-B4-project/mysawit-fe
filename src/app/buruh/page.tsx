@@ -3,11 +3,10 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function AdminPage() {
+export default function BuruhPage() {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/admin/dashboard");
+    router.replace("/buruh/dashboard");
   }, [router]);
-
   return null;
 }
