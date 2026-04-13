@@ -30,7 +30,6 @@ export interface EditKebunRequest {
 
 export interface AssignPersonRequest {
   personId: string;
-  kebunId: string;
 }
 
 export interface MandorAssignmentDTO {
@@ -101,7 +100,6 @@ export const kebunApi = {
   assignMandorToKebun: async (mandorId: string, kebunId: string): Promise<void> => {
     const payload: AssignPersonRequest = {
       personId: mandorId,
-      kebunId,
     };
     await apiClient.post(`/api/kebun/${kebunId}/assign/mandor`, payload);
   },
@@ -109,7 +107,6 @@ export const kebunApi = {
   moveMandorToKebun: async (mandorId: string, newKebunId: string): Promise<void> => {
     const payload: AssignPersonRequest = {
       personId: mandorId,
-      kebunId: newKebunId,
     };
     await apiClient.post(`/api/kebun/${newKebunId}/move/mandor`, payload);
   },
@@ -117,7 +114,6 @@ export const kebunApi = {
   assignSupirToKebun: async (supirId: string, kebunId: string): Promise<void> => {
     const payload: AssignPersonRequest = {
       personId: supirId,
-      kebunId,
     };
     await apiClient.post(`/api/kebun/${kebunId}/assign/supir`, payload);
   },
@@ -125,7 +121,6 @@ export const kebunApi = {
   moveSupirToKebun: async (supirId: string, newKebunId: string): Promise<void> => {
     const payload: AssignPersonRequest = {
       personId: supirId,
-      kebunId: newKebunId,
     };
     await apiClient.post(`/api/kebun/${newKebunId}/move/supir`, payload);
   },
