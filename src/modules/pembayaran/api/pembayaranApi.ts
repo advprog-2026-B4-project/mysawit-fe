@@ -27,8 +27,19 @@ export interface PayrollDTO {
   wageRateApplied: number;
   netAmount: number;
   status: PayrollStatus;
+  rejectionReason?: string | null;
   processedAt: string | null;
   createdAt: string;
+}
+
+export interface PayrollPageDTO {
+  items: PayrollDTO[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
 export interface PayrollStatusDTO {
@@ -68,7 +79,11 @@ export interface PayrollListFilter {
   startDate?: string;
   endDate?: string;
   status?: PayrollStatus;
+  page?: number;
+  size?: number;
 }
+
+export const DEFAULT_PAYROLL_PAGE_SIZE = 10;
 
 export const pembayaranApi = {
   getAllVariabelPokok: async (): Promise<VariabelPokokDTO[]> => {
@@ -95,15 +110,15 @@ export const pembayaranApi = {
     return data;
   },
 
-  getPayrollsByUserId: async (userId: string, filter?: PayrollListFilter): Promise<PayrollDTO[]> => {
-    const { data } = await apiClient.get<PayrollDTO[]>(`/api/pembayaran/payroll/user/${userId}`, {
+  getPayrollsByUserId: async (userId: string, filter?: PayrollListFilter): Promise<PayrollPageDTO> => {
+    const { data } = await apiClient.get<PayrollPageDTO>(`/api/pembayaran/payroll/user/${userId}`, {
       params: filter,
     });
     return data;
   },
 
-  listAllPayrolls: async (filter?: PayrollListFilter): Promise<PayrollDTO[]> => {
-    const { data } = await apiClient.get<PayrollDTO[]>("/api/pembayaran/payroll", { params: filter });
+  listAllPayrolls: async (filter?: PayrollListFilter): Promise<PayrollPageDTO> => {
+    const { data } = await apiClient.get<PayrollPageDTO>("/api/pembayaran/payroll", { params: filter });
     return data;
   },
 

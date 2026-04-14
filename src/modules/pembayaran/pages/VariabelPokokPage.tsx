@@ -59,7 +59,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
     return (
       <form
         onSubmit={handleSave}
-        className="grid grid-cols-[110px_1fr] gap-5 px-6 py-5 bg-surface border-b border-cream-dark last:border-b-0"
+        className="grid grid-cols-1 sm:grid-cols-[110px_1fr] gap-5 px-6 py-5 bg-surface border-b border-cream-dark last:border-b-0"
       >
         {/* Badge anchor */}
         <div className="pt-0.5">
@@ -91,13 +91,11 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
                 ].join(" ")}
               />
             </div>
-            <div className="flex gap-2 pb-px">
-              <Button type="submit" variant="primary" loading={isPending}
-                style={{ padding: "10px 20px", fontSize: "13px" }}>
+            <div className="flex gap-2 pb-px flex-wrap">
+              <Button type="submit" variant="primary" loading={isPending} className="px-5 py-2.5 text-[13px]">
                 Simpan
               </Button>
-              <Button type="button" variant="ghost" disabled={isPending} onClick={closeEdit}
-                style={{ padding: "10px 20px", fontSize: "13px" }}>
+              <Button type="button" variant="ghost" disabled={isPending} onClick={closeEdit} className="px-5 py-2.5 text-[13px]">
                 Batal
               </Button>
             </div>
@@ -138,8 +136,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
       </div>
 
       {/* Edit */}
-      <Button variant="secondary" onClick={openEdit}
-        style={{ padding: "7px 18px", fontSize: "12px" }}>
+      <Button variant="secondary" onClick={openEdit} className="px-4 py-2 text-[12px]">
         Ubah
       </Button>
     </div>
@@ -182,29 +179,32 @@ function VariabelPokokPageContent() {
 
       {/* Table card */}
       <div className="border border-cream-dark rounded-md bg-white overflow-hidden">
-        {/* Column headers */}
-        <div className="grid grid-cols-[110px_1fr_auto_auto] gap-5 px-6 py-3 bg-cream border-b border-cream-dark">
-          <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Kode</span>
-          <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Variabel</span>
-          <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light text-right">Nilai</span>
-          <span />
-        </div>
+        <div className="overflow-x-auto">
+          <div className="min-w-[760px]">
+            {/* Column headers */}
+            <div className="grid grid-cols-[110px_1fr_auto_auto] gap-5 px-6 py-3 bg-cream border-b border-cream-dark">
+              <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Kode</span>
+              <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Variabel</span>
+              <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light text-right">Nilai</span>
+              <span />
+            </div>
 
-        {isLoading && [0, 1, 2].map((i) => <SkeletonRow key={i} />)}
+            {isLoading && [0, 1, 2].map((i) => <SkeletonRow key={i} />)}
 
-        {isError && (
-          <div className="px-6 py-12 text-center">
-            <p className="font-sans text-[13px] font-light text-text-light mb-4">
-              {error instanceof Error ? error.message : "Gagal memuat data."}
-            </p>
-            <Button variant="ghost" onClick={() => refetch()}
-              style={{ padding: "8px 20px", fontSize: "12px" }}>
-              Coba lagi
-            </Button>
+            {isError && (
+              <div className="px-6 py-12 text-center">
+                <p className="font-sans text-[13px] font-light text-text-light mb-4">
+                  {error instanceof Error ? error.message : "Gagal memuat data."}
+                </p>
+                <Button variant="ghost" onClick={() => refetch()} className="px-5 py-2 text-[12px]">
+                  Coba lagi
+                </Button>
+              </div>
+            )}
+
+            {data?.map((item) => <VariabelPokokRow key={item.key} item={item} />)}
           </div>
-        )}
-
-        {data?.map((item) => <VariabelPokokRow key={item.key} item={item} />)}
+        </div>
       </div>
 
       {data && (

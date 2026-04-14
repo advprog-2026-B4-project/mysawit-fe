@@ -4,6 +4,7 @@ import {
   pembayaranApi,
   type PayrollDTO,
   type PayrollListFilter,
+  type PayrollPageDTO,
   type PayrollStatusDTO,
 } from "../api/pembayaranApi";
 
@@ -33,7 +34,7 @@ export function usePayrollStatus(payrollId: string) {
  */
 export function usePayrollsByUser(userId: string, filter?: PayrollListFilter) {
   const { isAuthenticated } = useAuth();
-  return useQuery<PayrollDTO[], Error>({
+  return useQuery<PayrollPageDTO, Error>({
     queryKey: payrollKeys.byUser(userId, filter),
     queryFn:  () => pembayaranApi.getPayrollsByUserId(userId, filter),
     enabled:  isAuthenticated() && !!userId,
@@ -43,7 +44,7 @@ export function usePayrollsByUser(userId: string, filter?: PayrollListFilter) {
 /** Returns all payrolls. Requires ADMIN role - enforced server-side by RBAC. */
 export function useAllPayrolls(filter?: PayrollListFilter) {
   const { isAuthenticated } = useAuth();
-  return useQuery<PayrollDTO[], Error>({
+  return useQuery<PayrollPageDTO, Error>({
     queryKey: payrollKeys.list(filter),
     queryFn:  () => pembayaranApi.listAllPayrolls(filter),
     enabled:  isAuthenticated(),
