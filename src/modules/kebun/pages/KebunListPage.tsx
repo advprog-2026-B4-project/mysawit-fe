@@ -211,6 +211,7 @@ export default function KebunListPage() {
 
             {editingKebun && (
                 <KebunFormModal
+                    key={editingKebun.kebunId}
                     mode="edit"
                     title={`Edit ${editingKebun.nama}`}
                     submitLabel="Simpan Perubahan"

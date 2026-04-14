@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import type { CoordinateDTO } from "../api/kebunApi";
@@ -33,22 +33,40 @@ interface KebunFormModalProps {
     onSubmit: (value: KebunFormValue) => Promise<void> | void;
 }
 
-const EMPTY_COORDINATES: CoordinateField[] = [
-    { lat: "", lng: "" },
-    { lat: "", lng: "" },
-    { lat: "", lng: "" },
-    { lat: "", lng: "" },
-];
+interface KebunFormState {
+    nama: string;
+    kode: string;
+    luas: string;
+    coordinates: CoordinateField[];
+}
+
+function createEmptyCoordinates(): CoordinateField[] {
+    return [
+        { lat: "", lng: "" },
+        { lat: "", lng: "" },
+        { lat: "", lng: "" },
+        { lat: "", lng: "" },
+    ];
+}
 
 function toCoordinateFields(coordinates?: CoordinateDTO[]): CoordinateField[] {
     if (!coordinates || coordinates.length !== 4) {
-        return EMPTY_COORDINATES;
+        return createEmptyCoordinates();
     }
 
     return coordinates.map((coordinate) => ({
         lat: String(coordinate.lat),
         lng: String(coordinate.lng),
     }));
+}
+
+function createInitialFormState(initialValue?: KebunFormModalProps["initialValue"]): KebunFormState {
+    return {
+        nama: initialValue?.nama ?? "",
+        kode: initialValue?.kode ?? "",
+        luas: initialValue ? String(initialValue.luas) : "",
+        coordinates: toCoordinateFields(initialValue?.coordinates),
+    };
 }
 
 function isIntegerString(value: string) {
@@ -98,19 +116,13 @@ export default function KebunFormModal({
                                            onClose,
                                            onSubmit,
                                        }: KebunFormModalProps) {
-    const [nama, setNama] = useState("");
-    const [kode, setKode] = useState("");
-    const [luas, setLuas] = useState("");
-    const [coordinates, setCoordinates] = useState<CoordinateField[]>(EMPTY_COORDINATES);
-    const [errors, setErrors] = useState<Partial<Record<"nama" | "kode" | "luas" | "coordinates", string>>>({});
+    const initialFormState = createInitialFormState(initialValue);
 
-    useEffect(() => {
-        setNama(initialValue?.nama ?? "");
-        setKode(initialValue?.kode ?? "");
-        setLuas(initialValue ? String(initialValue.luas) : "");
-        setCoordinates(toCoordinateFields(initialValue?.coordinates));
-        setErrors({});
-    }, [initialValue, mode]);
+    const [nama, setNama] = useState(initialFormState.nama);
+    const [kode, setKode] = useState(initialFormState.kode);
+    const [luas, setLuas] = useState(initialFormState.luas);
+    const [coordinates, setCoordinates] = useState<CoordinateField[]>(initialFormState.coordinates);
+    const [errors, setErrors] = useState<Partial<Record<"nama" | "kode" | "luas" | "coordinates", string>>>({});
 
     async function handleSubmit() {
         const nextErrors: Partial<Record<"nama" | "kode" | "luas" | "coordinates", string>> = {};
