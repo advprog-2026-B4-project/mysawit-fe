@@ -1,5 +1,7 @@
 import apiClient from "@/lib/api/client";
 
+export type KebunUserRole = "MANDOR" | "SUPIR" | "BURUH" | "ADMIN";
+
 export interface CoordinateDTO {
   lat: number;
   lng: number;
@@ -28,13 +30,27 @@ export interface EditKebunRequest {
 
 export interface AssignPersonRequest {
   personId: string;
-  kebunId: string;
+}
+
+export interface MandorAssignmentDTO {
+  mandorId: string | null;
+}
+
+export interface KebunUserDTO {
+  userId: string;
+  username: string;
+  name: string;
+  role: KebunUserRole;
+  email: string;
 }
 
 export const kebunApi = {
   listKebun: async (searchNama?: string, searchKode?: string): Promise<KebunDTO[]> => {
     const { data } = await apiClient.get<KebunDTO[]>("/api/kebun", {
-      params: { nama: searchNama, kode: searchKode },
+      params: {
+        nama: searchNama || undefined,
+        kode: searchKode || undefined,
+      },
     });
     return data;
   },
@@ -58,24 +74,66 @@ export const kebunApi = {
     await apiClient.delete(`/api/kebun/${kebunId}`);
   },
 
+  getMandorByKebun: async (kebunId: string): Promise<MandorAssignmentDTO> => {
+    const { data } = await apiClient.get<MandorAssignmentDTO>(`/api/kebun/${kebunId}/mandor`);
+    return data;
+  },
+
+  getSupirList: async (kebunId: string, searchNama?: string): Promise<KebunUserDTO[]> => {
+    const { data } = await apiClient.get<KebunUserDTO[]>(`/api/kebun/${kebunId}/supir`, {
+      params: {
+        nama: searchNama || undefined,
+      },
+    });
+    return data;
+  },
+
+  getBuruhList: async (kebunId: string, searchNama?: string): Promise<KebunUserDTO[]> => {
+    const { data } = await apiClient.get<KebunUserDTO[]>(`/api/kebun/${kebunId}/buruh`, {
+      params: {
+        nama: searchNama || undefined,
+      },
+    });
+    return data;
+  },
+
   assignMandorToKebun: async (mandorId: string, kebunId: string): Promise<void> => {
-    await apiClient.post(`/api/kebun/${kebunId}/assign/mandor`, { mandorId });
+    const payload: AssignPersonRequest = {
+      personId: mandorId,
+    };
+    await apiClient.post(`/api/kebun/${kebunId}/assign/mandor`, payload);
   },
 
   moveMandorToKebun: async (mandorId: string, newKebunId: string): Promise<void> => {
-    await apiClient.post(`/api/kebun/${newKebunId}/move/mandor`, { mandorId });
+    const payload: AssignPersonRequest = {
+      personId: mandorId,
+    };
+    await apiClient.post(`/api/kebun/${newKebunId}/move/mandor`, payload);
   },
 
   assignSupirToKebun: async (supirId: string, kebunId: string): Promise<void> => {
-    await apiClient.post(`/api/kebun/${kebunId}/assign/supir`, { supirId });
+    const payload: AssignPersonRequest = {
+      personId: supirId,
+    };
+    await apiClient.post(`/api/kebun/${kebunId}/assign/supir`, payload);
   },
 
   moveSupirToKebun: async (supirId: string, newKebunId: string): Promise<void> => {
-    await apiClient.post(`/api/kebun/${newKebunId}/move/supir`, { supirId });
+    const payload: AssignPersonRequest = {
+      personId: supirId,
+    };
+    await apiClient.post(`/api/kebun/${newKebunId}/move/supir`, payload);
   },
 
-  getMandorByKebun: async (kebunId: string): Promise<{ mandorId: string }> => {
-    const { data } = await apiClient.get<{ mandorId: string }>(`/api/kebun/${kebunId}/mandor`);
+  listUsersByRole: async (role: Extract<KebunUserRole, "MANDOR" | "SUPIR">): Promise<KebunUserDTO[]> => {
+    const { data } = await apiClient.get<KebunUserDTO[]>("/api/users", {
+      params: { role },
+    });
+    return data;
+  },
+
+  getUserById: async (userId: string): Promise<KebunUserDTO> => {
+    const { data } = await apiClient.get<KebunUserDTO>(`/api/users/${userId}`);
     return data;
   },
 } as const;
