@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function PembayaranIndexPage() {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/admin/pembayaran/variabel-pokok");
+    router.replace("/admin/pembayaran/payroll");
   }, [router]);
 
   return null;

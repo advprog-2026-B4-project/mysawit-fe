@@ -6,6 +6,7 @@ import { useUser, useEditUser, useBuruhByMandor, useUsers } from "@/modules/auth
 import type { UserRole } from "@/modules/auth";
 import { DEFAULT_PAYROLL_PAGE_SIZE, type PayrollListFilter } from "@/modules/pembayaran/api/pembayaranApi";
 import { usePayrollsByUser } from "@/modules/pembayaran/hooks/usePayroll";
+import { useWalletBalance } from "@/modules/pembayaran/hooks/useWallet";
 import {
   compactPayrollId,
   formatPayrollDate,
@@ -22,7 +23,7 @@ import { notify } from "@/lib/toast";
 import Link from "next/link";
 
 const EDITABLE_ROLES: UserRole[] = ["MANDOR", "BURUH", "SUPIR"];
-const PAYROLL_VISIBLE_ROLES = new Set<UserRole>(["BURUH", "SUPIR"]);
+const PAYROLL_VISIBLE_ROLES = new Set<UserRole>(["BURUH", "SUPIR", "MANDOR"]);
 
 export default function UserDetailPage() {
   const { userId } = useParams<{ userId: string }>();
@@ -32,6 +33,7 @@ export default function UserDetailPage() {
   const { data: buruhList = [] }  = useBuruhByMandor(
     user?.role === "MANDOR" ? userId : ""
   );
+  const wallet = useWalletBalance(userId);
   const editUser = useEditUser();
 
   const [editing, setEditing] = useState(false);
@@ -91,6 +93,11 @@ export default function UserDetailPage() {
       },
     ];
   }, [selectedPayroll]);
+  const payrollRoleLabel = user?.role === "SUPIR"
+    ? "Supir"
+    : user?.role === "MANDOR"
+      ? "Mandor"
+      : "Buruh";
 
   function openEdit() {
     setForm(defaultForm);
@@ -240,11 +247,51 @@ export default function UserDetailPage() {
         )}
       </div>
 
+      <div className="bg-white border border-cream-dark rounded-md p-8 mb-6">
+        <h3 className="font-serif text-[18px] font-normal text-text-dark mb-2 pb-4 border-b border-cream-dark">
+          Ringkasan Wallet
+        </h3>
+
+        {wallet.isLoading ? (
+          <p className="font-sans text-[13px] text-text-light">Memuat total dana wallet...</p>
+        ) : wallet.isError ? (
+          <p className="font-sans text-[13px] text-error">
+            {wallet.error instanceof Error ? wallet.error.message : "Gagal memuat total dana wallet."}
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-6">
+            <div>
+              <div className="text-[10px] font-medium tracking-[0.12em] uppercase text-text-light mb-1.5">
+                Total Dana Wallet
+              </div>
+              <div className="font-serif text-[30px] leading-none text-forest">
+                {formatPayrollMoney(wallet.data?.balance ?? 0)}
+              </div>
+            </div>
+
+            <div>
+              <div className="text-[10px] font-medium tracking-[0.12em] uppercase text-text-light mb-1.5">
+                Update Terakhir
+              </div>
+              <div className="text-[14px] font-light text-text-dark">
+                {formatPayrollDate(wallet.data?.lastUpdated ?? null)}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {user.role === "ADMIN" && (
+          <p className="mt-4 font-sans text-[12px] text-text-light">
+            Saldo admin ini menjadi sumber dana saat payroll disetujui.
+          </p>
+        )}
+      </div>
+
       {/* Buruh list (if Mandor) */}
       {canViewPayrollSection && (
         <div className="bg-white border border-cream-dark rounded-md p-8 mb-6">
           <h3 className="font-serif text-[18px] font-normal text-text-dark mb-2 pb-4 border-b border-cream-dark">
-            Riwayat Payroll {user.role === "SUPIR" ? "Supir" : "Buruh"}
+            Riwayat Payroll {payrollRoleLabel}
           </h3>
           <p className="font-sans text-[12px] text-text-light mb-4">
             Gunakan filter tanggal untuk melihat payroll pada rentang waktu tertentu.
