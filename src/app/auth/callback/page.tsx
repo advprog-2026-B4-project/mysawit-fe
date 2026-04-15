@@ -19,10 +19,18 @@ function CallbackHandler() {
   useEffect(() => {
     const token = searchParams.get("token");
     const role  = searchParams.get("role");
+    const registrationToken = searchParams.get("registrationToken");
+    const email = searchParams.get("email");
+    const name = searchParams.get("name");
 
     if (token && role) {
       saveAuth(token, role);
       router.push(ROLE_ROUTES[role] ?? "/login");
+    } else if (registrationToken) {
+      const params = new URLSearchParams({ registrationToken });
+      if (email) params.set("email", email);
+      if (name) params.set("name", name);
+      router.push(`/auth/role-selection?${params.toString()}`);
     } else {
       router.push("/login");
     }

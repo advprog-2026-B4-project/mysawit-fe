@@ -29,7 +29,7 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const router = useRouter();
   const [form, setForm] = useState({
-    name: "", email: "", password: "", role: "" as UserRole | "",
+    name: "", email: "", password: "", role: "" as UserRole | "", mandorCertificationNumber: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
@@ -49,9 +49,18 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.role) { setError("Pilih peran terlebih dahulu"); return; }
+    if (form.role === "MANDOR" && !form.mandorCertificationNumber.trim()) {
+      setError("Nomor sertifikasi mandor wajib diisi");
+      return;
+    }
     setError(""); setLoading(true);
     try {
-      await register({ ...form, role: form.role as UserRole });
+      await register({
+        ...form,
+        role: form.role as UserRole,
+        mandorCertificationNumber:
+          form.role === "MANDOR" ? form.mandorCertificationNumber.trim() : undefined,
+      });
       setSuccess(true);
       setTimeout(() => router.push("/login"), 2000);
     } catch (err: unknown) {
@@ -128,6 +137,17 @@ export default function RegisterPage() {
               onChange={(e) => set("email", e.target.value)} required className="w-full px-6" />
             <Input label="Password" type="password" placeholder="Min. 8 karakter" value={form.password}
               onChange={(e) => set("password", e.target.value)} required minLength={8} className="w-full px-6" />
+
+            {form.role === "MANDOR" && (
+              <Input
+                label="Nomor Sertifikasi Mandor"
+                placeholder="Contoh: MND-2026-001"
+                value={form.mandorCertificationNumber}
+                onChange={(e) => set("mandorCertificationNumber", e.target.value)}
+                required
+                className="w-full px-6"
+              />
+            )}
 
             {/* Role selector */}
             <div>

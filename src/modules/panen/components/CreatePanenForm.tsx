@@ -6,7 +6,7 @@ import { useDaftarKebun } from '../hooks/useKebun';
 import { CreatePanenRequestDTO } from '../api/panenApi';
 
 export const CreatePanenForm: React.FC = () => {
-  const { mutate: createPanen, isPending, error, isSuccess } = useCreatePanen();
+  const { mutate: createPanen, isPending, error } = useCreatePanen();
   const { data: daftarKebun, isLoading: isKebunLoading } = useDaftarKebun();
   
   const [formData, setFormData] = useState<CreatePanenRequestDTO>({
@@ -73,12 +73,6 @@ export const CreatePanenForm: React.FC = () => {
           Masukkan detail laporan panen dan lampirkan bukti foto.
         </p>
       </div>
-
-      {isSuccess && (
-        <div className="mb-8 px-4 py-3 bg-[#e6f4ea] border border-[#a8dab5] rounded text-[13px] text-[#137333]">
-          Berhasil mencatat laporan panen!
-        </div>
-      )}
 
       {error && (
         <div className="mb-8 px-4 py-3 bg-error/[.07] border border-error/[.27] rounded text-[13px] text-error">

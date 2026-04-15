@@ -108,66 +108,70 @@ export default function MandorSupirPage() {
         </form>
 
         <div className="border border-cream-dark rounded-md bg-white overflow-hidden">
-          <div className="grid grid-cols-[1fr_1fr_1.2fr] gap-4 px-6 py-3 bg-cream border-b border-cream-dark">
-            <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Nama</span>
-            <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Username</span>
-            <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Email</span>
+          <div className="overflow-x-auto">
+            <div className="min-w-[760px]">
+              <div className="grid grid-cols-[1fr_0.9fr_1.25fr] gap-4 px-6 py-3 bg-cream border-b border-cream-dark">
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Nama</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Username</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Email</span>
+              </div>
+
+              {isLoading && (
+                <div className="px-6 py-10 text-center font-sans text-[13px] text-text-light">
+                  Memuat daftar supir...
+                </div>
+              )}
+
+              {!isLoading && dependencyUnavailable && (
+                <div className="px-6 py-10 text-center">
+                  <h2 className="font-serif text-[24px] text-text-dark">Integrasi Belum Siap</h2>
+                  <p className="mt-2 font-sans text-[13px] text-text-light">
+                    Data supir belum tersedia karena integrasi query modul kebun belum siap.
+                  </p>
+                  <div className="mt-4">
+                    <Button variant="ghost" onClick={() => refetch()}>
+                      Coba lagi
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {!isLoading && !dependencyUnavailable && isError && (
+                <div className="px-6 py-10 text-center">
+                  <p className="font-sans text-[13px] text-error">
+                    {error?.message ?? "Gagal memuat daftar supir."}
+                  </p>
+                  <div className="mt-4">
+                    <Button variant="ghost" onClick={() => refetch()}>
+                      Coba lagi
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {!isLoading && !isError && data.length === 0 && (
+                <div className="px-6 py-14 text-center">
+                  <h2 className="font-serif text-[24px] text-text-dark">Belum ada supir</h2>
+                  <p className="mt-2 font-sans text-[13px] text-text-light">
+                    Tidak ada supir yang cocok dengan filter saat ini.
+                  </p>
+                </div>
+              )}
+
+              {!isLoading && !isError && data.map((supir, index) => (
+                <div
+                  key={supir.supirId}
+                  className={`grid grid-cols-[1fr_0.9fr_1.25fr] gap-4 items-center px-6 py-4 ${
+                    index < data.length - 1 ? "border-b border-cream-dark" : ""
+                  }`}
+                >
+                  <span className="font-sans text-[13px] text-text-dark">{supir.name}</span>
+                  <span className="font-mono text-[12px] text-text-mid">{supir.username}</span>
+                  <span className="font-sans text-[13px] text-text-dark break-all">{supir.email}</span>
+                </div>
+              ))}
+            </div>
           </div>
-
-          {isLoading && (
-            <div className="px-6 py-10 text-center font-sans text-[13px] text-text-light">
-              Memuat daftar supir...
-            </div>
-          )}
-
-          {!isLoading && dependencyUnavailable && (
-            <div className="px-6 py-10 text-center">
-              <h2 className="font-serif text-[24px] text-text-dark">Integrasi Belum Siap</h2>
-              <p className="mt-2 font-sans text-[13px] text-text-light">
-                Data supir belum tersedia karena integrasi query modul kebun belum siap.
-              </p>
-              <div className="mt-4">
-                <Button variant="ghost" onClick={() => refetch()}>
-                  Coba lagi
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {!isLoading && !dependencyUnavailable && isError && (
-            <div className="px-6 py-10 text-center">
-              <p className="font-sans text-[13px] text-error">
-                {error?.message ?? "Gagal memuat daftar supir."}
-              </p>
-              <div className="mt-4">
-                <Button variant="ghost" onClick={() => refetch()}>
-                  Coba lagi
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {!isLoading && !isError && data.length === 0 && (
-            <div className="px-6 py-14 text-center">
-              <h2 className="font-serif text-[24px] text-text-dark">Belum ada supir</h2>
-              <p className="mt-2 font-sans text-[13px] text-text-light">
-                Tidak ada supir yang cocok dengan filter saat ini.
-              </p>
-            </div>
-          )}
-
-          {!isLoading && !isError && data.map((supir, index) => (
-            <div
-              key={supir.supirId}
-              className={`grid grid-cols-[1fr_1fr_1.2fr] gap-4 items-center px-6 py-4 ${
-                index < data.length - 1 ? "border-b border-cream-dark" : ""
-              }`}
-            >
-              <span className="font-sans text-[13px] text-text-dark">{supir.name}</span>
-              <span className="font-mono text-[12px] text-text-mid">{supir.username}</span>
-              <span className="font-sans text-[13px] text-text-dark">{supir.email}</span>
-            </div>
-          ))}
         </div>
       </div>
     </div>
