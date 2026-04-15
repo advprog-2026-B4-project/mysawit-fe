@@ -36,6 +36,17 @@ const MandorDashboard: React.FC = () => {
             <Button variant="secondary" className="px-4 py-2 text-[12px]">Buka Pembayaran</Button>
           </Link>
         </div>
+
+        <div className="border border-cream-dark bg-white rounded-md p-5">
+          <p className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light mb-2">Panen</p>
+          <h2 className="font-serif text-[24px] text-text-dark mb-2">Laporan Panen</h2>
+          <p className="font-sans text-[13px] text-text-mid mb-4">
+            Lihat dan filter laporan panen dari para buruh yang mengelola kebun.
+          </p>
+          <Link href="/mandor/panen">
+            <Button variant="secondary" className="px-4 py-2 text-[12px]">Buka Daftar Panen</Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
