@@ -1,19 +1,5 @@
 import apiClient from '@/lib/api/client';
 
-// --- DTO Kebun 
-export interface CoordinateDTO {
-  lat: number;
-  lng: number;
-}
-
-export interface KebunDTO {
-  kebunId: string;
-  nama: string;
-  kode: string;
-  luas: number;
-  coordinates: CoordinateDTO[];
-}
-
 // --- DTO Panen 
 export interface CreatePanenRequestDTO {
   kebunId: string;
@@ -45,7 +31,4 @@ export const panenApi = {
     return apiClient.post<unknown, PanenDTO>('/api/panen', data);
   },
 
-  getDaftarKebun: async (): Promise<KebunDTO[]> => {
-    return apiClient.get<unknown, KebunDTO[]>('/api/kebun'); 
-  },
 };

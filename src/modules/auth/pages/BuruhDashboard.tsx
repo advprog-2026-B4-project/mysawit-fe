@@ -5,6 +5,7 @@ import React from "react";
 
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/modules/auth";
+import Link from "next/dist/client/link";
 
 const BuruhDashboard: React.FC = () => {
   const { logout } = useAuth();
@@ -13,6 +14,9 @@ const BuruhDashboard: React.FC = () => {
       {/* Navbar */}
       <nav className="w-full flex items-center justify-between px-6 py-4 bg-white border-b border-sand">
         <span className="font-serif text-xl text-forest">MySawit</span>
+        <Link href="/buruh/panen/create" className="text-forest hover:text-forest/80">
+          Tambah Panen
+        </Link>
         <Button
           variant="ghost"
           onClick={logout}
