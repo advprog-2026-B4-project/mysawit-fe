@@ -30,6 +30,7 @@ export interface PayrollDTO {
   rejectionReason?: string | null;
   processedAt: string | null;
   createdAt: string;
+  evidencePhotoUrls?: string[];
 }
 
 export interface PayrollPageDTO {

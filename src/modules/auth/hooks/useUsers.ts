@@ -5,6 +5,7 @@ export const userKeys = {
   all:    ["users"] as const,
   list:   (role?: UserRole) => ["users", "list", role] as const,
   detail: (id: string)      => ["users", "detail", id] as const,
+  me:     ()                => ["users", "me"] as const,
   buruh:  (mandorId: string) => ["users", "buruh", mandorId] as const,
 };
 
@@ -23,6 +24,13 @@ export function useUser(userId: string) {
   });
 }
 
+export function useCurrentUser() {
+  return useQuery({
+    queryKey: userKeys.me(),
+    queryFn:  () => authApi.getCurrentUser(),
+  });
+}
+
 export function useBuruhByMandor(mandorId: string) {
   return useQuery({
     queryKey: userKeys.buruh(mandorId),
@@ -36,7 +44,7 @@ export function useEditUser() {
   return useMutation({
     mutationFn: ({ userId, payload }: {
       userId: string;
-      payload: Partial<Pick<UserDTO, "name" | "role" | "email">>;
+      payload: Partial<Pick<UserDTO, "name" | "role" | "email" | "mandorCertificationNumber">>;
     }) => authApi.editUser(userId, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: userKeys.all });

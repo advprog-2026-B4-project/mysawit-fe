@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import { useMemo, useState } from "react";
 import type { PayrollDTO, PayrollStatus } from "../api/pembayaranApi";
 
 export type PayrollStatusFilter = PayrollStatus | "";
@@ -58,6 +59,24 @@ export function resolvePayrollReferenceLink(payroll: PayrollDTO): { href: string
   };
 }
 
+export function resolveEvidencePhotoUrl(rawUrl: string): string {
+  const trimmed = rawUrl.trim();
+  if (!trimmed) return "";
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  const apiBase = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!apiBase) {
+    return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  }
+
+  const normalizedBase = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
+  const normalizedPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return `${normalizedBase}${normalizedPath}`;
+}
+
 interface PayrollRelationLink {
   label: string;
   href: string;
@@ -71,6 +90,16 @@ interface PayrollDetailDialogProps {
 }
 
 export function PayrollDetailDialog({ payroll, relationLinks, onClose }: PayrollDetailDialogProps) {
+  const [selectedEvidenceUrl, setSelectedEvidenceUrl] = useState<string | null>(null);
+  const [selectedEvidenceIndex, setSelectedEvidenceIndex] = useState<number>(0);
+
+  const evidencePhotoUrls = useMemo(() => {
+    const urls = (payroll?.evidencePhotoUrls ?? [])
+      .map(resolveEvidencePhotoUrl)
+      .filter((url) => url.length > 0);
+    return Array.from(new Set(urls));
+  }, [payroll?.evidencePhotoUrls]);
+
   if (!payroll) {
     return null;
   }
@@ -141,7 +170,89 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
             </p>
           )}
         </div>
+
+        {payroll.referenceType === "PANEN" && (
+          <div className="mt-4 border border-cream-dark rounded p-4 bg-cream/40">
+            <p className="text-[10px] tracking-[0.12em] uppercase text-text-light mb-2">Bukti Panen</p>
+
+            {evidencePhotoUrls.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {evidencePhotoUrls.map((url, index) => (
+                  <button
+                    key={`${url}-${index}`}
+                    type="button"
+                    onClick={() => {
+                      setSelectedEvidenceUrl(url);
+                      setSelectedEvidenceIndex(index + 1);
+                    }}
+                    className="h-16 w-16 overflow-hidden rounded border border-cream-dark bg-white"
+                    title={`Buka bukti foto ${index + 1}`}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={url}
+                      alt={`Bukti panen ${index + 1}`}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="font-sans text-[12px] text-text-light">Belum ada foto bukti panen.</p>
+            )}
+          </div>
+        )}
       </div>
+
+      {selectedEvidenceUrl && (
+        <div
+          className="fixed inset-0 z-[130] bg-forest/70 backdrop-blur-[1px] p-4 sm:p-8"
+          onClick={() => setSelectedEvidenceUrl(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Preview bukti panen"
+            className="max-w-5xl mx-auto h-full flex flex-col"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="bg-white rounded-md border border-cream-dark p-3 sm:p-4 shadow-[0_20px_48px_rgba(20,36,20,0.35)] flex-1 min-h-0 flex flex-col">
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <p className="font-sans text-[12px] text-text-mid">Bukti panen #{selectedEvidenceIndex}</p>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={selectedEvidenceUrl}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center rounded border border-forest px-3 py-1.5 font-sans text-[11px] text-forest hover:bg-forest/5"
+                  >
+                    Download
+                  </a>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="px-3 py-1.5 text-[11px]"
+                    onClick={() => setSelectedEvidenceUrl(null)}
+                  >
+                    Tutup
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={selectedEvidenceUrl}
+                  alt={`Preview bukti panen ${selectedEvidenceIndex}`}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

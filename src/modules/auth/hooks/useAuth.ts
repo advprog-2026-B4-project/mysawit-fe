@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { authApi, type LoginRequest, type RegisterRequest } from "../api/authApi";
+import { authApi, type LoginRequest, type OAuthCompleteRegistrationRequest, type RegisterRequest } from "../api/authApi";
 import { initiateGoogleLogin, handleGoogleCallback } from "../utils/googleOAuthHelper";
 import { saveAuth, clearAuth, getToken, getRole } from "@/lib/api/tokenStorage";
 
@@ -23,6 +23,13 @@ export function useAuth() {
   const register = async (data: RegisterRequest) => {
     const user = await authApi.registerUser(data);
     return user;
+  };
+
+  const completeOAuthRegistration = async (data: OAuthCompleteRegistrationRequest) => {
+    const { accessToken, role } = await authApi.completeGoogleOAuthRegistration(data);
+    saveAuth(accessToken, role);
+    router.push(ROLE_ROUTES[role] ?? "/login");
+    return { accessToken, role };
   };
 
   const loginWithGoogle = async () => {
@@ -58,6 +65,7 @@ export function useAuth() {
     register,
     loginWithGoogle,
     handleOAuthCallback,
+    completeOAuthRegistration,
     logout,
     isAuthenticated,
     getStoredRole,

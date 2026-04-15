@@ -59,14 +59,14 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
     return (
       <form
         onSubmit={handleSave}
-        className="grid grid-cols-1 sm:grid-cols-[110px_1fr] gap-5 px-6 py-5 bg-surface border-b border-cream-dark last:border-b-0"
+        className="grid grid-cols-[110px_1fr_auto_auto] items-start gap-5 px-6 py-5 bg-surface border-b border-cream-dark last:border-b-0"
       >
         {/* Badge anchor */}
         <div className="pt-0.5">
           <KeyBadge label={item.key} />
         </div>
 
-        <div>
+        <div className="col-span-3">
           <p className="font-sans text-sm font-normal text-text-dark mb-4">{item.label}</p>
 
           <div className="flex items-end gap-3 flex-wrap">
@@ -136,9 +136,11 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
       </div>
 
       {/* Edit */}
-      <Button variant="secondary" onClick={openEdit} className="px-4 py-2 text-[12px]">
-        Ubah
-      </Button>
+      <div className="flex justify-end">
+        <Button variant="secondary" onClick={openEdit} className="px-4 py-2 text-[12px]">
+          Ubah
+        </Button>
+      </div>
     </div>
   );
 }
@@ -155,7 +157,9 @@ function SkeletonRow() {
         <div className="h-3 w-64 bg-sand/50 rounded" />
       </div>
       <div className="h-7 w-24 bg-cream-dark rounded ml-auto" />
-      <div className="h-8 w-16 bg-cream-dark rounded" />
+      <div className="flex justify-end">
+        <div className="h-8 w-16 bg-cream-dark rounded" />
+      </div>
     </div>
   );
 }
@@ -186,7 +190,7 @@ function VariabelPokokPageContent() {
               <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Kode</span>
               <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Variabel</span>
               <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light text-right">Nilai</span>
-              <span />
+              <span className="font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light text-right">Aksi</span>
             </div>
 
             {isLoading && [0, 1, 2].map((i) => <SkeletonRow key={i} />)}

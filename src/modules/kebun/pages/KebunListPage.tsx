@@ -169,11 +169,13 @@ export default function KebunListPage() {
                                 {kebun.coordinates.map((coordinate) => `(${coordinate.lat}, ${coordinate.lng})`).join(", ")}
                             </div>
                             <div className="flex justify-end gap-2">
-                                <Link
-                                    href={`/admin/kebun/${kebun.kebunId}`}
-                                    className="rounded border border-sand px-3.5 py-1.5 text-[12px] text-text-mid no-underline transition-colors hover:border-forest/50"
-                                >
-                                    Detail
+                                <Link href={`/admin/kebun/${kebun.kebunId}`}>
+                                    <Button
+                                        variant="ghost"
+                                        className="px-3.5 py-1.5 text-[12px]"
+                                    >
+                                        Detail
+                                    </Button>
                                 </Link>
                                 <Button
                                     variant="secondary"

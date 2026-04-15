@@ -35,6 +35,7 @@ export default function UserDetailPage() {
 
   const [editing, setEditing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [editError, setEditError] = useState("");
   const [payrollStartDate, setPayrollStartDate] = useState("");
   const [payrollEndDate, setPayrollEndDate] = useState("");
   const [payrollPage, setPayrollPage] = useState(0);
@@ -45,6 +46,7 @@ export default function UserDetailPage() {
       name:  user?.name  ?? "",
       email: user?.email ?? "",
       role:  (user?.role ?? "BURUH") as UserRole,
+      mandorCertificationNumber: user?.mandorCertificationNumber ?? "",
     }),
     [user],
   );
@@ -92,11 +94,27 @@ export default function UserDetailPage() {
 
   function openEdit() {
     setForm(defaultForm);
+    setEditError("");
     setEditing(true);
   }
 
   async function handleSave() {
-    await editUser.mutateAsync({ userId, payload: form });
+    if (form.role === "MANDOR" && !form.mandorCertificationNumber.trim()) {
+      setEditError("Nomor sertifikasi mandor wajib diisi");
+      return;
+    }
+
+    await editUser.mutateAsync({
+      userId,
+      payload: {
+        name: form.name,
+        email: form.email,
+        role: form.role,
+        mandorCertificationNumber:
+          form.role === "MANDOR" ? form.mandorCertificationNumber.trim() : undefined,
+      },
+    });
+    setEditError("");
     setEditing(false);
     setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
@@ -148,6 +166,12 @@ export default function UserDetailPage() {
         </div>
       )}
 
+      {editError && (
+        <div className="px-4 py-3 mb-6 bg-error/[.07] border border-error/[.27] rounded text-[13px] text-error">
+          {editError}
+        </div>
+      )}
+
       {/* Info card */}
       <div className="bg-white border border-cream-dark rounded-md p-8 mb-6">
         <h3 className="font-serif text-[18px] font-normal text-text-dark mb-6 pb-4 border-b border-cream-dark">
@@ -166,7 +190,16 @@ export default function UserDetailPage() {
               </label>
               <select
                 value={form.role}
-                onChange={(e) => setForm((f) => ({ ...f, role: e.target.value as UserRole }))}
+                onChange={(e) => {
+                  const nextRole = e.target.value as UserRole;
+                  setForm((f) => ({
+                    ...f,
+                    role: nextRole,
+                    mandorCertificationNumber: nextRole === "MANDOR"
+                      ? f.mandorCertificationNumber
+                      : "",
+                  }));
+                }}
                 className="w-full px-4 py-[11px] bg-white border border-sand rounded font-sans text-[13px] text-text-dark outline-none"
               >
                 {EDITABLE_ROLES.map((r) => (
@@ -174,8 +207,18 @@ export default function UserDetailPage() {
                 ))}
               </select>
             </div>
+
+            {form.role === "MANDOR" && (
+              <Input
+                label="Nomor Sertifikasi Mandor"
+                value={form.mandorCertificationNumber}
+                onChange={(e) => setForm((f) => ({ ...f, mandorCertificationNumber: e.target.value }))}
+                required
+              />
+            )}
+
             <div className="flex gap-3 pt-2">
-              <Button variant="ghost" onClick={() => setEditing(false)}>Batal</Button>
+              <Button variant="ghost" onClick={() => { setEditing(false); setEditError(""); }}>Batal</Button>
               <Button onClick={handleSave} loading={editUser.isPending}>Simpan Perubahan</Button>
             </div>
           </div>
@@ -186,6 +229,9 @@ export default function UserDetailPage() {
               { label: "Username",     value: `@${user.username}` },
               { label: "Email",        value: user.email },
               { label: "Peran",        value: user.role },
+              ...(user.role === "MANDOR"
+                ? [{ label: "Nomor Sertifikasi Mandor", value: user.mandorCertificationNumber?.trim() || "Belum diisi" }]
+                : []),
               ...(mandorName ? [{ label: "Mandor", value: mandorName }] : []),
             ].map(({ label, value }) => (
               <div key={label}>
@@ -263,8 +309,9 @@ export default function UserDetailPage() {
             </Button>
           </div>
 
-          <div className="border border-cream-dark rounded-md overflow-x-auto">
-            <div className="min-w-[860px]">
+          <div className="border border-cream-dark rounded-md overflow-hidden">
+            <div className="overflow-x-auto">
+              <div className="min-w-[900px]">
               <div className="grid grid-cols-[1.1fr_1fr_1fr_0.8fr_0.75fr] gap-4 px-5 py-3 bg-cream border-b border-cream-dark">
                 <span className="text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Payroll</span>
                 <span className="text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Referensi</span>
@@ -340,6 +387,7 @@ export default function UserDetailPage() {
                   </div>
                 </div>
               ))}
+            </div>
             </div>
           </div>
 

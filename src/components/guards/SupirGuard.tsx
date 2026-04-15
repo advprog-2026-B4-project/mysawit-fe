@@ -2,14 +2,14 @@
 
 import RoleGuard from "@/components/guards/RoleGuard";
 
-interface BuruhGuardProps {
+interface SupirGuardProps {
   children: React.ReactNode;
 }
 
-export default function BuruhGuard({ children }: BuruhGuardProps) {
+export default function SupirGuard({ children }: SupirGuardProps) {
   return (
     <RoleGuard
-      allowedRoles={["BURUH"]}
+      allowedRoles={["SUPIR"]}
       unauthenticatedRedirectTo="/login"
       unauthorizedRedirectTo="/"
       unauthorizedMode="redirect"

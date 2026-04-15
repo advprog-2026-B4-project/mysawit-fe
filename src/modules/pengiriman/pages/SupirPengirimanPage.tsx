@@ -86,64 +86,70 @@ export default function SupirPengirimanPage() {
         </div>
 
         <div className="border border-cream-dark rounded-md bg-white overflow-hidden">
-          <div className="grid grid-cols-[1.35fr_auto_auto_auto_auto] gap-4 px-6 py-3 bg-cream border-b border-cream-dark">
-            <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">ID Pengiriman</span>
-            <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Status</span>
-            <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Total</span>
-            <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Diterima</span>
-            <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Waktu</span>
-          </div>
-
-          {isLoading && (
-            <div className="px-6 py-10 text-center font-sans text-[13px] text-text-light">
-              Memuat daftar pengiriman...
-            </div>
-          )}
-
-          {isError && (
-            <div className="px-6 py-10 text-center">
-              <p className="font-sans text-[13px] text-error">
-                {error?.message ?? "Gagal memuat daftar pengiriman."}
-              </p>
-              <div className="mt-4">
-                <Button variant="ghost" onClick={() => refetch()}>
-                  Coba lagi
-                </Button>
+          <div className="overflow-x-auto">
+            <div className="min-w-[920px]">
+              <div className="grid grid-cols-[1.35fr_0.7fr_0.7fr_0.8fr_0.95fr] gap-4 px-6 py-3 bg-cream border-b border-cream-dark">
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">ID Pengiriman</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-center">Status</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Total</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Diterima</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Waktu</span>
               </div>
-            </div>
-          )}
 
-          {!isLoading && !isError && data.length === 0 && (
-            <div className="px-6 py-14 text-center">
-              <h2 className="font-serif text-[24px] text-text-dark">Belum ada pengiriman</h2>
-              <p className="mt-2 font-sans text-[13px] text-text-light">
-                Saat ini belum ada penugasan pengiriman untuk akun Anda.
-              </p>
-            </div>
-          )}
+              {isLoading && (
+                <div className="px-6 py-10 text-center font-sans text-[13px] text-text-light">
+                  Memuat daftar pengiriman...
+                </div>
+              )}
 
-          {!isLoading && !isError && data.map((item, index) => (
-            <div
-              key={item.pengirimanId}
-              className={`grid grid-cols-[1.35fr_auto_auto_auto_auto] gap-4 items-center px-6 py-4 ${
-                index < data.length - 1 ? "border-b border-cream-dark" : ""
-              }`}
-            >
-              <span className="font-mono text-[12px] text-text-mid">{item.pengirimanId}</span>
-              <span className={`inline-block px-2.5 py-1 rounded border text-[11px] font-medium ${statusClass(item.status)}`}>
-                {item.status}
-              </span>
-              <span className="text-right font-sans text-[13px] text-text-dark">
-                {formatWeight(item.totalWeight)}
-              </span>
-              <span className="text-right font-sans text-[13px] text-text-dark">
-                {formatWeight(item.acceptedWeight)}
-              </span>
-              <span className="text-right font-sans text-[12px] text-text-light">
-                {formatTimestamp(item.timestamp)}
-              </span>
+              {isError && (
+                <div className="px-6 py-10 text-center">
+                  <p className="font-sans text-[13px] text-error">
+                    {error?.message ?? "Gagal memuat daftar pengiriman."}
+                  </p>
+                  <div className="mt-4">
+                    <Button variant="ghost" onClick={() => refetch()}>
+                      Coba lagi
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {!isLoading && !isError && data.length === 0 && (
+                <div className="px-6 py-14 text-center">
+                  <h2 className="font-serif text-[24px] text-text-dark">Belum ada pengiriman</h2>
+                  <p className="mt-2 font-sans text-[13px] text-text-light">
+                    Saat ini belum ada penugasan pengiriman untuk akun Anda.
+                  </p>
+                </div>
+              )}
+
+              {!isLoading && !isError && data.map((item, index) => (
+                <div
+                  key={item.pengirimanId}
+                  className={`grid grid-cols-[1.35fr_0.7fr_0.7fr_0.8fr_0.95fr] gap-4 items-center px-6 py-4 ${
+                    index < data.length - 1 ? "border-b border-cream-dark" : ""
+                  }`}
+                >
+                  <span className="font-mono text-[12px] text-text-mid break-all">{item.pengirimanId}</span>
+                  <div className="text-center">
+                    <span className={`inline-block px-2.5 py-1 rounded border text-[11px] font-medium ${statusClass(item.status)}`}>
+                      {item.status}
+                    </span>
+                  </div>
+                  <span className="text-right font-sans text-[13px] text-text-dark">
+                    {formatWeight(item.totalWeight)}
+                  </span>
+                  <span className="text-right font-sans text-[13px] text-text-dark">
+                    {formatWeight(item.acceptedWeight)}
+                  </span>
+                  <span className="text-right font-sans text-[12px] text-text-light">
+                    {formatTimestamp(item.timestamp)}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </div>

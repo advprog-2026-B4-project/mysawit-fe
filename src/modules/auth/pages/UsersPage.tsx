@@ -63,86 +63,92 @@ export default function UsersPage() {
           placeholder="Cari nama atau email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-2.5 bg-white border border-sand rounded font-sans text-[13px] font-light text-text-dark outline-none w-[280px] focus:border-forest-mid transition-colors"
+          className="px-4 py-2.5 bg-white border border-sand rounded font-sans text-[13px] font-light text-text-dark outline-none w-full sm:w-[280px] focus:border-forest-mid transition-colors"
         />
-        <div className="flex gap-1">
-          {ROLE_TABS.map((tab) => (
-            <button
-              key={tab.value}
-              onClick={() => setRoleFilter(tab.value)}
-              className={`px-4 py-2 rounded font-sans text-[12px] font-normal tracking-[0.04em] cursor-pointer border transition-all duration-150 ${
-                roleFilter === tab.value
-                  ? "border-forest bg-forest text-cream"
-                  : "border-sand bg-transparent text-text-mid hover:border-forest/50"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="w-full sm:w-auto overflow-x-auto">
+          <div className="flex gap-1 min-w-max">
+            {ROLE_TABS.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => setRoleFilter(tab.value)}
+                className={`px-4 py-2 rounded font-sans text-[12px] font-normal tracking-[0.04em] cursor-pointer border transition-all duration-150 ${
+                  roleFilter === tab.value
+                    ? "border-forest bg-forest text-cream"
+                    : "border-sand bg-transparent text-text-mid hover:border-forest/50"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Table */}
       <div className="bg-white border border-cream-dark rounded-md overflow-hidden">
-        {/* Table header */}
-        <div className="grid grid-cols-[1fr_1.5fr_auto_auto_auto] px-6 py-3.5 border-b border-cream-dark gap-4">
-          {["Nama", "Email", "Peran", "Status", ""].map((h) => (
-            <div key={h} className="text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">
-              {h}
+        <div className="overflow-x-auto">
+          <div className="min-w-[840px]">
+            {/* Table header */}
+            <div className="grid grid-cols-[minmax(200px,1fr)_minmax(250px,1.6fr)_max-content_max-content] px-6 py-3.5 border-b border-cream-dark gap-3">
+              <div className="text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Nama</div>
+              <div className="text-[10px] font-medium tracking-[0.12em] uppercase text-text-light">Email</div>
+              <div className="text-[10px] font-medium tracking-[0.12em] uppercase text-text-light text-center">Peran</div>
+              <div className="text-[10px] font-medium tracking-[0.12em] uppercase text-text-light text-right">Aksi</div>
             </div>
-          ))}
-        </div>
 
-        {isLoading ? (
-          <div className="py-12 text-center text-text-light text-[13px]">Memuat data...</div>
-        ) : filtered.length === 0 ? (
-          <div className="py-12 text-center text-text-light text-[13px]">Tidak ada pengguna ditemukan</div>
-        ) : (
-          filtered.map((user, i) => (
-            <div
-              key={user.userId}
-              className={`grid grid-cols-[1fr_1.5fr_auto_auto_auto] px-6 py-4 gap-4 items-center transition-colors duration-100 hover:bg-cream ${
-                i < filtered.length - 1 ? "border-b border-cream-dark" : ""
-              }`}
-            >
-              <div>
-                <div className="text-[14px] font-normal text-text-dark">{user.name}</div>
-                <div className="text-[11px] text-text-light mt-0.5">@{user.username}</div>
-              </div>
-              <div className="text-[13px] font-light text-text-mid">{user.email}</div>
-              <RoleBadge role={user.role} />
-              <div className="w-2 h-2 rounded-full bg-success" />
-              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <Link href={`/admin/users/${user.userId}`} className="w-full sm:w-auto">
-                  <Button
-                    variant="ghost"
-                    className="py-1.5 px-3.5 text-[12px] w-full sm:w-auto hover:bg-forest/10 hover:text-forest active:bg-forest/20 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-lg hover:-translate-y-0.5"
-                  >
-                    Detail
-                  </Button>
-                </Link>
-                {user.role === "BURUH" && (
-                  <Button
-                    variant="secondary"
-                    className="py-1.5 px-3.5 text-[12px] w-full sm:w-auto hover:bg-gold/10 hover:text-gold active:bg-gold/20 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-lg hover:-translate-y-0.5"
-                    onClick={() => setAssignTarget(user)}
-                  >
-                    Tugaskan
-                  </Button>
-                )}
-                {user.role !== "ADMIN" && (
-                  <Button
-                    variant="danger"
-                    className="py-1.5 px-3.5 text-[12px] w-full sm:w-auto hover:bg-error/10 hover:text-error active:bg-error/20 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-lg hover:-translate-y-0.5"
-                    onClick={() => setDeleteTarget(user)}
-                  >
-                    Hapus
-                  </Button>
-                )}
-              </div>
-            </div>
-          ))
-        )}
+            {isLoading ? (
+              <div className="py-12 text-center text-text-light text-[13px]">Memuat data...</div>
+            ) : filtered.length === 0 ? (
+              <div className="py-12 text-center text-text-light text-[13px]">Tidak ada pengguna ditemukan</div>
+            ) : (
+              filtered.map((user, i) => (
+                <div
+                  key={user.userId}
+                  className={`grid grid-cols-[minmax(200px,1fr)_minmax(250px,1.6fr)_max-content_max-content] px-6 py-4 gap-3 items-center transition-colors duration-100 hover:bg-cream ${
+                    i < filtered.length - 1 ? "border-b border-cream-dark" : ""
+                  }`}
+                >
+                  <div>
+                    <div className="text-[14px] font-normal text-text-dark">{user.name}</div>
+                    <div className="text-[11px] text-text-light mt-0.5">@{user.username}</div>
+                  </div>
+                  <div className="text-[13px] font-light text-text-mid break-all">{user.email}</div>
+                  <div className="w-fit justify-self-center">
+                    <RoleBadge role={user.role} />
+                  </div>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    <Link href={`/admin/users/${user.userId}`}>
+                      <Button
+                        variant="ghost"
+                        className="py-1.5 px-3.5 text-[12px] hover:bg-forest/10 hover:text-forest active:bg-forest/20 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-lg hover:-translate-y-0.5"
+                      >
+                        Detail
+                      </Button>
+                    </Link>
+                    {user.role === "BURUH" && (
+                      <Button
+                        variant="secondary"
+                        className="py-1.5 px-3.5 text-[12px] hover:bg-gold/10 hover:text-gold active:bg-gold/20 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-lg hover:-translate-y-0.5"
+                        onClick={() => setAssignTarget(user)}
+                      >
+                        Tugaskan
+                      </Button>
+                    )}
+                    {user.role !== "ADMIN" && (
+                      <Button
+                        variant="danger"
+                        className="py-1.5 px-3.5 text-[12px] hover:bg-error/10 hover:text-error active:bg-error/20 transition-all duration-200 shadow-sm hover:shadow-md active:shadow-lg hover:-translate-y-0.5"
+                        onClick={() => setDeleteTarget(user)}
+                      >
+                        Hapus
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="mt-4 text-[12px] text-text-light">

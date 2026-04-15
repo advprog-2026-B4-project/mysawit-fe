@@ -13,6 +13,7 @@ import {
 	PayrollDetailDialog,
 	PayrollFilterCard,
 	PayrollPagination,
+	resolveEvidencePhotoUrl,
 	resolvePayrollReferenceLink,
 	type PayrollStatusFilter,
 } from "../components/PayrollShared";
@@ -32,6 +33,14 @@ function PayrollRow({
 	isSelected: boolean;
 	isMutating: boolean;
 }) {
+	const shouldLoadPanenEvidence = payroll.status === "PENDING" && payroll.referenceType === "PANEN";
+	const evidencePhotoUrls = useMemo(() => {
+		const urls = (payroll.evidencePhotoUrls ?? [])
+			.map(resolveEvidencePhotoUrl)
+			.filter((url) => url.length > 0);
+		return Array.from(new Set(urls));
+	}, [payroll.evidencePhotoUrls]);
+
 	return (
 		<div
 			role="button"
@@ -81,7 +90,7 @@ function PayrollRow({
 				</span>
 			</div>
 
-			<div className="flex flex-wrap justify-end gap-2">
+			<div className="flex flex-wrap justify-end gap-2 content-start">
 				{payroll.status === "PENDING" ? (
 					<>
 						<Button
@@ -109,6 +118,38 @@ function PayrollRow({
 					</>
 				) : (
 					<p className="font-sans text-[12px] text-text-light">Diproses</p>
+				)}
+
+				{shouldLoadPanenEvidence && (
+					<div className="w-full pt-1">
+						<p className="font-sans text-[10px] uppercase tracking-[0.08em] text-text-light text-right">
+							Bukti Panen
+						</p>
+
+						{evidencePhotoUrls.length > 0 ? (
+							<div className="mt-1.5 flex flex-wrap justify-end gap-1.5">
+								{evidencePhotoUrls.map((photoUrl, index) => {
+									return (
+										<div
+											key={`${photoUrl}-${index}`}
+											className="block h-12 w-12 overflow-hidden rounded border border-cream-dark bg-cream"
+											title={`Lihat bukti foto ${index + 1}`}
+										>
+											{/* eslint-disable-next-line @next/next/no-img-element */}
+											<img
+												src={photoUrl}
+												alt={`Bukti panen ${index + 1}`}
+												className="h-full w-full object-cover"
+												loading="lazy"
+											/>
+										</div>
+									);
+								})}
+							</div>
+						) : (
+							<p className="font-sans text-[11px] text-text-light text-right mt-1">Belum ada foto bukti.</p>
+						)}
+					</div>
 				)}
 			</div>
 		</div>
@@ -197,7 +238,7 @@ function AdminPayrollPageContent() {
 	}
 
 	return (
-		<div className="max-w-6xl">
+		<div className="w-full">
 			<div className="mb-8">
 				<h2 className="font-serif text-[32px] text-text-dark mb-1.5">Payroll</h2>
 				<p className="font-sans text-[13px] font-light text-text-light">
