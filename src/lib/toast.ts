@@ -9,7 +9,7 @@ import {
 type ToastText = ValueOrFunction<Renderable, Toast>;
 
 type PromiseMessages<T> = {
-  loading: ToastText;
+  loading: Renderable;
   success: ValueOrFunction<Renderable, T>;
   error: ValueOrFunction<Renderable, unknown>;
 };
