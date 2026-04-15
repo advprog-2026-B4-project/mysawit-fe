@@ -1,7 +1,8 @@
 import { useRouter } from "next/navigation";
-import { authApi, type LoginRequest, type RegisterRequest } from "../api/authApi";
+import { authApi, type LoginRequest, type OAuthCompleteRegistrationRequest, type RegisterRequest } from "../api/authApi";
 import { initiateGoogleLogin, handleGoogleCallback } from "../utils/googleOAuthHelper";
 import { saveAuth, clearAuth, getToken, getRole } from "@/lib/api/tokenStorage";
+import { extractErrorMessage, notify } from "@/lib/toast";
 
 export const ROLE_ROUTES: Record<string, string> = {
   ADMIN:  "/admin/users",
@@ -14,15 +15,40 @@ export function useAuth() {
   const router = useRouter();
 
   const loginWithEmail = async (credentials: LoginRequest) => {
-    const { accessToken, role } = await authApi.loginWithEmail(credentials);
-    saveAuth(accessToken, role);
-    router.push(ROLE_ROUTES[role] ?? "/login");
-    return { accessToken, role };
+    try {
+      const { accessToken, role } = await authApi.loginWithEmail(credentials);
+      saveAuth(accessToken, role);
+      notify.success("Login berhasil.");
+      router.push(ROLE_ROUTES[role] ?? "/login");
+      return { accessToken, role };
+    } catch (error: unknown) {
+      notify.error(extractErrorMessage(error, "Gagal login."));
+      throw error;
+    }
   };
 
   const register = async (data: RegisterRequest) => {
-    const user = await authApi.registerUser(data);
-    return user;
+    try {
+      const user = await authApi.registerUser(data);
+      notify.success("Registrasi berhasil. Silakan login.");
+      return user;
+    } catch (error: unknown) {
+      notify.error(extractErrorMessage(error, "Gagal melakukan registrasi."));
+      throw error;
+    }
+  };
+
+  const completeOAuthRegistration = async (data: OAuthCompleteRegistrationRequest) => {
+    try {
+      const { accessToken, role } = await authApi.completeGoogleOAuthRegistration(data);
+      saveAuth(accessToken, role);
+      notify.success("Registrasi akun Google berhasil.");
+      router.push(ROLE_ROUTES[role] ?? "/login");
+      return { accessToken, role };
+    } catch (error: unknown) {
+      notify.error(extractErrorMessage(error, "Gagal menyelesaikan registrasi Google."));
+      throw error;
+    }
   };
 
   const loginWithGoogle = async () => {
@@ -42,6 +68,7 @@ export function useAuth() {
   const logout = async () => {
     try { await authApi.logout(); } catch { /* ignore network errors on logout */ }
     clearAuth();
+    notify.success("Anda berhasil keluar.");
     router.push("/login");
   };
 
@@ -58,6 +85,7 @@ export function useAuth() {
     register,
     loginWithGoogle,
     handleOAuthCallback,
+    completeOAuthRegistration,
     logout,
     isAuthenticated,
     getStoredRole,

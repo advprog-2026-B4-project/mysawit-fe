@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/modules/auth";
+import { extractErrorMessage, notify } from "@/lib/toast";
 import {
   pembayaranApi,
   type PayrollDTO,
   type PayrollListFilter,
+  type PayrollPageDTO,
   type PayrollStatusDTO,
 } from "../api/pembayaranApi";
 
@@ -33,7 +35,7 @@ export function usePayrollStatus(payrollId: string) {
  */
 export function usePayrollsByUser(userId: string, filter?: PayrollListFilter) {
   const { isAuthenticated } = useAuth();
-  return useQuery<PayrollDTO[], Error>({
+  return useQuery<PayrollPageDTO, Error>({
     queryKey: payrollKeys.byUser(userId, filter),
     queryFn:  () => pembayaranApi.getPayrollsByUserId(userId, filter),
     enabled:  isAuthenticated() && !!userId,
@@ -43,7 +45,7 @@ export function usePayrollsByUser(userId: string, filter?: PayrollListFilter) {
 /** Returns all payrolls. Requires ADMIN role - enforced server-side by RBAC. */
 export function useAllPayrolls(filter?: PayrollListFilter) {
   const { isAuthenticated } = useAuth();
-  return useQuery<PayrollDTO[], Error>({
+  return useQuery<PayrollPageDTO, Error>({
     queryKey: payrollKeys.list(filter),
     queryFn:  () => pembayaranApi.listAllPayrolls(filter),
     enabled:  isAuthenticated(),
@@ -60,6 +62,10 @@ export function useApprovePayroll() {
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: payrollKeys.all });
       queryClient.invalidateQueries({ queryKey: payrollKeys.status(updated.payrollId) });
+      notify.success("Payroll berhasil disetujui.");
+    },
+    onError: (error: unknown) => {
+      notify.error(extractErrorMessage(error, "Gagal menyetujui payroll."));
     },
   });
 }
@@ -77,6 +83,10 @@ export function useRejectPayroll() {
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: payrollKeys.all });
       queryClient.invalidateQueries({ queryKey: payrollKeys.status(updated.payrollId) });
+      notify.success("Payroll berhasil ditolak.");
+    },
+    onError: (error: unknown) => {
+      notify.error(extractErrorMessage(error, "Gagal menolak payroll."));
     },
   });
 }

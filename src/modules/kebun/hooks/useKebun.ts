@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { extractErrorMessage, notify } from "@/lib/toast";
 import {
     kebunApi,
     type CreateKebunRequest,
@@ -86,6 +87,10 @@ export function useCreateKebun() {
         mutationFn: (payload: CreateKebunRequest) => kebunApi.createKebun(payload),
         onSuccess: () => {
             invalidateKebunQueries(queryClient);
+            notify.success("Kebun berhasil dibuat.");
+        },
+        onError: (error: unknown) => {
+            notify.error(extractErrorMessage(error, "Gagal membuat kebun."));
         },
     });
 }
@@ -98,6 +103,10 @@ export function useEditKebun() {
             kebunApi.editKebun(kebunId, payload),
         onSuccess: () => {
             invalidateKebunQueries(queryClient);
+            notify.success("Perubahan kebun berhasil disimpan.");
+        },
+        onError: (error: unknown) => {
+            notify.error(extractErrorMessage(error, "Gagal memperbarui kebun."));
         },
     });
 }
@@ -109,6 +118,10 @@ export function useDeleteKebun() {
         mutationFn: (kebunId: string) => kebunApi.deleteKebun(kebunId),
         onSuccess: () => {
             invalidateKebunQueries(queryClient);
+            notify.success("Kebun berhasil dihapus.");
+        },
+        onError: (error: unknown) => {
+            notify.error(extractErrorMessage(error, "Gagal menghapus kebun."));
         },
     });
 }
@@ -121,6 +134,10 @@ export function useAssignMandorToKebun() {
             kebunApi.assignMandorToKebun(mandorId, kebunId),
         onSuccess: () => {
             invalidateKebunQueries(queryClient);
+            notify.success("Mandor berhasil ditugaskan.");
+        },
+        onError: (error: unknown) => {
+            notify.error(extractErrorMessage(error, "Gagal menugaskan mandor."));
         },
     });
 }
@@ -133,6 +150,10 @@ export function useMoveMandorToKebun() {
             kebunApi.moveMandorToKebun(mandorId, newKebunId),
         onSuccess: () => {
             invalidateKebunQueries(queryClient);
+            notify.success("Mandor berhasil dipindahkan.");
+        },
+        onError: (error: unknown) => {
+            notify.error(extractErrorMessage(error, "Gagal memindahkan mandor."));
         },
     });
 }
@@ -145,6 +166,10 @@ export function useAssignSupirToKebun() {
             kebunApi.assignSupirToKebun(supirId, kebunId),
         onSuccess: () => {
             invalidateKebunQueries(queryClient);
+            notify.success("Supir berhasil ditugaskan.");
+        },
+        onError: (error: unknown) => {
+            notify.error(extractErrorMessage(error, "Gagal menugaskan supir."));
         },
     });
 }
@@ -157,6 +182,10 @@ export function useMoveSupirToKebun() {
             kebunApi.moveSupirToKebun(supirId, newKebunId),
         onSuccess: () => {
             invalidateKebunQueries(queryClient);
+            notify.success("Supir berhasil dipindahkan.");
+        },
+        onError: (error: unknown) => {
+            notify.error(extractErrorMessage(error, "Gagal memindahkan supir."));
         },
     });
 }

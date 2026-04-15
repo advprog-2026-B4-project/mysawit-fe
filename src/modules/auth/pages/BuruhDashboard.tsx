@@ -1,35 +1,42 @@
 "use client";
 
 import React from "react";
-
-
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { useAuth } from "@/modules/auth";
-import Link from "next/dist/client/link";
 
 const BuruhDashboard: React.FC = () => {
-  const { logout } = useAuth();
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
-      {/* Navbar */}
-      <nav className="w-full flex items-center justify-between px-6 py-4 bg-white border-b border-sand">
-        <span className="font-serif text-xl text-forest">MySawit</span>
-        <Link href="/buruh/panen/create" className="text-forest hover:text-forest/80">
-          Tambah Panen
-        </Link>
-        <Button
-          variant="ghost"
-          onClick={logout}
-          className="hover:bg-error/10 hover:text-error active:bg-error/20 transition-colors"
-        >
-          Logout
-        </Button>
-      </nav>
-      {/* Content */}
-      <main className="flex-1 flex flex-col items-center justify-center">
-        <h1 className="font-serif text-3xl text-forest mb-4">Buruh Dashboard</h1>
-        <p className="text-text-mid">Stat cards and panen info go here.</p>
-      </main>
+    <div className="max-w-5xl">
+      <div className="mb-8">
+        <h1 className="font-serif text-[34px] text-text-dark mb-1.5">Dashboard Buruh</h1>
+        <p className="font-sans text-[13px] text-text-light">
+          Akses cepat ke fungsi utama buruh: pencatatan panen dan melihat payroll/wallet.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border border-cream-dark bg-white rounded-md p-5">
+          <p className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light mb-2">Panen</p>
+          <h2 className="font-serif text-[24px] text-text-dark mb-2">Catat Hasil Panen</h2>
+          <p className="font-sans text-[13px] text-text-mid mb-4">
+            Input hasil panen harian sesuai ketentuan role buruh.
+          </p>
+          <Link href="/buruh/panen/create">
+            <Button variant="secondary" className="px-4 py-2 text-[12px]">Buka Form Panen</Button>
+          </Link>
+        </div>
+
+        <div className="border border-cream-dark bg-white rounded-md p-5">
+          <p className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light mb-2">Pembayaran</p>
+          <h2 className="font-serif text-[24px] text-text-dark mb-2">Payroll & Wallet</h2>
+          <p className="font-sans text-[13px] text-text-mid mb-4">
+            Lihat saldo wallet dan riwayat payroll Anda.
+          </p>
+          <Link href="/buruh/pembayaran">
+            <Button variant="secondary" className="px-4 py-2 text-[12px]">Buka Pembayaran</Button>
+          </Link>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/modules/auth";
+import { extractErrorMessage, notify } from "@/lib/toast";
 import {
   pembayaranApi,
   type WalletBalanceDTO,
@@ -51,6 +52,10 @@ export function useInitiateTopUp(userId: string) {
       // Balance updates arrive via Midtrans webhook; invalidate once top-up is initiated
       // so the UI re-fetches after payment confirmation.
       queryClient.invalidateQueries({ queryKey: walletKeys.balance(userId) });
+      notify.success("Permintaan top-up berhasil dibuat.");
+    },
+    onError: (error: unknown) => {
+      notify.error(extractErrorMessage(error, "Gagal memulai top-up wallet."));
     },
   });
 }

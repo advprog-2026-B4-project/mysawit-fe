@@ -8,6 +8,7 @@ export interface UserDTO {
   name: string;
   role: UserRole;
   email: string;
+  mandorCertificationNumber?: string | null;
 }
 
 export interface LoginRequest {
@@ -20,6 +21,13 @@ export interface RegisterRequest {
   password: string;
   name: string;
   role: UserRole;
+  mandorCertificationNumber?: string;
+}
+
+export interface OAuthCompleteRegistrationRequest {
+  registrationToken: string;
+  role: Exclude<UserRole, "ADMIN">;
+  mandorCertificationNumber?: string;
 }
 
 export interface AuthTokenDTO {
@@ -41,6 +49,11 @@ export const authApi = {
 
   registerUser: async (payload: RegisterRequest): Promise<UserDTO> => {
     const { data } = await apiClient.post<UserDTO>("/api/auth/register", payload);
+    return data;
+  },
+
+  completeGoogleOAuthRegistration: async (payload: OAuthCompleteRegistrationRequest): Promise<AuthTokenDTO> => {
+    const { data } = await apiClient.post<AuthTokenDTO>("/api/auth/oauth2/complete-registration", payload);
     return data;
   },
 
@@ -73,7 +86,12 @@ export const authApi = {
     return data;
   },
 
-  editUser: async (userId: string, payload: Partial<Pick<UserDTO, "name" | "role" | "email">>): Promise<UserDTO> => {
+  getCurrentUser: async (): Promise<UserDTO> => {
+    const { data } = await apiClient.get<UserDTO>("/api/users/me");
+    return data;
+  },
+
+  editUser: async (userId: string, payload: Partial<Pick<UserDTO, "name" | "role" | "email" | "mandorCertificationNumber">>): Promise<UserDTO> => {
     const { data } = await apiClient.put<UserDTO>(`/api/users/${userId}`, payload);
     return data;
   },

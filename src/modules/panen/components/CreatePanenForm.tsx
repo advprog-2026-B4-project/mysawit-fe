@@ -71,12 +71,6 @@ export const CreatePanenForm: React.FC = () => {
         </p>
       </div>
 
-      {isSuccess && (
-        <div className="mb-8 px-4 py-3 bg-[#e6f4ea] border border-[#a8dab5] rounded text-[13px] text-[#137333]">
-          Berhasil mencatat laporan panen!
-        </div>
-      )}
-
       {error && (
         <div className="mb-8 px-4 py-3 bg-error/[.07] border border-error/[.27] rounded text-[13px] text-error">
           Gagal: {error.message}
