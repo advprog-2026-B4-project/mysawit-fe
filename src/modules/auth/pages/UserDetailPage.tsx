@@ -18,6 +18,7 @@ import {
 import { RoleBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { notify } from "@/lib/toast";
 import Link from "next/link";
 
 const EDITABLE_ROLES: UserRole[] = ["MANDOR", "BURUH", "SUPIR"];
@@ -34,7 +35,6 @@ export default function UserDetailPage() {
   const editUser = useEditUser();
 
   const [editing, setEditing] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [editError, setEditError] = useState("");
   const [payrollStartDate, setPayrollStartDate] = useState("");
   const [payrollEndDate, setPayrollEndDate] = useState("");
@@ -101,6 +101,7 @@ export default function UserDetailPage() {
   async function handleSave() {
     if (form.role === "MANDOR" && !form.mandorCertificationNumber.trim()) {
       setEditError("Nomor sertifikasi mandor wajib diisi");
+      notify.error("Nomor sertifikasi mandor wajib diisi.");
       return;
     }
 
@@ -116,8 +117,6 @@ export default function UserDetailPage() {
     });
     setEditError("");
     setEditing(false);
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 3000);
   }
 
   if (isLoading) return (
@@ -159,12 +158,6 @@ export default function UserDetailPage() {
           </Button>
         )}
       </div>
-
-      {success && (
-        <div className="px-4 py-3 mb-6 bg-success/[.07] border border-success/[.27] rounded text-[13px] text-success">
-          Profil berhasil diperbarui
-        </div>
-      )}
 
       {editError && (
         <div className="px-4 py-3 mb-6 bg-error/[.07] border border-error/[.27] rounded text-[13px] text-error">

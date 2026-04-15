@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/modules/auth";
 import { pembayaranApi, type VariabelPokokDTO, type VariableKey } from "../api/pembayaranApi";
+import { extractErrorMessage, notify } from "@/lib/toast";
 
 // Query keys - centralised to ensure consistent cache invalidation
 export const variabelPokokKeys = {
@@ -53,6 +54,11 @@ export function useUpdateVariabelPokok() {
       queryClient.setQueryData(variabelPokokKeys.one(updated.key), updated);
       // Invalidate the list so it re-fetches fresh data
       queryClient.invalidateQueries({ queryKey: variabelPokokKeys.all });
+      notify.success(`Variabel ${updated.key} berhasil diperbarui.`);
+    },
+
+    onError: (error: unknown) => {
+      notify.error(extractErrorMessage(error, "Gagal memperbarui variabel pokok."));
     },
   });
 }

@@ -5,6 +5,7 @@ import { useUsers, useDeleteUser, useAssignBuruh } from "@/modules/auth";
 import type { UserRole, UserDTO } from "@/modules/auth";
 import { RoleBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { notify } from "@/lib/toast";
 import Link from "next/link";
 
 const ROLE_TABS: { value: UserRole | ""; label: string }[] = [
@@ -39,7 +40,11 @@ export default function UsersPage() {
   }
 
   async function handleAssign() {
-    if (!assignTarget || !selectedMandor) return;
+    if (!assignTarget) return;
+    if (!selectedMandor) {
+      notify.error("Pilih mandor terlebih dahulu.");
+      return;
+    }
     await assignBuruh.mutateAsync({ buruhId: assignTarget.userId, mandorId: selectedMandor });
     setAssignTarget(null);
     setSelectedMandor("");

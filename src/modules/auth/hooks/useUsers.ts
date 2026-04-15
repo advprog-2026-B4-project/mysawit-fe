@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { extractErrorMessage, notify } from "@/lib/toast";
 import { authApi, type UserRole, type UserDTO } from "../api/authApi";
 
 export const userKeys = {
@@ -48,6 +49,10 @@ export function useEditUser() {
     }) => authApi.editUser(userId, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: userKeys.all });
+      notify.success("Profil pengguna berhasil diperbarui.");
+    },
+    onError: (error: unknown) => {
+      notify.error(extractErrorMessage(error, "Gagal memperbarui pengguna."));
     },
   });
 }
@@ -58,6 +63,10 @@ export function useDeleteUser() {
     mutationFn: (userId: string) => authApi.deleteUser(userId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: userKeys.all });
+      notify.success("Pengguna berhasil dihapus.");
+    },
+    onError: (error: unknown) => {
+      notify.error(extractErrorMessage(error, "Gagal menghapus pengguna."));
     },
   });
 }
@@ -69,6 +78,10 @@ export function useAssignBuruh() {
       authApi.assignBuruhToMandor(buruhId, mandorId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: userKeys.all });
+      notify.success("Buruh berhasil ditugaskan ke mandor.");
+    },
+    onError: (error: unknown) => {
+      notify.error(extractErrorMessage(error, "Gagal menugaskan buruh."));
     },
   });
 }

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/modules/auth";
+import { extractErrorMessage, notify } from "@/lib/toast";
 import {
   pembayaranApi,
   type PayrollDTO,
@@ -61,6 +62,10 @@ export function useApprovePayroll() {
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: payrollKeys.all });
       queryClient.invalidateQueries({ queryKey: payrollKeys.status(updated.payrollId) });
+      notify.success("Payroll berhasil disetujui.");
+    },
+    onError: (error: unknown) => {
+      notify.error(extractErrorMessage(error, "Gagal menyetujui payroll."));
     },
   });
 }
@@ -78,6 +83,10 @@ export function useRejectPayroll() {
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: payrollKeys.all });
       queryClient.invalidateQueries({ queryKey: payrollKeys.status(updated.payrollId) });
+      notify.success("Payroll berhasil ditolak.");
+    },
+    onError: (error: unknown) => {
+      notify.error(extractErrorMessage(error, "Gagal menolak payroll."));
     },
   });
 }

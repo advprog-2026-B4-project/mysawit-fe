@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import AdminGuard from "@/components/guards/AdminGuard";
 import { Button } from "@/components/ui/Button";
+import { notify } from "@/lib/toast";
 import { DEFAULT_PAYROLL_PAGE_SIZE, type PayrollDTO, type PayrollListFilter } from "../api/pembayaranApi";
 import { useAllPayrolls, useApprovePayroll, useRejectPayroll } from "../hooks/usePayroll";
 import {
@@ -23,6 +24,7 @@ function PayrollRow({
 	onApprove,
 	onOpenReject,
 	onOpenDetail,
+	onOpenEvidencePhoto,
 	isSelected,
 	isMutating,
 }: {
@@ -30,6 +32,7 @@ function PayrollRow({
 	onApprove: (payrollId: string) => Promise<void>;
 	onOpenReject: (payrollId: string) => void;
 	onOpenDetail: (payroll: PayrollDTO) => void;
+	onOpenEvidencePhoto: (photoUrl: string, index: number) => void;
 	isSelected: boolean;
 	isMutating: boolean;
 }) {
@@ -130,8 +133,13 @@ function PayrollRow({
 							<div className="mt-1.5 flex flex-wrap justify-end gap-1.5">
 								{evidencePhotoUrls.map((photoUrl, index) => {
 									return (
-										<div
+										<button
+											type="button"
 											key={`${photoUrl}-${index}`}
+											onClick={(event) => {
+												event.stopPropagation();
+												onOpenEvidencePhoto(photoUrl, index + 1);
+											}}
 											className="block h-12 w-12 overflow-hidden rounded border border-cream-dark bg-cream"
 											title={`Lihat bukti foto ${index + 1}`}
 										>
@@ -142,7 +150,7 @@ function PayrollRow({
 												className="h-full w-full object-cover"
 												loading="lazy"
 											/>
-										</div>
+										</button>
 									);
 								})}
 							</div>
@@ -166,6 +174,8 @@ function AdminPayrollPageContent() {
 	const [rejectReason, setRejectReason] = useState("");
 	const [localError, setLocalError] = useState<string | null>(null);
 	const [selectedPayrollId, setSelectedPayrollId] = useState<string | null>(null);
+	const [selectedEvidenceUrl, setSelectedEvidenceUrl] = useState<string | null>(null);
+	const [selectedEvidenceIndex, setSelectedEvidenceIndex] = useState<number>(0);
 
 	const filter = useMemo<PayrollListFilter>(
 		() => ({
@@ -221,6 +231,7 @@ function AdminPayrollPageContent() {
 		if (!rejectTarget) return;
 		if (!rejectReason.trim()) {
 			setLocalError("Alasan penolakan wajib diisi.");
+			notify.error("Alasan penolakan wajib diisi.");
 			return;
 		}
 
@@ -235,6 +246,11 @@ function AdminPayrollPageContent() {
 		} catch (err) {
 			setLocalError(err instanceof Error ? err.message : "Gagal menolak payroll.");
 		}
+	}
+
+	function handleOpenEvidencePhoto(photoUrl: string, index: number) {
+		setSelectedEvidenceUrl(photoUrl);
+		setSelectedEvidenceIndex(index);
 	}
 
 	return (
@@ -359,6 +375,7 @@ function AdminPayrollPageContent() {
 								onApprove={handleApprove}
 								onOpenReject={setRejectTarget}
 								onOpenDetail={(item) => setSelectedPayrollId(item.payrollId)}
+								onOpenEvidencePhoto={handleOpenEvidencePhoto}
 								isSelected={selectedPayrollId === payroll.payrollId}
 								isMutating={isMutating}
 							/>
@@ -366,6 +383,55 @@ function AdminPayrollPageContent() {
 					</div>
 				</div>
 			</div>
+
+			{selectedEvidenceUrl && (
+				<div
+					className="fixed inset-0 z-[130] bg-forest/70 backdrop-blur-[1px] p-4 sm:p-8"
+					onClick={() => setSelectedEvidenceUrl(null)}
+				>
+					<div
+						role="dialog"
+						aria-modal="true"
+						aria-label="Preview bukti panen"
+						className="max-w-5xl mx-auto h-full flex flex-col"
+						onClick={(event) => event.stopPropagation()}
+					>
+						<div className="bg-white rounded-md border border-cream-dark p-3 sm:p-4 shadow-[0_20px_48px_rgba(20,36,20,0.35)] flex-1 min-h-0 flex flex-col">
+							<div className="flex items-center justify-between gap-3 mb-3">
+								<p className="font-sans text-[12px] text-text-mid">Bukti panen #{selectedEvidenceIndex}</p>
+								<div className="flex items-center gap-2">
+									<a
+										href={selectedEvidenceUrl}
+										download
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-flex items-center rounded border border-forest px-3 py-1.5 font-sans text-[11px] text-forest hover:bg-forest/5"
+									>
+										Download
+									</a>
+									<Button
+										type="button"
+										variant="ghost"
+										className="px-3 py-1.5 text-[11px]"
+										onClick={() => setSelectedEvidenceUrl(null)}
+									>
+										Tutup
+									</Button>
+								</div>
+							</div>
+
+							<div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto flex items-center justify-center">
+								{/* eslint-disable-next-line @next/next/no-img-element */}
+								<img
+									src={selectedEvidenceUrl}
+									alt={`Preview bukti panen ${selectedEvidenceIndex}`}
+									className="max-h-full max-w-full object-contain"
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 
 			<PayrollDetailDialog
 				payroll={selectedPayroll}
