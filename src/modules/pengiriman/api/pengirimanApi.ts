@@ -15,10 +15,14 @@ export type PengirimanStatus =
 export interface PengirimanDTO {
   pengirimanId: string;
   supirId: string;
+  supirName?: string | null;
   mandorId: string;
+  mandorName?: string | null;
   status: PengirimanStatus;
   totalWeight: number;
   acceptedWeight: number;
+  statusReason?: string | null;
+  panenIds?: string[];
   timestamp: string;
 }
 
@@ -27,6 +31,15 @@ export interface AssignedSupirDTO {
   username: string;
   name: string;
   email: string;
+}
+
+export interface AssignablePanenDTO {
+  panenId: string;
+  buruhId: string;
+  buruhName: string;
+  description: string;
+  weight: number;
+  timestamp: string;
 }
 
 export interface AssignDeliveryRequest {
@@ -47,6 +60,7 @@ export interface ProcessDeliveryRequest {
 export interface PengirimanListFilter {
   startDate?: string;
   endDate?: string;
+  date?: string;
   mandorName?: string;
 }
 
@@ -81,6 +95,11 @@ export const pengirimanApi = {
     const { data } = await apiClient.get<AssignedSupirDTO[]>("/api/pengiriman/mandor/supir", {
       params: { searchNama },
     });
+    return data;
+  },
+
+  listAssignablePanenForMandor: async (): Promise<AssignablePanenDTO[]> => {
+    const { data } = await apiClient.get<AssignablePanenDTO[]>("/api/pengiriman/mandor/panen");
     return data;
   },
 
@@ -119,7 +138,10 @@ export const pengirimanApi = {
 
   listApprovedDeliveriesForAdmin: async (filter?: PengirimanListFilter): Promise<PengirimanDTO[]> => {
     const { data } = await apiClient.get<PengirimanDTO[]>("/api/pengiriman/admin/approved", {
-      params: filter,
+      params: {
+        mandorName: filter?.mandorName,
+        date: filter?.date,
+      },
     });
     return data;
   },
