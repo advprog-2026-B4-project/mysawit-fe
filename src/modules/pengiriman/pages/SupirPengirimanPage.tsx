@@ -1,38 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { getRole, getToken } from "@/lib/api/tokenStorage";
-import type { PengirimanStatus } from "../api/pengirimanApi";
-import { useSupirDeliveries } from "../hooks/usePengiriman";
-
-function statusClass(status: PengirimanStatus): string {
-  if (status === "REJECTED" || status === "REJECTED_ADMIN" || status === "REJECTED_MANDOR") {
-    return "text-error border-error bg-error/5";
-  }
-  if (status === "APPROVED" || status === "APPROVED_ADMIN" || status === "APPROVED_MANDOR") {
-    return "text-success border-success bg-success/5";
-  }
-  return "text-forest border-forest/35 bg-forest/5";
-}
-
-function formatWeight(weight: number) {
-  return `${weight.toLocaleString("id-ID")} kg`;
-}
-
-function formatTimestamp(timestamp: string) {
-  return new Date(timestamp).toLocaleString("id-ID", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+import { deliveryStatusClass, formatTimestamp, formatWeight } from "../components/PengirimanShared";
+import { useSupirDeliveries, useUpdateDeliveryStatus } from "../hooks/usePengiriman";
 
 export default function SupirPengirimanPage() {
   const hasSession = Boolean(getToken());
   const role = getRole();
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   const {
     data = [],
@@ -40,9 +19,26 @@ export default function SupirPengirimanPage() {
     isError,
     error,
     refetch,
-  } = useSupirDeliveries(undefined, {
+  } = useSupirDeliveries({
+    startDate: startDate || undefined,
+    endDate: endDate || undefined,
+  }, {
     enabled: hasSession && role === "SUPIR",
   });
+
+  const updateDeliveryStatus = useUpdateDeliveryStatus();
+
+  async function handleStatusUpdate(pengirimanId: string, newStatus: "IN_TRANSIT" | "TIBA") {
+    await updateDeliveryStatus.mutateAsync({
+      pengirimanId,
+      payload: { newStatus },
+    });
+  }
+
+  function handleResetFilter() {
+    setStartDate("");
+    setEndDate("");
+  }
 
   if (!hasSession) {
     return (
@@ -81,19 +77,52 @@ export default function SupirPengirimanPage() {
         <div className="mb-8">
           <h1 className="font-serif text-[36px] text-text-dark">Pengiriman Saya</h1>
           <p className="mt-2 font-sans text-[13px] font-light text-text-light">
-            Daftar pengiriman yang sedang atau sudah ditugaskan kepada Anda.
+            Lihat riwayat penugasan pengiriman, filter berdasarkan tanggal, dan perbarui status saat perjalanan berlangsung.
           </p>
+        </div>
+
+        <div className="mb-6 rounded-md border border-cream-dark bg-white p-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]">
+          <label className="block">
+            <span className="block font-sans text-[11px] tracking-[0.08em] uppercase text-text-light mb-2">
+              Dari Tanggal
+            </span>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(event) => setStartDate(event.target.value)}
+              className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
+            />
+          </label>
+
+          <label className="block">
+            <span className="block font-sans text-[11px] tracking-[0.08em] uppercase text-text-light mb-2">
+              Sampai Tanggal
+            </span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(event) => setEndDate(event.target.value)}
+              className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
+            />
+          </label>
+
+          <div className="flex items-end">
+            <Button type="button" variant="ghost" onClick={handleResetFilter}>
+              Reset Filter
+            </Button>
+          </div>
         </div>
 
         <div className="border border-cream-dark rounded-md bg-white overflow-hidden">
           <div className="overflow-x-auto">
-            <div className="min-w-[920px]">
-              <div className="grid grid-cols-[1.35fr_0.7fr_0.7fr_0.8fr_0.95fr] gap-4 px-6 py-3 bg-cream border-b border-cream-dark">
+            <div className="min-w-[1140px]">
+              <div className="grid grid-cols-[1.15fr_0.7fr_0.7fr_0.8fr_1fr_0.95fr] gap-4 px-6 py-3 bg-cream border-b border-cream-dark">
                 <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">ID Pengiriman</span>
                 <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-center">Status</span>
                 <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Total</span>
                 <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Diterima</span>
-                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Waktu</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Keterangan</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Aksi</span>
               </div>
 
               {isLoading && (
@@ -119,7 +148,7 @@ export default function SupirPengirimanPage() {
                 <div className="px-6 py-14 text-center">
                   <h2 className="font-serif text-[24px] text-text-dark">Belum ada pengiriman</h2>
                   <p className="mt-2 font-sans text-[13px] text-text-light">
-                    Saat ini belum ada penugasan pengiriman untuk akun Anda.
+                    Saat ini belum ada penugasan pengiriman yang cocok dengan filter tanggal.
                   </p>
                 </div>
               )}
@@ -127,25 +156,66 @@ export default function SupirPengirimanPage() {
               {!isLoading && !isError && data.map((item, index) => (
                 <div
                   key={item.pengirimanId}
-                  className={`grid grid-cols-[1.35fr_0.7fr_0.7fr_0.8fr_0.95fr] gap-4 items-center px-6 py-4 ${
+                  className={`grid grid-cols-[1.15fr_0.7fr_0.7fr_0.8fr_1fr_0.95fr] gap-4 items-center px-6 py-4 ${
                     index < data.length - 1 ? "border-b border-cream-dark" : ""
                   }`}
                 >
-                  <span className="font-mono text-[12px] text-text-mid break-all">{item.pengirimanId}</span>
+                  <div>
+                    <span className="font-mono text-[12px] text-text-mid break-all">{item.pengirimanId}</span>
+                    <p className="mt-1 font-sans text-[11px] text-text-light">
+                      {formatTimestamp(item.timestamp)}
+                    </p>
+                  </div>
+
                   <div className="text-center">
-                    <span className={`inline-block px-2.5 py-1 rounded border text-[11px] font-medium ${statusClass(item.status)}`}>
+                    <span className={`inline-block px-2.5 py-1 rounded border text-[11px] font-medium ${deliveryStatusClass(item.status)}`}>
                       {item.status}
                     </span>
                   </div>
+
                   <span className="text-right font-sans text-[13px] text-text-dark">
                     {formatWeight(item.totalWeight)}
                   </span>
+
                   <span className="text-right font-sans text-[13px] text-text-dark">
                     {formatWeight(item.acceptedWeight)}
                   </span>
-                  <span className="text-right font-sans text-[12px] text-text-light">
-                    {formatTimestamp(item.timestamp)}
-                  </span>
+
+                  <div>
+                    {item.statusReason ? (
+                      <p className="font-sans text-[12px] text-text-mid">{item.statusReason}</p>
+                    ) : (
+                      <p className="font-sans text-[12px] text-text-light">Tidak ada catatan.</p>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end">
+                    {item.status === "ASSIGNED" && (
+                      <Button
+                        variant="secondary"
+                        className="px-4 py-2 text-[12px]"
+                        loading={updateDeliveryStatus.isPending}
+                        onClick={() => void handleStatusUpdate(item.pengirimanId, "IN_TRANSIT")}
+                      >
+                        Mulai Kirim
+                      </Button>
+                    )}
+
+                    {item.status === "IN_TRANSIT" && (
+                      <Button
+                        variant="primary"
+                        className="px-4 py-2 text-[12px]"
+                        loading={updateDeliveryStatus.isPending}
+                        onClick={() => void handleStatusUpdate(item.pengirimanId, "TIBA")}
+                      >
+                        Tandai Tiba
+                      </Button>
+                    )}
+
+                    {item.status !== "ASSIGNED" && item.status !== "IN_TRANSIT" && (
+                      <span className="font-sans text-[12px] text-text-light">Tidak ada aksi</span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
