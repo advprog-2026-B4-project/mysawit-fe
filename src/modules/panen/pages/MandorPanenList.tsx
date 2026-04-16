@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link'; // ✅ Tambahkan import Link
 import { usePanenMandor } from '../hooks/usePanenList';
 import { GetPanenMandorParams } from '../api/panenApi';
 
@@ -24,7 +25,6 @@ export default function MandorPanenList() {
     setFilters({});
   };
 
-  // ✅ Early return dengan JSX lengkap
   if (isLoading) {
     return (
       <div className="max-w-5xl animate-pulse">
@@ -107,9 +107,18 @@ export default function MandorPanenList() {
                       day: 'numeric', month: 'long', year: 'numeric',
                     })}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {panen.buruhName}
+                  
+                  {/* ✅ Perubahan ada di <td> ini */}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <Link 
+                      href={`/mandor/profileburuh/${panen.buruhId}`}
+                      className="text-green-600 hover:text-green-800 hover:underline transition-colors"
+                    >
+                      {panen.buruhName}
+                    </Link>
                   </td>
+                  {/* =============================== */}
+
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {panen.description}
                   </td>

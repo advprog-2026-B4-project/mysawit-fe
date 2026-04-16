@@ -30,6 +30,12 @@ export interface GetPanenMandorParams {
   date?: string; 
 }
 
+export interface GetPanenByBuruhParams {
+  startDate?: string; 
+  endDate?: string;
+  status?: string;
+}
+
 export const panenApi = {
   createPanen: async (data: CreatePanenRequestDTO): Promise<PanenDTO> => {
     return apiClient.post<unknown, PanenDTO>('/api/panen', data);
@@ -41,6 +47,14 @@ export const panenApi = {
 
   getPanenMandor: async (params?: GetPanenMandorParams): Promise<PanenDTO[]> => {
     const response = await apiClient.get('/api/panen/mandor', { params });
+    return response.data;
+  },
+
+  getPanenByBuruhId: async (
+    buruhId: string,
+    params?: GetPanenByBuruhParams
+  ): Promise<PanenDTO[]> => {
+    const response = await apiClient.get(`/api/panen/buruh/${buruhId}`, { params });
     return response.data;
   },
 };
