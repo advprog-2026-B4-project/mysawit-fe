@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useCreatePanen } from '../hooks/useCreatePanen';
@@ -10,16 +10,16 @@ import { CreatePanenRequestDTO } from '../api/panenApi';
 export const CreatePanenForm: React.FC = () => {
   const router = useRouter();
   const { mutate: createPanen, isPending, error } = useCreatePanen();
-
-  const { data: checkPanenToday, isLoading: isChecking } = useCheckPanenToday();
+  const { data: checkPanenToday, isLoading: isChecking, error: checkError } = useCheckPanenToday();
   
   const [formData, setFormData] = useState<Omit<CreatePanenRequestDTO, 'kebunId'>>({
     weight: 0,
     description: '',
     photoUrls: [],
   });
-  
+
   const [tempPhotoUrl, setTempPhotoUrl] = useState('');
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -57,10 +57,15 @@ export const CreatePanenForm: React.FC = () => {
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     createPanen(formData as CreatePanenRequestDTO, {
       onSuccess: () => {
+        console.log('Panen created successfully');
         toast.success('Laporan panen berhasil disimpan!');
         router.back();
+      },
+      onError: (error) => {
+        console.error('Panen creation failed:', error);
       }
     });
   };
@@ -75,13 +80,30 @@ export const CreatePanenForm: React.FC = () => {
     );
   }
 
+  // ✅ Show error jika check gagal
+  if (checkError) {
+    return (
+      <div className="w-full max-w-[600px] p-8 md:p-12">
+        <div className="px-6 py-6 bg-red-50 border border-red-200 rounded-lg text-center">
+          <h2 className="font-serif text-[20px] text-red-700 mb-2">Gagal Verifikasi</h2>
+          <p className="text-[13px] text-red-600 mb-4">
+            {checkError instanceof Error ? checkError.message : 'Tidak dapat memverifikasi panen harian'}
+          </p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="py-[9px] px-6 bg-white border border-red-200 rounded font-sans text-[13px] font-medium text-red-700 hover:bg-red-50 transition-colors"
+          >
+            Muat Ulang
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (checkPanenToday) {
     return (
       <div className="w-full max-w-[600px] p-8 md:p-12">
         <div className="px-6 py-50 bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center">
-          {/* <div className="w-12 h-12 bg-forest/10 rounded-full flex items-center justify-center mb-4">
-            <span className="text-forest text-xl">✓</span>
-          </div> */}
           <h2 className="font-serif text-[24px] text-text-dark mb-2">Sudah Tercatat</h2>
           <p className="text-[13px] text-text-mid max-w-[80%] mb-6">
             Anda sudah mencatat hasil panen untuk hari ini. Anda hanya bisa mengirimkan satu laporan per hari.
@@ -97,7 +119,7 @@ export const CreatePanenForm: React.FC = () => {
     );
   }
 
-  // 5. Tampilan form JIKA BELUM SUBMIT (Normal)
+  // Form normal (belum submit)
   return (
     <div className="w-full max-w-[600px] p-8 md:p-12">
       <div className="mb-10">

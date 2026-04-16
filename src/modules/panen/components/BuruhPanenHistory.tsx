@@ -31,7 +31,6 @@ export default function BuruhPanenHistory() {
       </div>
     );
   }
-
   return (
     <div className="max-w-[900px]">
       <Link

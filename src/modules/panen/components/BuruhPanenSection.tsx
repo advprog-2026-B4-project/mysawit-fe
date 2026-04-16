@@ -18,6 +18,8 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
 
   const { data: listPanen, isLoading, isError, error } = usePanenByBuruh(buruhId, filters);
 
+  console.log('listPanen', listPanen);
+
   const buruhName = Array.isArray(listPanen) && listPanen.length > 0 
     ? listPanen[0].buruhName 
     : 'Buruh';
@@ -117,12 +119,13 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
               <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Berat (Kg)</th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Keterangan</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {!listPanen || listPanen.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-6 py-8 text-center text-sm text-gray-500">
+                <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">
                   Belum ada data panen.
                 </td>
               </tr>
@@ -140,12 +143,25 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <span className={`px-2.5 py-1 text-xs font-medium rounded-full border ${
-                      panen.status.toUpperCase() === 'APPROVED' ? 'bg-green-50 text-green-700 border-green-200' :
-                      panen.status.toUpperCase() === 'REJECTED' ? 'bg-red-50 text-red-700 border-red-200' :
-                      'bg-yellow-50 text-yellow-700 border-yellow-200'
+                      panen.status.toUpperCase() === 'APPROVED' 
+                        ? 'bg-green-50 text-green-700 border-green-200' 
+                        : panen.status.toUpperCase() === 'REJECTED' 
+                        ? 'bg-red-50 text-red-700 border-red-200' 
+                        : 'bg-yellow-50 text-yellow-700 border-yellow-200'
                     }`}>
                       {panen.status}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {panen.status.toUpperCase() === 'REJECTED' ? (
+                      <span className="text-red-600 font-medium">
+                        {panen.rejectionReason || 'Ditolak'}
+                      </span>
+                    ) : panen.status.toUpperCase() === 'APPROVED' ? (
+                      <span className="text-green-600">Disetujui</span>
+                    ) : (
+                      <span className="text-yellow-600">Menunggu review</span>
+                    )}
                   </td>
                 </tr>
               ))

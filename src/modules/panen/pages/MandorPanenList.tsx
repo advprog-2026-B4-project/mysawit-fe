@@ -1,16 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link'; 
-import { usePanenMandor } from '../hooks/usePanenList';
+import Link from 'next/link';
+import { usePanenMandor, useReviewPanen } from '../hooks/usePanenList';
 import { GetPanenMandorParams } from '../api/panenApi';
+import RejectModal from '../components/RejectModal';
 
 export default function MandorPanenList() {
   const [filters, setFilters] = useState<GetPanenMandorParams>({});
   const [buruhNameInput, setBuruhNameInput] = useState('');
   const [dateInput, setDateInput] = useState('');
+  // panenId yang sedang menunggu konfirmasi reject, null = modal tutup
+  const [rejectingPanenId, setRejectingPanenId] = useState<string | null>(null);
 
   const { data: listPanen, isLoading, isError, error } = usePanenMandor(filters);
+  const { mutate: reviewPanen, isPending } = useReviewPanen();
 
   const handleApplyFilter = () => {
     setFilters({
@@ -23,6 +27,17 @@ export default function MandorPanenList() {
     setBuruhNameInput('');
     setDateInput('');
     setFilters({});
+  };
+
+  const handleApprove = (panenId: string) => {
+    reviewPanen({ panenId, data: { action: 'APPROVE' } });
+  };
+
+  const handleRejectConfirm = (panenId: string, reason: string) => {
+    reviewPanen(
+      { panenId, data: { action: 'REJECT', rejectionReason: reason } },
+      { onSuccess: () => setRejectingPanenId(null) }
+    );
   };
 
   if (isLoading) {
@@ -46,6 +61,16 @@ export default function MandorPanenList() {
 
   return (
     <div className="max-w-5xl">
+      {/* Modal reject — hanya render saat ada panenId yang dipilih */}
+      {rejectingPanenId && (
+        <RejectModal
+          panenId={rejectingPanenId}
+          onConfirm={handleRejectConfirm}
+          onCancel={() => setRejectingPanenId(null)}
+          isLoading={isPending}
+        />
+      )}
+
       <div className="mb-8">
         <h1 className="font-serif text-[34px] text-text-dark mb-1.5">Daftar Panen</h1>
         <p className="font-sans text-[13px] text-text-light">Pantau hasil panen buruh Anda.</p>
@@ -79,7 +104,6 @@ export default function MandorPanenList() {
         </button>
       </div>
 
-      {/* Tabel */}
       <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
@@ -89,12 +113,13 @@ export default function MandorPanenList() {
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
               <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Berat (Kg)</th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {!listPanen || listPanen.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-500">
+                <td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-500">
                   Belum ada data panen yang dilaporkan.
                 </td>
               </tr>
@@ -106,16 +131,14 @@ export default function MandorPanenList() {
                       day: 'numeric', month: 'long', year: 'numeric',
                     })}
                   </td>
-                  
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <Link 
+                    <Link
                       href={`/mandor/profileburuh/${panen.buruhId}`}
                       className="text-green-600 hover:text-green-800 hover:underline transition-colors"
                     >
                       {panen.buruhName}
                     </Link>
                   </td>
-
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {panen.description}
                   </td>
@@ -130,6 +153,30 @@ export default function MandorPanenList() {
                     }`}>
                       {panen.status}
                     </span>
+                  </td>
+
+                  {/* Kolom Aksi — hanya tampil tombol jika status PENDING */}
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    {panen.status.toUpperCase() === 'PENDING' ? (
+                      <div className="flex justify-center gap-2">
+                        <button
+                          onClick={() => handleApprove(panen.panenId)}
+                          disabled={isPending}
+                          className="px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+                        >
+                          Setujui
+                        </button>
+                        <button
+                          onClick={() => setRejectingPanenId(panen.panenId)}
+                          disabled={isPending}
+                          className="px-3 py-1 text-xs font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+                        >
+                          Tolak
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
                   </td>
                 </tr>
               ))
