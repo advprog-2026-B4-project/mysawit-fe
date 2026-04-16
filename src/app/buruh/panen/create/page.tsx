@@ -1,7 +1,7 @@
-import { CreatePanenForm } from "@/modules/panen/components/CreatePanenForm";
-import BuruhGuard from "@/components/guards/BuruhGuard";
+import { CreatePanenForm } from '@/modules/panen/components/CreatePanenForm';
+import BuruhGuard from '@/components/guards/BuruhGuard';
 
-export default function BuruhCreatePanenPage() {
+export default function CreatePanenPage() {
   return (
     <BuruhGuard>
       <main className="container mx-auto py-8">
