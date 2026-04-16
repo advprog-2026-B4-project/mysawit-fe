@@ -18,7 +18,6 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
 
   const { data: listPanen, isLoading, isError, error } = usePanenByBuruh(buruhId, filters);
 
-  // ✅ Extract buruhName dari panen data
   const buruhName = Array.isArray(listPanen) && listPanen.length > 0 
     ? listPanen[0].buruhName 
     : 'Buruh';
@@ -58,12 +57,10 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
 
   return (
     <div>
-      {/* ✅ Header dengan buruhName */}
       <h2 className="font-serif text-2xl text-text-dark mb-4">
         Riwayat Panen — <span className="text-forest">{buruhName}</span>
       </h2>
 
-      {/* Filter Bar */}
       <div className="flex flex-wrap gap-3 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
         <div className="flex flex-col gap-1">
           <label className="text-xs text-gray-500">Dari Tanggal</label>

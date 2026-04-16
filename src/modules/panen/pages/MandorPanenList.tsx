@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link'; // ✅ Tambahkan import Link
+import Link from 'next/link'; 
 import { usePanenMandor } from '../hooks/usePanenList';
 import { GetPanenMandorParams } from '../api/panenApi';
 
@@ -51,7 +51,6 @@ export default function MandorPanenList() {
         <p className="font-sans text-[13px] text-text-light">Pantau hasil panen buruh Anda.</p>
       </div>
 
-      {/* Filter Bar */}
       <div className="flex flex-wrap gap-3 mb-6 p-4 bg-gray-50 rounded-xl border border-gray-100">
         <input
           type="text"
@@ -108,7 +107,6 @@ export default function MandorPanenList() {
                     })}
                   </td>
                   
-                  {/* ✅ Perubahan ada di <td> ini */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <Link 
                       href={`/mandor/profileburuh/${panen.buruhId}`}
@@ -117,7 +115,6 @@ export default function MandorPanenList() {
                       {panen.buruhName}
                     </Link>
                   </td>
-                  {/* =============================== */}
 
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {panen.description}

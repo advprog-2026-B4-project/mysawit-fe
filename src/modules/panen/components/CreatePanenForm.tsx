@@ -67,7 +67,6 @@ export const CreatePanenForm: React.FC = () => {
   
   const showUrlWarning = tempPhotoUrl.length > 0 && !isValidURL(tempPhotoUrl);
 
-  // 3. Tampilan saat masih loading mengecek ke database
   if (isChecking) {
     return (
       <div className="w-full max-w-[600px] p-8 md:p-12 flex justify-center items-center h-64">
@@ -76,14 +75,13 @@ export const CreatePanenForm: React.FC = () => {
     );
   }
 
-  // 4. Tampilan JIKA SUDAH SUBMIT (Form disembunyikan)
   if (checkPanenToday) {
     return (
       <div className="w-full max-w-[600px] p-8 md:p-12">
-        <div className="px-6 py-10 bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center">
-          <div className="w-12 h-12 bg-forest/10 rounded-full flex items-center justify-center mb-4">
+        <div className="px-6 py-50 bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center">
+          {/* <div className="w-12 h-12 bg-forest/10 rounded-full flex items-center justify-center mb-4">
             <span className="text-forest text-xl">✓</span>
-          </div>
+          </div> */}
           <h2 className="font-serif text-[24px] text-text-dark mb-2">Sudah Tercatat</h2>
           <p className="text-[13px] text-text-mid max-w-[80%] mb-6">
             Anda sudah mencatat hasil panen untuk hari ini. Anda hanya bisa mengirimkan satu laporan per hari.
