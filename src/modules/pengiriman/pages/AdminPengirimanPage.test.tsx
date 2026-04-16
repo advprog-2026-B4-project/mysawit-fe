@@ -74,7 +74,17 @@ describe("AdminPengirimanPage", () => {
     expect(screen.getByText(/supir: ega jawa/i)).toBeInTheDocument();
     expect(screen.getByText("200 kg")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /approve/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /partial/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /reject/i })).toBeInTheDocument();
+  });
+
+  it("opens the reject panel for an admin rejection flow", () => {
+    render(<AdminPengirimanPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /reject/i }));
+
+    expect(screen.getByRole("heading", { name: /tolak pengiriman/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/tuliskan alasan penolakan/i)).toBeInTheDocument();
   });
 
   it("submits filters by mandor name and date", () => {
@@ -106,6 +116,28 @@ describe("AdminPengirimanPage", () => {
       payload: {
         acceptedWeight: 200000,
         status: "APPROVED_ADMIN",
+      },
+    });
+  });
+
+  it("submits a partial accept payload in grams", () => {
+    render(<AdminPengirimanPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /partial/i }));
+    fireEvent.change(screen.getByPlaceholderText(/contoh: 175/i), {
+      target: { value: "175" },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/tuliskan alasan partial accept/i), {
+      target: { value: "Sebagian sawit rusak" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /konfirmasi/i }));
+
+    expect(mockAdminMutateAsync).toHaveBeenCalledWith({
+      pengirimanId: "pengiriman-1",
+      payload: {
+        acceptedWeight: 175000,
+        status: "PARTIAL",
+        reason: "Sebagian sawit rusak",
       },
     });
   });
