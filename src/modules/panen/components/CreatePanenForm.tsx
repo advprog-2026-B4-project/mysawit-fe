@@ -1,11 +1,17 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { useCreatePanen } from '../hooks/useCreatePanen';
+import { useCheckPanenToday } from '../hooks/useCheckPanenToday'; 
 import { CreatePanenRequestDTO } from '../api/panenApi';
 
 export const CreatePanenForm: React.FC = () => {
-  const { mutate: createPanen, isPending, error, isSuccess } = useCreatePanen();
+  const router = useRouter();
+  const { mutate: createPanen, isPending, error } = useCreatePanen();
+
+  const { data: checkPanenToday, isLoading: isChecking } = useCheckPanenToday();
   
   const [formData, setFormData] = useState<Omit<CreatePanenRequestDTO, 'kebunId'>>({
     weight: 0,
@@ -53,13 +59,47 @@ export const CreatePanenForm: React.FC = () => {
     e.preventDefault();
     createPanen(formData as CreatePanenRequestDTO, {
       onSuccess: () => {
-        setFormData({ weight: 0, description: '', photoUrls: [] });
+        toast.success('Laporan panen berhasil disimpan!');
+        router.back();
       }
     });
   };
   
   const showUrlWarning = tempPhotoUrl.length > 0 && !isValidURL(tempPhotoUrl);
 
+  // 3. Tampilan saat masih loading mengecek ke database
+  if (isChecking) {
+    return (
+      <div className="w-full max-w-[600px] p-8 md:p-12 flex justify-center items-center h-64">
+        <p className="text-text-mid text-[13px] animate-pulse">Mengecek status panen hari ini...</p>
+      </div>
+    );
+  }
+
+  // 4. Tampilan JIKA SUDAH SUBMIT (Form disembunyikan)
+  if (checkPanenToday) {
+    return (
+      <div className="w-full max-w-[600px] p-8 md:p-12">
+        <div className="px-6 py-10 bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center">
+          <div className="w-12 h-12 bg-forest/10 rounded-full flex items-center justify-center mb-4">
+            <span className="text-forest text-xl">✓</span>
+          </div>
+          <h2 className="font-serif text-[24px] text-text-dark mb-2">Sudah Tercatat</h2>
+          <p className="text-[13px] text-text-mid max-w-[80%] mb-6">
+            Anda sudah mencatat hasil panen untuk hari ini. Anda hanya bisa mengirimkan satu laporan per hari.
+          </p>
+          <button 
+            onClick={() => router.back()}
+            className="py-[9px] px-6 bg-white border border-sand rounded font-sans text-[13px] font-medium text-text-dark hover:border-forest transition-colors"
+          >
+            Kembali
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 5. Tampilan form JIKA BELUM SUBMIT (Normal)
   return (
     <div className="w-full max-w-[600px] p-8 md:p-12">
       <div className="mb-10">

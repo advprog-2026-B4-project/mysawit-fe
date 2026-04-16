@@ -2,7 +2,6 @@ import apiClient from '@/lib/api/client';
 
 // --- DTO Panen 
 export interface CreatePanenRequestDTO {
-  kebunId: string;
   weight: number;
   photoUrls: string[];
   description: string;
@@ -26,9 +25,22 @@ export interface PanenDTO {
   timestamp: string;
 }
 
+export interface GetPanenMandorParams {
+  buruhName?: string;
+  date?: string; 
+}
+
 export const panenApi = {
   createPanen: async (data: CreatePanenRequestDTO): Promise<PanenDTO> => {
     return apiClient.post<unknown, PanenDTO>('/api/panen', data);
   },
+  
+  checkPanenSubmissionToday: async (): Promise<boolean> => {
+    return apiClient.get<unknown, boolean>('/api/panen/checksubmission');
+  },
 
+  getPanenMandor: async (params?: GetPanenMandorParams): Promise<PanenDTO[]> => {
+    const response = await apiClient.get('/api/panen/mandor', { params });
+    return response.data;
+  },
 };
