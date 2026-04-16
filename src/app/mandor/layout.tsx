@@ -7,7 +7,7 @@ const mandorNavItems = [
   { href: "/mandor/supir", label: "Supir Kebun" },
   { href: "/mandor/pengiriman", label: "Pengiriman" },
   { href: "/mandor/pembayaran", label: "Payroll & Wallet" },
-  { href: "/mandor/panen", label: "Daftar Panen" },
+  { href: "/mandor/panen", label: "Daftar Laporan Panen" },
 ];
 
 export default function MandorLayout({ children }: { children: React.ReactNode }) {

@@ -1,4 +1,5 @@
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { authApi, type LoginRequest, type OAuthCompleteRegistrationRequest, type RegisterRequest } from "../api/authApi";
 import { initiateGoogleLogin, handleGoogleCallback } from "../utils/googleOAuthHelper";
 import { saveAuth, clearAuth, getToken, getRole } from "@/lib/api/tokenStorage";
@@ -13,11 +14,17 @@ export const ROLE_ROUTES: Record<string, string> = {
 
 export function useAuth() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const loginWithEmail = async (credentials: LoginRequest) => {
     try {
       const { accessToken, role } = await authApi.loginWithEmail(credentials);
       saveAuth(accessToken, role);
+      
+      
+      queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["panen"] });
+      
       notify.success("Login berhasil.");
       router.push(ROLE_ROUTES[role] ?? "/login");
       return { accessToken, role };
@@ -42,6 +49,10 @@ export function useAuth() {
     try {
       const { accessToken, role } = await authApi.completeGoogleOAuthRegistration(data);
       saveAuth(accessToken, role);
+      
+      queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+      queryClient.invalidateQueries({ queryKey: ["panen"] });
+      
       notify.success("Registrasi akun Google berhasil.");
       router.push(ROLE_ROUTES[role] ?? "/login");
       return { accessToken, role };
@@ -57,6 +68,10 @@ export function useAuth() {
 
   const handleOAuthCallback = async (searchParams: URLSearchParams) => {
     const role = await handleGoogleCallback(searchParams);
+    
+    queryClient.invalidateQueries({ queryKey: ["users", "me"] });
+    queryClient.invalidateQueries({ queryKey: ["panen"] });
+    
     if (role) {
       router.push(ROLE_ROUTES[role] ?? "/login");
     } else {
@@ -68,6 +83,7 @@ export function useAuth() {
   const logout = async () => {
     try { await authApi.logout(); } catch { /* ignore network errors on logout */ }
     clearAuth();
+    queryClient.clear();  
     notify.success("Anda berhasil keluar.");
     router.push("/login");
   };
