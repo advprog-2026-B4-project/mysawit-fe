@@ -79,11 +79,19 @@ export default function MandorSupirPage() {
   return (
     <div className="min-h-screen bg-cream px-6 py-10">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-8">
-          <h1 className="font-serif text-[36px] text-text-dark">Supir Kebun Saya</h1>
-          <p className="mt-2 font-sans text-[13px] font-light text-text-light">
-            Daftar supir truk yang bertugas di kebun yang Anda kelola.
-          </p>
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="font-serif text-[36px] text-text-dark">Supir Kebun Saya</h1>
+            <p className="mt-2 font-sans text-[13px] font-light text-text-light">
+              Daftar supir truk yang bertugas di kebun yang Anda kelola.
+            </p>
+          </div>
+
+          <Link href="/mandor/pengiriman">
+            <Button variant="secondary" className="px-4 py-2 text-[12px]">
+              Kelola Pengiriman
+            </Button>
+          </Link>
         </div>
 
         <form
@@ -109,11 +117,12 @@ export default function MandorSupirPage() {
 
         <div className="border border-cream-dark rounded-md bg-white overflow-hidden">
           <div className="overflow-x-auto">
-            <div className="min-w-[760px]">
-              <div className="grid grid-cols-[1fr_0.9fr_1.25fr] gap-4 px-6 py-3 bg-cream border-b border-cream-dark">
+            <div className="min-w-[920px]">
+              <div className="grid grid-cols-[1fr_0.9fr_1.25fr_0.8fr] gap-4 px-6 py-3 bg-cream border-b border-cream-dark">
                 <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Nama</span>
                 <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Username</span>
                 <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Email</span>
+                <span className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light text-right">Aksi</span>
               </div>
 
               {isLoading && (
@@ -161,13 +170,20 @@ export default function MandorSupirPage() {
               {!isLoading && !isError && data.map((supir, index) => (
                 <div
                   key={supir.supirId}
-                  className={`grid grid-cols-[1fr_0.9fr_1.25fr] gap-4 items-center px-6 py-4 ${
+                  className={`grid grid-cols-[1fr_0.9fr_1.25fr_0.8fr] gap-4 items-center px-6 py-4 ${
                     index < data.length - 1 ? "border-b border-cream-dark" : ""
                   }`}
                 >
                   <span className="font-sans text-[13px] text-text-dark">{supir.name}</span>
                   <span className="font-mono text-[12px] text-text-mid">{supir.username}</span>
                   <span className="font-sans text-[13px] text-text-dark break-all">{supir.email}</span>
+                  <div className="text-right">
+                    <Link href={`/mandor/supir/${supir.supirId}`}>
+                      <Button variant="ghost" className="px-4 py-2 text-[12px]">
+                        Lihat Profil
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
