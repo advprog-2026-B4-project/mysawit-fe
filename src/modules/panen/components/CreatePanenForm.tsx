@@ -6,18 +6,32 @@ import toast from 'react-hot-toast';
 import { useCreatePanen } from '../hooks/useCreatePanen';
 import { useCheckPanenToday } from '../hooks/useCheckPanenToday'; 
 import { CreatePanenRequestDTO } from '../api/panenApi';
+import { useUploadPanenPhotos } from '../hooks/useUploadPanen';
+
+const getFileNameFromUrl = (url: string): string => {
+  try {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    return pathname.split('/').pop() || url;
+  } catch {
+    return url;
+  }
+};
 
 export const CreatePanenForm: React.FC = () => {
   const router = useRouter();
   const { mutate: createPanen, isPending, error } = useCreatePanen();
   const { data: checkPanenToday, isLoading: isChecking, error: checkError } = useCheckPanenToday();
-  
+  const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadPanenPhotos();
+
   const [formData, setFormData] = useState<Omit<CreatePanenRequestDTO, 'kebunId'>>({
     weight: 0,
     description: '',
     photoUrls: [],
   });
 
+  // ✅ Simpan nama file asli juga
+  const [photoNames, setPhotoNames] = useState<Map<string, string>>(new Map());
   const [tempPhotoUrl, setTempPhotoUrl] = useState('');
 
 
@@ -39,11 +53,42 @@ export const CreatePanenForm: React.FC = () => {
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    
+    try {
+      const urls = await uploadFiles(files);
+      
+      // ✅ Simpan mapping: URL -> original filename
+      const newNames = new Map(photoNames);
+      files.forEach((file, idx) => {
+        newNames.set(urls[idx], file.name);
+      });
+      setPhotoNames(newNames);
+      
+      setFormData((prev) => ({
+        ...prev,
+        photoUrls: [...prev.photoUrls, ...urls],
+      }));
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Upload gagal');
+    }
+  };
+
   const handleRemovePhoto = (indexToRemove: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      photoUrls: prev.photoUrls.filter((_, index) => index !== indexToRemove),
-    }));
+    setFormData((prev) => {
+      const urlToRemove = prev.photoUrls[indexToRemove];
+      
+      // ✅ Hapus dari Map juga
+      const newNames = new Map(photoNames);
+      newNames.delete(urlToRemove);
+      setPhotoNames(newNames);
+      
+      return {
+        ...prev,
+        photoUrls: prev.photoUrls.filter((_, index) => index !== indexToRemove),
+      };
+    });
   };
 
   const isValidURL = (url: string) => {
@@ -172,41 +217,35 @@ export const CreatePanenForm: React.FC = () => {
 
         <div className="flex flex-col gap-2">
           <label className="text-[11px] font-medium text-text-mid uppercase tracking-[0.08em]">
-            Foto Bukti (URL)
+            Foto Bukti
           </label>
-          <div className="flex gap-3">
+          <label className={`flex flex-col items-center justify-center w-full px-4 py-8 bg-[#f0f4f8] border-2 border-dashed border-sand rounded cursor-pointer hover:border-forest transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <span className="text-[13px] text-text-mid mb-1">
+              {isUploading ? 'Mengupload...' : 'Klik untuk pilih foto'}
+            </span>
+            <span className="text-[11px] text-text-light">JPG, PNG • Maks. 5MB per file</span>
             <input
-              type="url"
-              value={tempPhotoUrl}
-              onChange={(e) => setTempPhotoUrl(e.target.value)}
-              placeholder="https://contoh.com/foto.jpg"
-              className={`flex-1 px-4 py-[11px] bg-[#f0f4f8] border rounded text-[13px] text-text-dark focus:outline-none transition-colors ${
-                showUrlWarning ? 'border-error focus:border-error focus:ring-1 focus:ring-error' : 'border-sand focus:border-forest focus:ring-1 focus:ring-forest'
-              }`}
+              type="file"
+              accept="image/jpeg,image/png"
+              multiple
+              disabled={isUploading}
+              onChange={handleFileChange}
+              className="hidden"
             />
-            <button
-              type="button"
-              onClick={handleAddPhoto}
-              disabled={!isValidURL(tempPhotoUrl)}
-              className="py-[11px] px-6 bg-white border border-sand rounded font-sans text-[13px] font-medium text-text-mid transition-colors hover:border-forest disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Tambah
-            </button>
-          </div>
-          
-          {showUrlWarning && (
-            <p className="text-[11px] text-error mt-0.5">Format URL tidak valid.</p>
-          )}
+          </label>
 
           {formData.photoUrls.length > 0 && (
             <ul className="mt-3 space-y-2">
               {formData.photoUrls.map((url, idx) => (
                 <li key={idx} className="flex items-center justify-between py-2.5 px-4 bg-white border border-sand rounded shadow-sm text-[13px] text-text-mid">
-                  <span className="truncate w-5/6">{url}</span>
+                  {/* ✅ Tampilkan nama file asli dari Map */}
+                  <span className="truncate w-5/6 font-medium text-text-dark">
+                    {photoNames.get(url) || getFileNameFromUrl(url)}
+                  </span>
                   <button
                     type="button"
                     onClick={() => handleRemovePhoto(idx)}
-                    className="text-error font-medium hover:opacity-80 transition-opacity"
+                    className="text-error font-medium hover:opacity-80 transition-colors ml-2 flex-shrink-0"
                   >
                     Hapus
                   </button>
@@ -220,10 +259,10 @@ export const CreatePanenForm: React.FC = () => {
 
         <button
           type="submit"
-          disabled={isPending || formData.photoUrls.length === 0}
+          disabled={isPending || isUploading || formData.photoUrls.length === 0}
           className="w-full py-[11px] px-6 bg-forest text-white rounded font-sans text-[13px] font-medium transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
-          {isPending ? 'Menyimpan...' : 'Simpan Laporan'}
+          {isPending ? 'Menyimpan...' : isUploading ? 'Mengupload...' : 'Simpan Laporan'}
         </button>
 
       </form>
