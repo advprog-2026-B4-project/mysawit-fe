@@ -432,7 +432,7 @@ export default function MandorPengirimanPage() {
             </div>
 
             <p className="mt-4 font-sans text-[12px] text-text-light">
-              Payroll asinkron setelah approval mandor bergantung pada listener di modul pembayaran. Flow status pengiriman tetap berjalan dari modul ini.
+              Approval mandor akan melanjutkan proses payroll supir secara otomatis setelah pengiriman disetujui.
             </p>
           </div>
         </div>
