@@ -6,11 +6,15 @@ import { usePanenMandor, useReviewPanen } from '../hooks/usePanenList';
 import { GetPanenMandorParams } from '../api/panenApi';
 import RejectModal from '../components/RejectModal';
 
+// ✅ Helper: Open photo in new tab
+const openPhoto = (url: string) => {
+  window.open(url, '_blank');
+};
+
 export default function MandorPanenList() {
   const [filters, setFilters] = useState<GetPanenMandorParams>({});
   const [buruhNameInput, setBuruhNameInput] = useState('');
   const [dateInput, setDateInput] = useState('');
-  // panenId yang sedang menunggu konfirmasi reject, null = modal tutup
   const [rejectingPanenId, setRejectingPanenId] = useState<string | null>(null);
 
   const { data: listPanen, isLoading, isError, error } = usePanenMandor(filters);
@@ -61,7 +65,6 @@ export default function MandorPanenList() {
 
   return (
     <div className="max-w-5xl">
-      {/* Modal reject — hanya render saat ada panenId yang dipilih */}
       {rejectingPanenId && (
         <RejectModal
           panenId={rejectingPanenId}
@@ -113,13 +116,15 @@ export default function MandorPanenList() {
               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
               <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Berat (Kg)</th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              {/* ✅ Kolom Foto Bukti */}
+              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Foto Bukti</th>
               <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {!listPanen || listPanen.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-500">
+                <td colSpan={7} className="px-6 py-8 text-center text-sm text-gray-500">
                   Belum ada data panen yang dilaporkan.
                 </td>
               </tr>
@@ -154,8 +159,25 @@ export default function MandorPanenList() {
                       {panen.status}
                     </span>
                   </td>
+                  {/* ✅ Kolom Foto Bukti */}
+                  <td className="px-6 py-4 text-center">
+                    {panen.photos && panen.photos.length > 0 ? (
+                      <div className="flex items-center justify-center gap-2 flex-wrap">
+                        {panen.photos.map((photo, idx) => (
+                          <button
+                            key={photo.photoId || idx}
+                            onClick={() => openPhoto(photo.url)}
+                            className="px-2.5 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            Lihat {idx + 1}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400">—</span>
+                    )}
+                  </td>
 
-                  {/* Kolom Aksi — hanya tampil tombol jika status PENDING */}
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     {panen.status.toUpperCase() === 'PENDING' ? (
                       <div className="flex justify-center gap-2">

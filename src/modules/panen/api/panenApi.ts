@@ -50,7 +50,7 @@ export const panenApi = {
   
   checkPanenSubmissionToday: async (): Promise<boolean> => {
     const response = await apiClient.get<unknown, AxiosResponse<boolean>>('/api/panen/checksubmission');
-    return response.data;  // ✅ Sekarang tipe benar
+    return response.data;  
   },
 
   getPanenMandor: async (params?: GetPanenMandorParams): Promise<PanenDTO[]> => {
@@ -70,4 +70,13 @@ export const panenApi = {
     const response = await apiClient.patch<unknown, AxiosResponse<PanenDTO>>(`/api/panen/${panenId}/review`, data);
     return response.data;
   },
+
+  uploadPhoto: async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await apiClient.post('/api/storage/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+},
 };
