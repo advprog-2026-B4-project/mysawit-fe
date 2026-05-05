@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd \\\"d:/Kuliah/semester-4/ADPROG/TK/mysawit-fe\\\" && npx tsc --noEmit src/modules/panen/api/panenApi.ts 2>&1\",\"timeout\":30000,\"description\":\"TypeScript check only the changed file\"}",
+  "error": "Exit code 2\nsrc/modules/panen/api/panenApi.ts(2,23): error TS2307: Cannot find module '@/lib/api/client' or its corresponding type declarations.",
+  "timestamp": "2026-05-05T04:49:41.389Z",
+  "retry_count": 1
+}

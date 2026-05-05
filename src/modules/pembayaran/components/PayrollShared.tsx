@@ -67,7 +67,7 @@ export function resolveEvidencePhotoUrl(rawUrl: string): string {
     return trimmed;
   }
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL?.trim();
+  const apiBase = process.env.NEXT_PUBLIC_BACKEND_URL?.trim();
   if (!apiBase) {
     return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
   }

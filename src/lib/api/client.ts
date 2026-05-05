@@ -72,7 +72,7 @@ export function extractApiErrorMessage(payload: unknown): string | undefined {
 }
 
 const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080",
+  baseURL: process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:8080",
   headers: { "Content-Type": "application/json" },
 });
 

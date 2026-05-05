@@ -61,7 +61,8 @@ export interface WalletBalanceDTO {
 export interface WalletTransactionDTO {
   transactionId: string;
   userId: string;
-  payrollId: string;
+  payrollId: string | null;
+  reference?: string | null;
   amount: number;
   type: WalletTransactionType;
   createdAt: string;
