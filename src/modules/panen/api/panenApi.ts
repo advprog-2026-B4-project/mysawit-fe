@@ -71,12 +71,22 @@ export const panenApi = {
     return response.data;
   },
 
+  requestUploadToken: async (): Promise<string> => {
+    const response = await apiClient.get('/api/storage/upload-token');
+    return response.data.data;
+  },
+
   uploadPhoto: async (file: File): Promise<string> => {
-  const formData = new FormData();
-  formData.append('file', file);
-  const response = await apiClient.post('/api/storage/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return response.data;
-},
+    const uploadToken = await panenApi.requestUploadToken();
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post('/api/storage/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'X-Upload-Token': uploadToken,
+      },
+    });
+    return response.data;
+  },
 };
