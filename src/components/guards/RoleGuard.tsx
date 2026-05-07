@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/modules/auth";
 import type { UserRole } from "@/modules/auth";
@@ -16,6 +16,10 @@ interface RoleGuardProps {
 	unauthorizedMode?: UnauthorizedMode;
 }
 
+function subscribe() { return () => {}; }
+function getSnapshot() { return true; }
+function getServerSnapshot() { return false; }
+
 export default function RoleGuard({
 	children,
 	allowedRoles,
@@ -26,16 +30,12 @@ export default function RoleGuard({
 	const { isAuthenticated, logout } = useAuth();
 	const router = useRouter();
 	const redirectHandledRef = useRef(false);
-	const [mounted, setMounted] = useState(false);
+	const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
 	const roleSet = useMemo(() => new Set<string>(allowedRoles), [allowedRoles]);
 	const authenticated = isAuthenticated();
 	const currentRole = mounted ? getRole() : null;
 	const isAuthorized = authenticated && !!currentRole && roleSet.has(currentRole);
-
-	useEffect(() => {
-		setMounted(true);
-	}, []);
 
 	useEffect(() => {
 		if (!mounted) return;

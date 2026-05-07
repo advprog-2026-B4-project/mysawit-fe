@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, useRef, DragEvent } from 'react';
+import React, { useState, useRef, DragEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useCreatePanen } from '../hooks/useCreatePanen';
@@ -33,7 +33,6 @@ export const CreatePanenForm: React.FC = () => {
 
   // ✅ Simpan nama file asli juga
   const [photoNames, setPhotoNames] = useState<Map<string, string>>(new Map());
-  const [tempPhotoUrl, setTempPhotoUrl] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [deletingIdx, setDeletingIdx] = useState<number | null>(null);
@@ -46,16 +45,6 @@ export const CreatePanenForm: React.FC = () => {
       ...prev,
       [name]: name === 'weight' ? Number(value) : value,
     }));
-  };
-
-  const handleAddPhoto = () => {
-    if (tempPhotoUrl.trim() !== '') {
-      setFormData((prev) => ({
-        ...prev,
-        photoUrls: [...prev.photoUrls, tempPhotoUrl.trim()],
-      }));
-      setTempPhotoUrl('');
-    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement> | DragEvent<HTMLDivElement>) => {
@@ -134,15 +123,6 @@ export const CreatePanenForm: React.FC = () => {
     setDeletingIdx(null);
   };
 
-  const isValidURL = (url: string) => {
-    try {
-      new URL(url);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -157,8 +137,6 @@ export const CreatePanenForm: React.FC = () => {
       }
     });
   };
-  
-  const showUrlWarning = tempPhotoUrl.length > 0 && !isValidURL(tempPhotoUrl);
 
   if (isChecking) {
     return (
