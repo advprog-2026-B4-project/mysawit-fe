@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
+// ✅ Import useCurrentUser
+import { useCurrentUser } from '@/modules/auth/hooks/useUsers'; 
 import { useCreatePanen } from '../hooks/useCreatePanen';
 import { useCheckPanenToday } from '../hooks/useCheckPanenToday'; 
 import { type CreatePanenRequestDTO } from '../hooks/usePanenList';
@@ -20,6 +22,10 @@ const getFileNameFromUrl = (url: string): string => {
 
 export const CreatePanenForm: React.FC = () => {
   const router = useRouter();
+  
+  // ✅ Panggil data user yang sedang login
+  const { data: user, isLoading: isUserLoading } = useCurrentUser();
+  
   const { mutate: createPanen, isPending, error } = useCreatePanen();
   const { data: checkPanenToday, isLoading: isChecking, error: checkError } = useCheckPanenToday();
   const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadPanenPhotos();
@@ -30,10 +36,7 @@ export const CreatePanenForm: React.FC = () => {
     photoUrls: [],
   });
 
-  // ✅ Simpan nama file asli juga
   const [photoNames, setPhotoNames] = useState<Map<string, string>>(new Map());
-  const [tempPhotoUrl, setTempPhotoUrl] = useState('');
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -43,23 +46,12 @@ export const CreatePanenForm: React.FC = () => {
     }));
   };
 
-  const handleAddPhoto = () => {
-    if (tempPhotoUrl.trim() !== '') {
-      setFormData((prev) => ({
-        ...prev,
-        photoUrls: [...prev.photoUrls, tempPhotoUrl.trim()],
-      }));
-      setTempPhotoUrl('');
-    }
-  };
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     
     try {
       const urls = await uploadFiles(files);
       
-      // ✅ Simpan mapping: URL -> original filename
       const newNames = new Map(photoNames);
       files.forEach((file, idx) => {
         newNames.set(urls[idx], file.name);
@@ -79,7 +71,6 @@ export const CreatePanenForm: React.FC = () => {
     setFormData((prev) => {
       const urlToRemove = prev.photoUrls[indexToRemove];
       
-      // ✅ Hapus dari Map juga
       const newNames = new Map(photoNames);
       newNames.delete(urlToRemove);
       setPhotoNames(newNames);
@@ -91,21 +82,11 @@ export const CreatePanenForm: React.FC = () => {
     });
   };
 
-  const isValidURL = (url: string) => {
-    try {
-      new URL(url);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  };
-  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     createPanen(formData as CreatePanenRequestDTO, {
       onSuccess: () => {
-        console.log('Panen created successfully');
         toast.success('Laporan panen berhasil disimpan!');
         router.back();
       },
@@ -114,18 +95,36 @@ export const CreatePanenForm: React.FC = () => {
       }
     });
   };
-  
-  const showUrlWarning = tempPhotoUrl.length > 0 && !isValidURL(tempPhotoUrl);
 
-  if (isChecking) {
+  // ✅ Gabungkan loading state user dan check panen
+  if (isChecking || isUserLoading) {
     return (
       <div className="w-full max-w-[600px] p-8 md:p-12 flex justify-center items-center h-64">
-        <p className="text-text-mid text-[13px] animate-pulse">Mengecek status panen hari ini...</p>
+        <p className="text-text-mid text-[13px] animate-pulse">Memuat data...</p>
       </div>
     );
   }
 
-  // ✅ Show error jika check gagal
+  // ✅ GUARD 1: Blokir jika tidak punya Mandor
+  if (user && !user.mandorId) {
+    return (
+      <div className="w-full max-w-[600px] p-8 md:p-12">
+        <div className="px-6 py-10 bg-red-50 border border-red-200 rounded-lg text-center flex flex-col items-center">
+          <h2 className="font-serif text-[24px] text-red-700 mb-2">Akses Ditolak</h2>
+          <p className="text-[13px] text-red-600 max-w-[80%] mb-6">
+            Anda belum ditugaskan ke Mandor mana pun. Silakan hubungi Admin untuk mendapatkan penugasan sebelum dapat mencatat laporan panen.
+          </p>
+          <button 
+            onClick={() => router.back()}
+            className="py-[9px] px-6 bg-white border border-red-200 rounded font-sans text-[13px] font-medium text-red-700 hover:bg-red-50 transition-colors"
+          >
+            Kembali
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (checkError) {
     return (
       <div className="w-full max-w-[600px] p-8 md:p-12">
@@ -148,7 +147,7 @@ export const CreatePanenForm: React.FC = () => {
   if (checkPanenToday) {
     return (
       <div className="w-full max-w-[600px] p-8 md:p-12">
-        <div className="px-6 py-50 bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center">
+        <div className="px-6 py-10 bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center">
           <h2 className="font-serif text-[24px] text-text-dark mb-2">Sudah Tercatat</h2>
           <p className="text-[13px] text-text-mid max-w-[80%] mb-6">
             Anda sudah mencatat hasil panen untuk hari ini. Anda hanya bisa mengirimkan satu laporan per hari.
@@ -238,7 +237,6 @@ export const CreatePanenForm: React.FC = () => {
             <ul className="mt-3 space-y-2">
               {formData.photoUrls.map((url, idx) => (
                 <li key={idx} className="flex items-center justify-between py-2.5 px-4 bg-white border border-sand rounded shadow-sm text-[13px] text-text-mid">
-                  {/* ✅ Tampilkan nama file asli dari Map */}
                   <span className="truncate w-5/6 font-medium text-text-dark">
                     {photoNames.get(url) || getFileNameFromUrl(url)}
                   </span>

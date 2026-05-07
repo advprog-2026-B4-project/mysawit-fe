@@ -9,6 +9,7 @@ export interface UserDTO {
   role: UserRole;
   email: string;
   mandorCertificationNumber?: string | null;
+  mandorId: string | null;
 }
 
 export interface LoginRequest {
