@@ -1,5 +1,19 @@
 import apiClient from "@/lib/api/client";
 
+export const WALLET_EXCHANGE_RATE = 10000; // 1 internal dollar = Rp 10,000
+
+export function toRupiah(dollars: number): number {
+  return dollars * WALLET_EXCHANGE_RATE;
+}
+
+export function formatRupiah(rupiah: number): string {
+  return "Rp " + rupiah.toLocaleString("id-ID");
+}
+
+export function formatDollar(dollars: number): string {
+  return "$" + dollars.toFixed(2);
+}
+
 export type PayrollStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type WalletTransactionType = "CREDIT" | "DEBIT";
 export type ReferenceType = "PANEN" | "PENGIRIMAN";

@@ -13,7 +13,6 @@ const navItems = [
   { href: "/admin/panen",      label: "Panen" },
   { href: "/admin/pengiriman", label: "Pengiriman" },
   { href: "/admin/pembayaran", label: "Pembayaran" },
-  { href: "/admin/pembayaran/topup", label: "Topup Saldo" },
 ];
 
 function subscribe() { return () => {}; }
