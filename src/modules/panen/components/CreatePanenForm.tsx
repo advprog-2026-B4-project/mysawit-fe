@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useCreatePanen } from '../hooks/useCreatePanen';
 import { useCheckPanenToday } from '../hooks/useCheckPanenToday'; 
-import { CreatePanenRequestDTO } from '../api/panenApi';
+import { type CreatePanenRequestDTO } from '../hooks/usePanenList';
 import { useUploadPanenPhotos } from '../hooks/useUploadPanen';
 
 const getFileNameFromUrl = (url: string): string => {

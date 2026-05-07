@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { usePanenByBuruh } from '../hooks/usePanenList';
-import { GetPanenByBuruhParams } from '../api/panenApi';
+import { Button } from '@/components/ui/Button';
+import { usePanenByBuruh, type GetPanenByBuruhParams } from '../hooks/usePanenList';
 
 interface BuruhPanenSectionProps {
   buruhId: string;
@@ -10,10 +10,30 @@ interface BuruhPanenSectionProps {
 
 const STATUS_OPTIONS = ['', 'PENDING', 'APPROVED', 'REJECTED'];
 
-// ✅ Helper: Open photo in new tab
-const openPhoto = (url: string) => {
-  window.open(url, '_blank');
+const STATUS_OPTIONS_LABEL: Record<string, string> = {
+  '': 'Semua Status',
+  PENDING: 'Menunggu',
+  APPROVED: 'Disetujui',
+  REJECTED: 'Ditolak',
 };
+
+const STATUS_CONFIG: Record<string, { label: string; dotClass: string }> = {
+  PENDING:  { label: 'Menunggu',  dotClass: 'bg-amber-400' },
+  APPROVED: { label: 'Disetujui', dotClass: 'bg-emerald-500' },
+  REJECTED: { label: 'Ditolak',   dotClass: 'bg-rose-500' },
+};
+
+function StatusBadge({ status }: { status: string }) {
+  const upperStatus = status.toUpperCase();
+  const config = STATUS_CONFIG[upperStatus] || { label: status, dotClass: 'bg-gray-300' };
+
+  return (
+      <div className="flex items-center gap-2">
+          <span className={`block w-1.5 h-1.5 rounded-full ${config.dotClass}`}></span>
+          <span className="text-[13px] text-text-mid">{config.label}</span>
+      </div>
+  );
+}
 
 export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
   const [filters, setFilters] = useState<GetPanenByBuruhParams>({});
@@ -44,154 +64,159 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
 
   if (isLoading) {
     return (
-      <div className="animate-pulse space-y-3">
-        <div className="h-6 bg-gray-200 rounded w-1/4"></div>
-        <div className="h-48 bg-gray-100 rounded-lg"></div>
+      <div className="py-12 text-center text-[13px] text-text-light">
+        Memuat data panen...
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
-        <p className="font-semibold">Gagal memuat data panen.</p>
-        <p className="text-sm">{error?.message}</p>
+      <div className="mb-5 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
+        {error instanceof Error ? error.message : 'Gagal memuat data panen.'}
       </div>
     );
   }
 
   return (
     <div>
-      <h2 className="font-serif text-2xl text-text-dark mb-4">
+      <h2 className="font-serif text-[24px] font-normal text-text-dark mb-6">
         Riwayat Panen — <span className="text-forest">{buruhName}</span>
       </h2>
 
-      <div className="flex flex-wrap gap-3 mb-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+      {/* Filter */}
+      <div className="mb-6 flex flex-wrap items-end gap-4 p-5 rounded-md border border-cream-dark bg-white">
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-500">Dari Tanggal</label>
+          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-text-light">
+            Dari Tanggal
+          </span>
           <input
             type="date"
             value={startDateInput}
             onChange={(e) => setStartDateInput(e.target.value)}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white"
           />
         </div>
+
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-500">Sampai Tanggal</label>
+          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-text-light">
+            Sampai Tanggal
+          </span>
           <input
             type="date"
             value={endDateInput}
             onChange={(e) => setEndDateInput(e.target.value)}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white"
           />
         </div>
+
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-gray-500">Status</label>
+          <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-text-light">
+            Status
+          </span>
           <select
             value={statusInput}
             onChange={(e) => setStatusInput(e.target.value)}
-            className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white"
           >
             {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>{s || 'Semua'}</option>
+              <option key={s} value={s}>{STATUS_OPTIONS_LABEL[s] || s}</option>
             ))}
           </select>
         </div>
+
         <div className="flex items-end gap-2">
-          <button
-            onClick={handleApplyFilter}
-            className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
-          >
-            Terapkan
-          </button>
-          <button
-            onClick={handleResetFilter}
-            className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            Reset
-          </button>
+          <Button onClick={handleApplyFilter}>Terapkan</Button>
+          <Button variant="ghost" onClick={handleResetFilter}>Reset</Button>
         </div>
       </div>
 
-      {/* Tabel */}
-      <div className="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Deskripsi</th>
-              <th className="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Berat (Kg)</th>
-              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Keterangan</th>
-              {/* ✅ Kolom Foto Bukti */}
-              <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Foto Bukti</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {!listPanen || listPanen.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-500">
-                  Belum ada data panen.
-                </td>
-              </tr>
-            ) : (
-              listPanen.map((panen) => (
-                <tr key={panen.panenId} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {new Date(panen.timestamp).toLocaleDateString('id-ID', {
-                      day: 'numeric', month: 'long', year: 'numeric',
-                    })}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{panen.description}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-gray-900">
-                    {panen.weight}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span className={`px-2.5 py-1 text-xs font-medium rounded-full border ${
-                      panen.status.toUpperCase() === 'APPROVED' 
-                        ? 'bg-green-50 text-green-700 border-green-200' 
-                        : panen.status.toUpperCase() === 'REJECTED' 
-                        ? 'bg-red-50 text-red-700 border-red-200' 
-                        : 'bg-yellow-50 text-yellow-700 border-yellow-200'
-                    }`}>
-                      {panen.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {panen.status.toUpperCase() === 'REJECTED' ? (
-                      <span className="text-red-600 font-medium">
-                        {panen.rejectionReason || 'Ditolak'}
-                      </span>
-                    ) : panen.status.toUpperCase() === 'APPROVED' ? (
-                      <span className="text-green-600">Disetujui</span>
-                    ) : (
-                      <span className="text-yellow-600">Menunggu review</span>
-                    )}
-                  </td>
-                  {/* ✅ Kolom Foto Bukti */}
-                  <td className="px-6 py-4 text-center">
-                    {panen.photos && panen.photos.length > 0 ? (
-                      <div className="flex items-center justify-center gap-2 flex-wrap">
-                        {panen.photos.map((photo, idx) => (
-                          <button
-                            key={photo.photoId || idx}
-                            onClick={() => openPhoto(photo.url)}
-                            className="px-2.5 py-1 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                          >
-                            Lihat {idx + 1}
-                          </button>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-gray-400">—</span>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      {/* Tabel Data */}
+      <div className="overflow-hidden rounded-md border border-cream-dark bg-white">
+        <div className="grid grid-cols-[1fr_1.5fr_0.8fr_1fr_1.2fr_1.2fr] gap-4 border-b border-cream-dark px-6 py-3.5">
+          {['Tanggal', 'Deskripsi', 'Berat (Kg)', 'Status', 'Keterangan', 'Foto Bukti'].map((h) => (
+            <div
+              key={h}
+              className="text-[10px] font-medium uppercase tracking-[0.12em] text-text-light"
+            >
+              {h}
+            </div>
+          ))}
+        </div>
+
+        {!listPanen || listPanen.length === 0 ? (
+          <div className="py-12 text-center text-[13px] text-text-light">
+            Belum ada data panen.
+          </div>
+        ) : (
+          listPanen.map((panen, index) => (
+            <div
+              key={panen.panenId}
+              className={`grid grid-cols-[1fr_1.5fr_0.8fr_1fr_1.2fr_1.2fr] items-center gap-4 px-6 py-4 ${
+                index < listPanen.length - 1 ? 'border-b border-cream-dark' : ''
+              }`}
+            >
+              <div className="text-[13px] text-text-dark">
+                {new Date(panen.timestamp).toLocaleDateString('id-ID', {
+                  day: 'numeric', month: 'long', year: 'numeric',
+                })}
+              </div>
+
+              <div className="text-[13px] text-text-mid truncate" title={panen.description}>
+                {panen.description}
+              </div>
+
+              <div className="text-[13px] text-text-mid font-medium">
+                {panen.weight.toLocaleString('id-ID')}
+              </div>
+
+              <div>
+                <StatusBadge status={panen.status} />
+              </div>
+
+              <div className="text-[13px]">
+                {panen.status.toUpperCase() === 'REJECTED' ? (
+                  <span className="text-error">{panen.rejectionReason || 'Ditolak'}</span>
+                ) : panen.status.toUpperCase() === 'APPROVED' ? (
+                  <span className="text-text-light">Disetujui mandor</span>
+                ) : (
+                  <span className="text-text-light">Menunggu review</span>
+                )}
+              </div>
+
+              {/* Preview Foto */}
+              <div className="flex flex-wrap gap-1.5">
+                {panen.photos && panen.photos.length > 0 ? (
+                  panen.photos.map((photo) => (
+                    <a
+                      key={photo.photoId}
+                      href={photo.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group relative block w-10 h-10 rounded border border-cream-dark overflow-hidden hover:border-forest transition-all"
+                    >
+                      <img
+                        src={photo.url}
+                        alt="Preview"
+                        className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-forest/0 group-hover:bg-forest/10 transition-colors" />
+                    </a>
+                  ))
+                ) : (
+                  <span className="text-[12px] text-text-light">—</span>
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </div>
+      
+      {listPanen && listPanen.length > 0 && (
+        <div className="mt-4 text-[12px] text-text-light">
+          {listPanen.length} laporan ditampilkan
+        </div>
+      )}
     </div>
   );
 }

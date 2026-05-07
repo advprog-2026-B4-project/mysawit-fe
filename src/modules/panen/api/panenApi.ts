@@ -42,6 +42,13 @@ export interface ReviewPanenRequestDTO {
   rejectionReason?: string;
 }
 
+export interface GetPanenAdminParams {
+  buruhName?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+}
+
 export const panenApi = {
   createPanen: async (data: CreatePanenRequestDTO): Promise<PanenDTO> => {
     const response = await apiClient.post<unknown, AxiosResponse<PanenDTO>>('/api/panen', data);
@@ -71,12 +78,21 @@ export const panenApi = {
     return response.data;
   },
 
+  getPanenById: async (panenId: string): Promise<PanenDTO> => {
+    const response = await apiClient.get<unknown, AxiosResponse<PanenDTO>>(`/api/panen/${panenId}`);
+    return response.data;
+  },
+
   uploadPhoto: async (file: File): Promise<string> => {
-  const formData = new FormData();
-  formData.append('file', file);
-  const response = await apiClient.post('/api/storage/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return response.data;
-},
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post('/api/storage/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+  getPanenAdmin: async (params?: GetPanenAdminParams): Promise<PanenDTO[]> => {
+      const response = await apiClient.get<unknown, AxiosResponse<PanenDTO[]>>('/api/panen/admin/list', { params });
+      return response.data; // Response interceptor akan otomatis unwrap 'data' dari ApiResponse
+  },
 };

@@ -74,9 +74,12 @@ export const authApi = {
     if (typeof window !== "undefined") delete window.__mysawit_access_token;
   },
 
-  listUsers: async (roleFilter?: UserRole): Promise<UserDTO[]> => {
+  listUsers: async (roleFilter?: UserRole, search?: string): Promise<UserDTO[]> => {
     const { data } = await apiClient.get<UserDTO[]>("/api/users", {
-      params: roleFilter ? { role: roleFilter } : undefined,
+      params: {
+        ...(roleFilter && { role: roleFilter }),
+        ...(search && { search })
+      },
     });
     return data;
   },

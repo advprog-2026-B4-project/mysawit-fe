@@ -4,16 +4,17 @@ import { authApi, type UserRole, type UserDTO } from "../api/authApi";
 
 export const userKeys = {
   all:    ["users"] as const,
-  list:   (role?: UserRole) => ["users", "list", role] as const,
+  list:   (role?: UserRole, search?: string) => ["users", "list", role, search] as const,
   detail: (id: string)      => ["users", "detail", id] as const,
   me:     ()                => ["users", "me"] as const,
   buruh:  (mandorId: string) => ["users", "buruh", mandorId] as const,
 };
 
-export function useUsers(roleFilter?: UserRole) {
+export function useUsers(roleFilter?: UserRole, search?: string, options?: { enabled?: boolean }) {
   return useQuery({
-    queryKey: userKeys.list(roleFilter),
-    queryFn:  () => authApi.listUsers(roleFilter),
+    queryKey: userKeys.list(roleFilter, search),
+    queryFn:  () => authApi.listUsers(roleFilter, search),
+    ...options, 
   });
 }
 
