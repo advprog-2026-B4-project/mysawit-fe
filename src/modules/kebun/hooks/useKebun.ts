@@ -15,8 +15,8 @@ export const kebunKeys = {
     mandor: (kebunId: string) => ["kebun", "mandor", kebunId] as const,
     supir: (kebunId: string, searchNama?: string) =>
         ["kebun", "supir", kebunId, searchNama ?? ""] as const,
-    buruh: (kebunId: string, searchNama?: string) =>
-        ["kebun", "buruh", kebunId, searchNama ?? ""] as const,
+    buruh: (kebunId: string, searchNama?: string, mandorId?: string | null) =>
+        ["kebun", "buruh", kebunId, searchNama ?? "", mandorId ?? ""] as const,
     usersByRole: (role: Extract<KebunUserRole, "MANDOR" | "SUPIR">) =>
         ["kebun", "users-by-role", role] as const,
     user: (userId: string) => ["kebun", "user", userId] as const,
@@ -53,11 +53,12 @@ export function useKebunSupirList(kebunId: string, searchNama?: string) {
     });
 }
 
-export function useKebunBuruhList(kebunId: string, searchNama?: string) {
+export function useKebunBuruhList(kebunId: string, searchNama?: string, mandorId?: string | null) {
     return useQuery({
-        queryKey: kebunKeys.buruh(kebunId, searchNama),
+        queryKey: kebunKeys.buruh(kebunId, searchNama, mandorId),
         queryFn: () => kebunApi.getBuruhList(kebunId, searchNama),
         enabled: !!kebunId,
+        refetchOnMount: "always",
     });
 }
 
