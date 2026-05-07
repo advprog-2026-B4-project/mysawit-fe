@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/modules/auth";
 import type { UserRole } from "@/modules/auth";
@@ -26,13 +26,19 @@ export default function RoleGuard({
 	const { isAuthenticated, logout } = useAuth();
 	const router = useRouter();
 	const redirectHandledRef = useRef(false);
+	const [mounted, setMounted] = useState(false);
 
 	const roleSet = useMemo(() => new Set<string>(allowedRoles), [allowedRoles]);
 	const authenticated = isAuthenticated();
-	const currentRole = getRole();
+	const currentRole = mounted ? getRole() : null;
 	const isAuthorized = authenticated && !!currentRole && roleSet.has(currentRole);
 
 	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	useEffect(() => {
+		if (!mounted) return;
 		if (isAuthorized) {
 			redirectHandledRef.current = false;
 			return;
@@ -58,6 +64,7 @@ export default function RoleGuard({
 			router.push(unauthorizedRedirectTo);
 		}
 	}, [
+		mounted,
 		authenticated,
 		isAuthorized,
 		logout,
@@ -67,7 +74,7 @@ export default function RoleGuard({
 		unauthorizedRedirectTo,
 	]);
 
-	if (!isAuthorized) {
+	if (!mounted || !isAuthorized) {
 		return (
 			<div className="flex min-h-screen items-center justify-center bg-cream">
 				<span className="font-sans text-sm text-text-light tracking-widest uppercase animate-pulse">

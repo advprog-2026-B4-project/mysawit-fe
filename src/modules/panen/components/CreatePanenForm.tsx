@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, DragEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { useCreatePanen } from '../hooks/useCreatePanen';
-import { useCheckPanenToday } from '../hooks/useCheckPanenToday'; 
+import { useCheckPanenToday } from '../hooks/useCheckPanenToday';
 import { CreatePanenRequestDTO } from '../api/panenApi';
 import { useUploadPanenPhotos } from '../hooks/useUploadPanen';
+import { storageApi } from '@/lib/api/storageApi';
 
 const getFileNameFromUrl = (url: string): string => {
   try {
@@ -33,6 +34,10 @@ export const CreatePanenForm: React.FC = () => {
   // ✅ Simpan nama file asli juga
   const [photoNames, setPhotoNames] = useState<Map<string, string>>(new Map());
   const [tempPhotoUrl, setTempPhotoUrl] = useState('');
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [deletingIdx, setDeletingIdx] = useState<number | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -53,19 +58,27 @@ export const CreatePanenForm: React.FC = () => {
     }
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement> | DragEvent<HTMLDivElement>) => {
+    let files: File[] = [];
+
+    if ('dataTransfer' in e) {
+      files = Array.from(e.dataTransfer.files ?? []);
+    } else {
+      files = Array.from(e.target.files ?? []);
+    }
+
+    if (files.length === 0) return;
+
     try {
       const urls = await uploadFiles(files);
-      
+
       // ✅ Simpan mapping: URL -> original filename
       const newNames = new Map(photoNames);
       files.forEach((file, idx) => {
         newNames.set(urls[idx], file.name);
       });
       setPhotoNames(newNames);
-      
+
       setFormData((prev) => ({
         ...prev,
         photoUrls: [...prev.photoUrls, ...urls],
@@ -75,20 +88,50 @@ export const CreatePanenForm: React.FC = () => {
     }
   };
 
-  const handleRemovePhoto = (indexToRemove: number) => {
-    setFormData((prev) => {
-      const urlToRemove = prev.photoUrls[indexToRemove];
-      
-      // ✅ Hapus dari Map juga
-      const newNames = new Map(photoNames);
-      newNames.delete(urlToRemove);
-      setPhotoNames(newNames);
-      
-      return {
-        ...prev,
-        photoUrls: prev.photoUrls.filter((_, index) => index !== indexToRemove),
-      };
-    });
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isUploading) setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    if (isUploading) return;
+
+    await handleFileChange(e);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleRemovePhoto = async (indexToRemove: number) => {
+    const urlToRemove = formData.photoUrls[indexToRemove];
+    setDeletingIdx(indexToRemove);
+
+    try {
+      const urlObj = new URL(urlToRemove);
+      const fileKey = urlObj.pathname.replace(/^\//, '');
+      await storageApi.deleteFile(fileKey);
+    } catch (e) {
+      // Non-fatal: file may not exist in R2 yet
+      console.warn('Gagal menghapus file dari R2:', e);
+    }
+
+    const newNames = new Map(photoNames);
+    newNames.delete(urlToRemove);
+    setPhotoNames(newNames);
+
+    setFormData((prev) => ({
+      ...prev,
+      photoUrls: prev.photoUrls.filter((_, index) => index !== indexToRemove),
+    }));
+    setDeletingIdx(null);
   };
 
   const isValidURL = (url: string) => {
@@ -219,12 +262,28 @@ export const CreatePanenForm: React.FC = () => {
           <label className="text-[11px] font-medium text-text-mid uppercase tracking-[0.08em]">
             Foto Bukti
           </label>
-          <label className={`flex flex-col items-center justify-center w-full px-4 py-8 bg-[#f0f4f8] border-2 border-dashed border-sand rounded cursor-pointer hover:border-forest transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => !isUploading && fileInputRef.current?.click()}
+            onKeyDown={(e) => e.key === 'Enter' && !isUploading && fileInputRef.current?.click()}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={`flex flex-col items-center justify-center w-full px-4 py-8 bg-[#f0f4f8] border-2 border-dashed rounded cursor-pointer transition-colors ${
+              isUploading
+                ? 'opacity-50 cursor-not-allowed border-sand'
+                : isDragOver
+                ? 'border-forest bg-forest/5'
+                : 'border-sand hover:border-forest'
+            }`}
+          >
             <span className="text-[13px] text-text-mid mb-1">
-              {isUploading ? 'Mengupload...' : 'Klik untuk pilih foto'}
+              {isUploading ? 'Mengupload...' : isDragOver ? 'Lepaskan file di sini' : 'Klik atau seret foto ke sini'}
             </span>
             <span className="text-[11px] text-text-light">JPG, PNG • Maks. 5MB per file</span>
             <input
+              ref={fileInputRef}
               type="file"
               accept="image/jpeg,image/png"
               multiple
@@ -232,22 +291,41 @@ export const CreatePanenForm: React.FC = () => {
               onChange={handleFileChange}
               className="hidden"
             />
-          </label>
+          </div>
 
           {formData.photoUrls.length > 0 && (
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 grid grid-cols-3 gap-3">
               {formData.photoUrls.map((url, idx) => (
-                <li key={idx} className="flex items-center justify-between py-2.5 px-4 bg-white border border-sand rounded shadow-sm text-[13px] text-text-mid">
-                  {/* ✅ Tampilkan nama file asli dari Map */}
-                  <span className="truncate w-5/6 font-medium text-text-dark">
-                    {photoNames.get(url) || getFileNameFromUrl(url)}
-                  </span>
+                <li key={idx} className="relative group bg-white border border-sand rounded shadow-sm overflow-hidden">
                   <button
                     type="button"
-                    onClick={() => handleRemovePhoto(idx)}
-                    className="text-error font-medium hover:opacity-80 transition-colors ml-2 flex-shrink-0"
+                    onClick={() => setLightboxUrl(url)}
+                    className="block w-full h-full focus:outline-none"
+                    title="Klik untuk memperbesar"
                   >
-                    Hapus
+                    <img
+                      src={url}
+                      alt={photoNames.get(url) || getFileNameFromUrl(url)}
+                      className={`w-full h-28 object-cover ${deletingIdx === idx ? 'opacity-30' : ''}`}
+                    />
+                    {deletingIdx === idx && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-5 h-5 border-2 border-forest border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    )}
+                  </button>
+                  <div className="absolute inset-x-0 bottom-0 bg-black/50 px-2 py-1 pointer-events-none">
+                    <p className="text-[10px] text-white truncate">
+                      {photoNames.get(url) || getFileNameFromUrl(url)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); handleRemovePhoto(idx); }}
+                    disabled={deletingIdx === idx}
+                    className="absolute top-1 right-1 w-5 h-5 bg-black/60 hover:bg-black/80 rounded text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    ✕
                   </button>
                 </li>
               ))}
@@ -266,7 +344,56 @@ export const CreatePanenForm: React.FC = () => {
         </button>
 
       </form>
-      
+
+      {lightboxUrl && (
+        <div
+          className="fixed inset-0 z-[120] bg-forest/70 backdrop-blur-[2px] p-4 sm:p-8"
+          onClick={() => setLightboxUrl(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Preview foto"
+        >
+          <div
+            className="max-w-4xl mx-auto h-full flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-white rounded-md border border-cream-dark shadow-[0_20px_48px_rgba(20,36,20,0.35)] flex-1 min-h-0 flex flex-col">
+              <div className="flex items-center justify-between gap-3 px-4 py-3 border-b border-cream-dark">
+                <p className="font-sans text-[12px] text-text-mid truncate max-w-[60%]">
+                  {photoNames.get(lightboxUrl) || getFileNameFromUrl(lightboxUrl)}
+                </p>
+                <div className="flex items-center gap-2">
+                  <a
+                    href={lightboxUrl}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center rounded border border-forest px-3 py-1.5 font-sans text-[11px] text-forest hover:bg-forest/5 transition-colors"
+                  >
+                    Download
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setLightboxUrl(null)}
+                    className="px-3 py-1.5 rounded border border-sand font-sans text-[11px] text-text-mid hover:bg-cream-dark hover:text-text-dark transition-colors"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 min-h-0 px-4 py-4 flex items-center justify-center bg-cream/40 overflow-auto">
+                <img
+                  src={lightboxUrl}
+                  alt={photoNames.get(lightboxUrl) || getFileNameFromUrl(lightboxUrl)}
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

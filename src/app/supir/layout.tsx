@@ -1,3 +1,5 @@
+"use client";
+
 import SupirGuard from "@/components/guards/SupirGuard";
 import RoleShellLayout from "@/components/layout/RoleShellLayout";
 
