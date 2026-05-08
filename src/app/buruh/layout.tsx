@@ -1,3 +1,5 @@
+"use client";
+
 import BuruhGuard from "@/components/guards/BuruhGuard";
 import RoleShellLayout from "@/components/layout/RoleShellLayout";
 

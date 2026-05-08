@@ -11,7 +11,7 @@ export const storageApi = {
   uploadFile: async (file: File): Promise<FileUploadResponse> => {
     const formData = new FormData();
     formData.append("file", file);
-    
+
     const { data } = await apiClient.post<FileUploadResponse>(
       "/api/storage/upload",
       formData,
@@ -25,7 +25,7 @@ export const storageApi = {
   },
 
   deleteFile: async (fileKey: string): Promise<void> => {
-    await apiClient.delete(`/api/storage/${fileKey}`);
+    await apiClient.delete(`/api/storage/file?fileKey=${encodeURIComponent(fileKey)}`);
   },
 
   getPublicUrl: (fileKey: string): string => {
