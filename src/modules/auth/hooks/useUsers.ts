@@ -79,6 +79,7 @@ export function useAssignBuruh() {
       authApi.assignBuruhToMandor(buruhId, mandorId),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: userKeys.all });
+      qc.invalidateQueries({ queryKey: ["kebun"] });
       notify.success("Buruh berhasil ditugaskan ke mandor.");
     },
     onError: (error: unknown) => {

@@ -83,16 +83,35 @@ export const panenApi = {
     return response.data;
   },
 
-  uploadPhoto: async (file: File): Promise<string> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    const response = await apiClient.post('/api/storage/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data;
+  requestUploadToken: async (contentType: string): Promise<{ presignedUrl: string; publicUrl: string }> => {
+    const response = await apiClient.get<string>(`/api/storage/upload-token?contentType=${encodeURIComponent(contentType)}`);
+    const [presignedUrl, publicUrl] = (response.data as string).split('|');
+    return { presignedUrl, publicUrl };
   },
+
+  uploadPhoto: async (file: File): Promise<string> => {
+    const contentType = file.type || 'image/jpeg';
+    const { presignedUrl, publicUrl } = await panenApi.requestUploadToken(contentType);
+
+    // PUT directly to R2 using the presigned URL
+    const res = await fetch(presignedUrl, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': contentType,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Gagal mengupload ke R2: ${res.status} ${res.statusText}`);
+    }
+
+    return publicUrl;
+  },
+
   getPanenAdmin: async (params?: GetPanenAdminParams): Promise<PanenDTO[]> => {
       const response = await apiClient.get<unknown, AxiosResponse<PanenDTO[]>>('/api/panen/admin/list', { params });
       return response.data; // Response interceptor akan otomatis unwrap 'data' dari ApiResponse
+  },
   },
 };

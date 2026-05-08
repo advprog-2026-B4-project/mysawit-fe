@@ -54,6 +54,7 @@ export default function KebunDetailPage() {
     const { data: buruhList = [], error: buruhError } = useKebunBuruhList(
         kebunId,
         deferredBuruhSearch || undefined,
+        mandorAssignment?.mandorId,
     );
 
     const { data: mandorOptions = [] } = useKebunDirectoryUsers("MANDOR");

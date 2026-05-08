@@ -7,8 +7,9 @@ import toast from 'react-hot-toast';
 import { useCurrentUser } from '@/modules/auth/hooks/useUsers'; 
 import { useCreatePanen } from '../hooks/useCreatePanen';
 import { useCheckPanenToday } from '../hooks/useCheckPanenToday'; 
-import { type CreatePanenRequestDTO } from '../hooks/usePanenList';
+import { type CreatePanenRequestDTO } from '../api/panenApi';
 import { useUploadPanenPhotos } from '../hooks/useUploadPanen';
+import { storageApi } from '@/lib/api/storageApi';
 
 const getFileNameFromUrl = (url: string): string => {
   try {
@@ -37,6 +38,7 @@ export const CreatePanenForm: React.FC = () => {
   });
 
   const [photoNames, setPhotoNames] = useState<Map<string, string>>(new Map());
+  const [deletingIdx, setDeletingIdx] = useState<number | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -48,6 +50,7 @@ export const CreatePanenForm: React.FC = () => {
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
     
     try {
       const urls = await uploadFiles(files);
@@ -57,7 +60,7 @@ export const CreatePanenForm: React.FC = () => {
         newNames.set(urls[idx], file.name);
       });
       setPhotoNames(newNames);
-      
+
       setFormData((prev) => ({
         ...prev,
         photoUrls: [...prev.photoUrls, ...urls],
@@ -67,19 +70,28 @@ export const CreatePanenForm: React.FC = () => {
     }
   };
 
-  const handleRemovePhoto = (indexToRemove: number) => {
-    setFormData((prev) => {
-      const urlToRemove = prev.photoUrls[indexToRemove];
-      
-      const newNames = new Map(photoNames);
-      newNames.delete(urlToRemove);
-      setPhotoNames(newNames);
-      
-      return {
-        ...prev,
-        photoUrls: prev.photoUrls.filter((_, index) => index !== indexToRemove),
-      };
-    });
+  const handleRemovePhoto = async (indexToRemove: number) => {
+    const urlToRemove = formData.photoUrls[indexToRemove];
+    setDeletingIdx(indexToRemove);
+
+    try {
+      const urlObj = new URL(urlToRemove);
+      const fileKey = urlObj.pathname.replace(/^\//, '');
+      await storageApi.deleteFile(fileKey);
+    } catch (e) {
+      // Non-fatal: file may not exist in R2 yet
+      console.warn('Gagal menghapus file dari R2:', e);
+    }
+
+    const newNames = new Map(photoNames);
+    newNames.delete(urlToRemove);
+    setPhotoNames(newNames);
+
+    setFormData((prev) => ({
+      ...prev,
+      photoUrls: prev.photoUrls.filter((_, index) => index !== indexToRemove),
+    }));
+    setDeletingIdx(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -243,9 +255,10 @@ export const CreatePanenForm: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleRemovePhoto(idx)}
-                    className="text-error font-medium hover:opacity-80 transition-colors ml-2 flex-shrink-0"
+                    disabled={deletingIdx === idx}
+                    className="text-error font-medium hover:opacity-80 transition-colors ml-2 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Hapus
+                    {deletingIdx === idx ? 'Menghapus...' : 'Hapus'}
                   </button>
                 </li>
               ))}
@@ -264,7 +277,6 @@ export const CreatePanenForm: React.FC = () => {
         </button>
 
       </form>
-      
     </div>
   );
 };

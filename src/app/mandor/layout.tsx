@@ -1,3 +1,5 @@
+"use client";
+
 import MandorGuard from "@/components/guards/MandorGuard";
 import RoleShellLayout from "@/components/layout/RoleShellLayout";
 
