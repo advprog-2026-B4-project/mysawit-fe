@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const subNavItems = [
   { href: "/admin/pembayaran/variabel-pokok", label: "Variabel Pokok" },
   { href: "/admin/pembayaran/payroll",        label: "Payroll" },
+  { href: "/admin/pembayaran/topup",          label: "Topup" },
 ];
 
 export default function PembayaranLayout({ children }: { children: React.ReactNode }) {
