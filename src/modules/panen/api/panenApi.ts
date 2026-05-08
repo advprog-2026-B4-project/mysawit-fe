@@ -42,6 +42,13 @@ export interface ReviewPanenRequestDTO {
   rejectionReason?: string;
 }
 
+export interface GetPanenAdminParams {
+  buruhName?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+}
+
 export const panenApi = {
   createPanen: async (data: CreatePanenRequestDTO): Promise<PanenDTO> => {
     const response = await apiClient.post<unknown, AxiosResponse<PanenDTO>>('/api/panen', data);
@@ -71,6 +78,11 @@ export const panenApi = {
     return response.data;
   },
 
+  getPanenById: async (panenId: string): Promise<PanenDTO> => {
+    const response = await apiClient.get<unknown, AxiosResponse<PanenDTO>>(`/api/panen/${panenId}`);
+    return response.data;
+  },
+
   requestUploadToken: async (contentType: string): Promise<{ presignedUrl: string; publicUrl: string }> => {
     const response = await apiClient.get<string>(`/api/storage/upload-token?contentType=${encodeURIComponent(contentType)}`);
     const [presignedUrl, publicUrl] = (response.data as string).split('|');
@@ -95,5 +107,10 @@ export const panenApi = {
     }
 
     return publicUrl;
+  },
+
+  getPanenAdmin: async (params?: GetPanenAdminParams): Promise<PanenDTO[]> => {
+      const response = await apiClient.get<unknown, AxiosResponse<PanenDTO[]>>('/api/panen/admin/list', { params });
+      return response.data; // Response interceptor akan otomatis unwrap 'data' dari ApiResponse
   },
 };

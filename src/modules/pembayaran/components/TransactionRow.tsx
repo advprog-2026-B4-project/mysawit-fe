@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { formatRupiah, formatDollar } from "../api/pembayaranApi";
 import type { WalletTransactionDTO } from "../api/pembayaranApi";
 import { formatPayrollDate, compactPayrollId } from "./PayrollShared";
 

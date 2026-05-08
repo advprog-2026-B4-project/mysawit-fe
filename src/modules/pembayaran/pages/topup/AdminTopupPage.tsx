@@ -20,7 +20,7 @@ export default function AdminTopupPage() {
 
   const balance = useWalletBalance(adminId);
   const transactions = useWalletTransactions(adminId);
-  const initiateTopUp = useInitiateTopUp(adminId);
+  const initiateTopUp = useInitiateTopUp();
 
   const handleAmountChange = (value: string) => {
     setAmountInput(value);

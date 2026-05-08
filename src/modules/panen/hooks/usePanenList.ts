@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { panenApi, PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO } from '../api/panenApi';
+import { panenApi, PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams } from '../api/panenApi';
 import { extractErrorMessage, notify } from '@/lib/toast';
-
+export type { PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams } from '../api/panenApi';
 
 export const usePanenMandor = (filters?: GetPanenMandorParams) => {
   return useQuery<PanenDTO[], Error>({
@@ -31,5 +31,15 @@ export const useReviewPanen = () => {
     onError: (error: unknown) => {
       notify.error(extractErrorMessage(error, 'Gagal memperbarui status panen.'));
     },
+  });
+};
+
+export function usePanenAdmin(params?: GetPanenAdminParams) {
+  return useQuery({
+    // Masukkan params ke dalam queryKey agar otomatis fetch ulang saat filter berubah
+    queryKey: ['panen', 'admin', params],
+    queryFn: () => panenApi.getPanenAdmin(params),
+    // Optional: atur staleTime jika data tidak perlu di-fetch tiap detik
+    staleTime: 1000 * 60 * 5, // 5 menit
   });
 };
