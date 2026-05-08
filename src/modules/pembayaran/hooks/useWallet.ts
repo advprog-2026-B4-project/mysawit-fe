@@ -48,12 +48,6 @@ export function useInitiateTopUp(userId: string) {
   const queryClient = useQueryClient();
   return useMutation<{ paymentUrl: string }, Error, number>({
     mutationFn: (amount) => pembayaranApi.initiateTopUp(amount),
-    onSuccess: () => {
-      // Balance updates arrive via Midtrans webhook; invalidate once top-up is initiated
-      // so the UI re-fetches after payment confirmation.
-      queryClient.invalidateQueries({ queryKey: walletKeys.balance(userId) });
-      notify.success("Permintaan top-up berhasil dibuat.");
-    },
     onError: (error: unknown) => {
       notify.error(extractErrorMessage(error, "Gagal memulai top-up wallet."));
     },
