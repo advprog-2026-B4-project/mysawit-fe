@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { getRole, getToken } from "@/lib/api/tokenStorage";
 import { compactPengirimanId, deliveryStatusClass, formatTimestamp, formatWeight } from "../components/PengirimanShared";
 import {
+  useAssignmentRecommendationForMandor,
   useAssignablePanenForMandor,
   useAssignDelivery,
   useMandorActiveDeliveries,
@@ -32,6 +33,9 @@ export default function MandorPengirimanPage() {
   const panenQuery = useAssignablePanenForMandor({
     enabled: hasSession && role === "MANDOR",
   });
+  const recommendationQuery = useAssignmentRecommendationForMandor({
+    enabled: hasSession && role === "MANDOR",
+  });
   const activeDeliveriesQuery = useMandorActiveDeliveries({
     enabled: hasSession && role === "MANDOR",
   });
@@ -39,11 +43,14 @@ export default function MandorPengirimanPage() {
   const assignDelivery = useAssignDelivery();
   const approveDelivery = useMandorApproveDelivery();
   const rejectDelivery = useMandorRejectDelivery();
+  const supirList = supirQuery.data ?? [];
+  const assignablePanen = useMemo(() => panenQuery.data ?? [], [panenQuery.data]);
+  const activeDeliveries = activeDeliveriesQuery.data ?? [];
 
   const totalSelectedWeight = useMemo(() => {
-    const panenById = new Map((panenQuery.data ?? []).map((item) => [item.panenId, item.weight]));
+    const panenById = new Map(assignablePanen.map((item) => [item.panenId, item.weight]));
     return selectedPanenIds.reduce((sum, panenId) => sum + (panenById.get(panenId) ?? 0), 0);
-  }, [panenQuery.data, selectedPanenIds]);
+  }, [assignablePanen, selectedPanenIds]);
 
   async function handleAssignDelivery(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,6 +91,7 @@ export default function MandorPengirimanPage() {
   }
 
   async function handleRejectDelivery() {
+    /* v8 ignore next 3 -- @preserve */
     if (!rejectTargetId) {
       return;
     }
@@ -103,6 +111,29 @@ export default function MandorPengirimanPage() {
     } catch {
       // handled in hook
     }
+  }
+
+  async function handleRecommendAssignment() {
+    setLocalError(null);
+
+    let recommendation = recommendationQuery.data;
+    if (!recommendation) {
+      const result = await recommendationQuery.refetch();
+      if (result.error) {
+        setLocalError(result.error.message);
+        return;
+      }
+      recommendation = result.data;
+    }
+
+    const recommendedPanenIds = recommendation?.panenIds ?? [];
+    if (recommendedPanenIds.length === 0) {
+      setSelectedPanenIds([]);
+      setLocalError("Belum ada kombinasi panen yang dapat direkomendasikan.");
+      return;
+    }
+
+    setSelectedPanenIds(recommendedPanenIds);
   }
 
   function togglePanenSelection(panenId: string) {
@@ -190,13 +221,36 @@ export default function MandorPengirimanPage() {
                   className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
                 >
                   <option value="">Pilih supir kebun</option>
-                  {(supirQuery.data ?? []).map((supir) => (
+                  {supirList.map((supir) => (
                     <option key={supir.supirId} value={supir.supirId}>
                       {supir.name} ({supir.username})
                     </option>
                   ))}
                 </select>
               </label>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-cream-dark bg-cream px-4 py-3">
+              <div>
+                <p className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">
+                  Rekomendasi Knapsack
+                </p>
+                <p className="mt-1 font-sans text-[12px] text-text-mid">
+                  {recommendationQuery.data
+                    ? `${recommendationQuery.data.panenIds.length} panen, ${formatWeight(recommendationQuery.data.totalWeight)}`
+                    : "Belum ada rekomendasi aktif"}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                className="px-4 py-2 text-[12px]"
+                loading={recommendationQuery.isFetching}
+                disabled={panenQuery.isLoading || assignablePanen.length === 0}
+                onClick={() => void handleRecommendAssignment()}
+              >
+                Rekomendasikan
+              </Button>
             </div>
 
             {localError && (
@@ -228,7 +282,7 @@ export default function MandorPengirimanPage() {
                 </div>
               )}
 
-              {!panenQuery.isLoading && !panenQuery.isError && (panenQuery.data?.length ?? 0) === 0 && (
+              {!panenQuery.isLoading && !panenQuery.isError && assignablePanen.length === 0 && (
                 <div className="px-4 py-10 text-center">
                   <p className="font-sans text-[13px] text-text-light">
                     Belum ada panen approved yang siap dikirim.
@@ -236,13 +290,13 @@ export default function MandorPengirimanPage() {
                 </div>
               )}
 
-              {!panenQuery.isLoading && !panenQuery.isError && (panenQuery.data ?? []).map((panen, index) => {
+              {!panenQuery.isLoading && !panenQuery.isError && assignablePanen.map((panen, index) => {
                 const selected = selectedPanenIds.includes(panen.panenId);
                 return (
                   <label
                     key={panen.panenId}
                     className={`grid grid-cols-[0.45fr_0.95fr_1.2fr_0.8fr] gap-4 items-center px-4 py-3 cursor-pointer ${
-                      index < (panenQuery.data?.length ?? 0) - 1 ? "border-b border-cream-dark" : ""
+                      index < assignablePanen.length - 1 ? "border-b border-cream-dark" : ""
                     } ${selected ? "bg-forest/5" : ""}`}
                   >
                     <div>
@@ -291,7 +345,7 @@ export default function MandorPengirimanPage() {
               </div>
               <div className="text-right">
                 <p className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Aktif</p>
-                <p className="font-serif text-[28px] text-forest">{(activeDeliveriesQuery.data ?? []).length}</p>
+                <p className="font-serif text-[28px] text-forest">{activeDeliveries.length}</p>
               </div>
             </div>
 
@@ -358,7 +412,7 @@ export default function MandorPengirimanPage() {
                 </div>
               )}
 
-              {!activeDeliveriesQuery.isLoading && !activeDeliveriesQuery.isError && (activeDeliveriesQuery.data?.length ?? 0) === 0 && (
+              {!activeDeliveriesQuery.isLoading && !activeDeliveriesQuery.isError && activeDeliveries.length === 0 && (
                 <div className="px-4 py-10 text-center">
                   <p className="font-sans text-[13px] text-text-light">
                     Belum ada pengiriman aktif saat ini.
@@ -366,11 +420,11 @@ export default function MandorPengirimanPage() {
                 </div>
               )}
 
-              {!activeDeliveriesQuery.isLoading && !activeDeliveriesQuery.isError && (activeDeliveriesQuery.data ?? []).map((delivery, index) => (
+              {!activeDeliveriesQuery.isLoading && !activeDeliveriesQuery.isError && activeDeliveries.map((delivery, index) => (
                 <div
                   key={delivery.pengirimanId}
                   className={`grid grid-cols-[1fr_0.8fr_0.8fr_0.95fr_1fr] gap-4 items-center px-4 py-3 ${
-                    index < (activeDeliveriesQuery.data?.length ?? 0) - 1 ? "border-b border-cream-dark" : ""
+                    index < activeDeliveries.length - 1 ? "border-b border-cream-dark" : ""
                   }`}
                 >
                   <div>

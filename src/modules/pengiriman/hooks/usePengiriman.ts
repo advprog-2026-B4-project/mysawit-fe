@@ -3,6 +3,7 @@ import { extractErrorMessage, notify } from "@/lib/toast";
 import {
   pengirimanApi,
   type AssignedSupirDTO,
+  type AssignmentRecommendationDTO,
   type AssignablePanenDTO,
   type AssignDeliveryRequest,
   type PengirimanDTO,
@@ -23,6 +24,7 @@ export const pengirimanKeys = {
   mandorSupir: (searchNama?: string) =>
     ["pengiriman", "mandor", "supir", searchNama?.trim().toLowerCase() ?? ""] as const,
   mandorPanen: () => ["pengiriman", "mandor", "panen"] as const,
+  mandorRecommendation: () => ["pengiriman", "mandor", "recommendation"] as const,
   mandorActive: () => ["pengiriman", "mandor", "active"] as const,
   mandorSupirDeliveries: (supirId: string) => ["pengiriman", "mandor", "supir", supirId, "deliveries"] as const,
   adminApproved: (filter?: PengirimanListFilter) => ["pengiriman", "admin", "approved", filter] as const,
@@ -51,6 +53,14 @@ export function useAssignablePanenForMandor(options?: UseSupirDeliveriesOptions)
   return useQuery<AssignablePanenDTO[], Error>({
     queryKey: pengirimanKeys.mandorPanen(),
     queryFn: () => pengirimanApi.listAssignablePanenForMandor(),
+    enabled: options?.enabled ?? true,
+  });
+}
+
+export function useAssignmentRecommendationForMandor(options?: UseSupirDeliveriesOptions) {
+  return useQuery<AssignmentRecommendationDTO, Error>({
+    queryKey: pengirimanKeys.mandorRecommendation(),
+    queryFn: () => pengirimanApi.recommendAssignmentForMandor(),
     enabled: options?.enabled ?? true,
   });
 }

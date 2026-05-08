@@ -19,7 +19,9 @@ export default function MandorSupirDeliveriesPage() {
     enabled: hasSession && role === "MANDOR" && !!supirId,
   });
 
-  const supir = (supirListQuery.data ?? []).find((item) => item.supirId === supirId);
+  const supirList = supirListQuery.data ?? [];
+  const deliveries = deliveriesQuery.data ?? [];
+  const supir = supirList.find((item) => item.supirId === supirId);
 
   if (!hasSession) {
     return (
@@ -104,7 +106,7 @@ export default function MandorSupirDeliveriesPage() {
                 </div>
               )}
 
-              {!deliveriesQuery.isLoading && !deliveriesQuery.isError && (deliveriesQuery.data?.length ?? 0) === 0 && (
+              {!deliveriesQuery.isLoading && !deliveriesQuery.isError && deliveries.length === 0 && (
                 <div className="px-6 py-14 text-center">
                   <h2 className="font-serif text-[24px] text-text-dark">Belum ada pengiriman</h2>
                   <p className="mt-2 font-sans text-[13px] text-text-light">
@@ -113,11 +115,11 @@ export default function MandorSupirDeliveriesPage() {
                 </div>
               )}
 
-              {!deliveriesQuery.isLoading && !deliveriesQuery.isError && (deliveriesQuery.data ?? []).map((delivery, index) => (
+              {!deliveriesQuery.isLoading && !deliveriesQuery.isError && deliveries.map((delivery, index) => (
                 <div
                   key={delivery.pengirimanId}
                   className={`grid grid-cols-[1fr_0.8fr_0.8fr_0.8fr_1fr] gap-4 items-center px-6 py-4 ${
-                    index < (deliveriesQuery.data?.length ?? 0) - 1 ? "border-b border-cream-dark" : ""
+                    index < deliveries.length - 1 ? "border-b border-cream-dark" : ""
                   }`}
                 >
                   <div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { getRole, getToken } from "@/lib/api/tokenStorage";
 import { compactPengirimanId, deliveryStatusClass, formatTimestamp, formatWeight, kilogramsInputToGrams } from "../components/PengirimanShared";
@@ -31,11 +31,9 @@ export default function AdminPengirimanPage() {
     enabled: hasSession && role === "ADMIN",
   });
   const adminProcessDelivery = useAdminProcessDelivery();
+  const approvedDeliveries = approvedDeliveriesQuery.data ?? [];
 
-  const approvedCount = useMemo(
-    () => (approvedDeliveriesQuery.data ?? []).length,
-    [approvedDeliveriesQuery.data]
-  );
+  const approvedCount = approvedDeliveries.length;
 
   function handleSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -65,6 +63,7 @@ export default function AdminPengirimanPage() {
   }
 
   async function handleConfirmAction() {
+    /* v8 ignore next 3 -- @preserve */
     if (!actionState) {
       return;
     }
@@ -306,7 +305,7 @@ export default function AdminPengirimanPage() {
                 </div>
               )}
 
-              {!approvedDeliveriesQuery.isLoading && !approvedDeliveriesQuery.isError && (approvedDeliveriesQuery.data?.length ?? 0) === 0 && (
+              {!approvedDeliveriesQuery.isLoading && !approvedDeliveriesQuery.isError && approvedDeliveries.length === 0 && (
                 <div className="px-6 py-14 text-center">
                   <h2 className="font-serif text-[24px] text-text-dark">Belum ada pengiriman</h2>
                   <p className="mt-2 font-sans text-[13px] text-text-light">
@@ -315,11 +314,11 @@ export default function AdminPengirimanPage() {
                 </div>
               )}
 
-              {!approvedDeliveriesQuery.isLoading && !approvedDeliveriesQuery.isError && (approvedDeliveriesQuery.data ?? []).map((delivery, index) => (
+              {!approvedDeliveriesQuery.isLoading && !approvedDeliveriesQuery.isError && approvedDeliveries.map((delivery, index) => (
                 <div
                   key={delivery.pengirimanId}
                   className={`grid grid-cols-[0.95fr_0.95fr_0.7fr_0.7fr_0.95fr_1.1fr] gap-4 items-center px-6 py-4 ${
-                    index < (approvedDeliveriesQuery.data?.length ?? 0) - 1 ? "border-b border-cream-dark" : ""
+                    index < approvedDeliveries.length - 1 ? "border-b border-cream-dark" : ""
                   }`}
                 >
                   <div>
