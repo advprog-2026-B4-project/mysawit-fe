@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/modules/auth";
 import { extractErrorMessage, notify } from "@/lib/toast";
 import {
@@ -44,8 +44,7 @@ export function useWalletTransactions(userId: string) {
 // Mutations
 
 /** Initiate a wallet top-up; returns a Midtrans payment URL. Requires authentication. */
-export function useInitiateTopUp(userId: string) {
-  const queryClient = useQueryClient();
+export function useInitiateTopUp() {
   return useMutation<{ paymentUrl: string }, Error, number>({
     mutationFn: (amount) => pembayaranApi.initiateTopUp(amount),
     onError: (error: unknown) => {

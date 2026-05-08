@@ -113,5 +113,4 @@ export const panenApi = {
       const response = await apiClient.get<unknown, AxiosResponse<PanenDTO[]>>('/api/panen/admin/list', { params });
       return response.data; // Response interceptor akan otomatis unwrap 'data' dari ApiResponse
   },
-  },
 };

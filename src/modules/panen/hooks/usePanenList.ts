@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { panenApi, PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams, CreatePanenRequestDTO } from '../api/panenApi';
+import { panenApi, PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams } from '../api/panenApi';
 import { extractErrorMessage, notify } from '@/lib/toast';
-export type { PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams, CreatePanenRequestDTO } from '../api/panenApi';
+export type { PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams } from '../api/panenApi';
 
 export const usePanenMandor = (filters?: GetPanenMandorParams) => {
   return useQuery<PanenDTO[], Error>({
