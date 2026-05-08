@@ -44,7 +44,7 @@ export default function MandorPengirimanPage() {
   const approveDelivery = useMandorApproveDelivery();
   const rejectDelivery = useMandorRejectDelivery();
   const supirList = supirQuery.data ?? [];
-  const assignablePanen = panenQuery.data ?? [];
+  const assignablePanen = useMemo(() => panenQuery.data ?? [], [panenQuery.data]);
   const activeDeliveries = activeDeliveriesQuery.data ?? [];
 
   const totalSelectedWeight = useMemo(() => {
