@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { getRole, getToken } from "@/lib/api/tokenStorage";
 import { compactPengirimanId, deliveryStatusClass, formatTimestamp, formatWeight } from "../components/PengirimanShared";
 import {
+  useAssignmentRecommendationForMandor,
   useAssignablePanenForMandor,
   useAssignDelivery,
   useMandorActiveDeliveries,
@@ -30,6 +31,9 @@ export default function MandorPengirimanPage() {
     enabled: hasSession && role === "MANDOR",
   });
   const panenQuery = useAssignablePanenForMandor({
+    enabled: hasSession && role === "MANDOR",
+  });
+  const recommendationQuery = useAssignmentRecommendationForMandor({
     enabled: hasSession && role === "MANDOR",
   });
   const activeDeliveriesQuery = useMandorActiveDeliveries({
@@ -107,6 +111,29 @@ export default function MandorPengirimanPage() {
     } catch {
       // handled in hook
     }
+  }
+
+  async function handleRecommendAssignment() {
+    setLocalError(null);
+
+    let recommendation = recommendationQuery.data;
+    if (!recommendation) {
+      const result = await recommendationQuery.refetch();
+      if (result.error) {
+        setLocalError(result.error.message);
+        return;
+      }
+      recommendation = result.data;
+    }
+
+    const recommendedPanenIds = recommendation?.panenIds ?? [];
+    if (recommendedPanenIds.length === 0) {
+      setSelectedPanenIds([]);
+      setLocalError("Belum ada kombinasi panen yang dapat direkomendasikan.");
+      return;
+    }
+
+    setSelectedPanenIds(recommendedPanenIds);
   }
 
   function togglePanenSelection(panenId: string) {
@@ -201,6 +228,29 @@ export default function MandorPengirimanPage() {
                   ))}
                 </select>
               </label>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-cream-dark bg-cream px-4 py-3">
+              <div>
+                <p className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">
+                  Rekomendasi Knapsack
+                </p>
+                <p className="mt-1 font-sans text-[12px] text-text-mid">
+                  {recommendationQuery.data
+                    ? `${recommendationQuery.data.panenIds.length} panen, ${formatWeight(recommendationQuery.data.totalWeight)}`
+                    : "Belum ada rekomendasi aktif"}
+                </p>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                className="px-4 py-2 text-[12px]"
+                loading={recommendationQuery.isFetching}
+                disabled={panenQuery.isLoading || assignablePanen.length === 0}
+                onClick={() => void handleRecommendAssignment()}
+              >
+                Rekomendasikan
+              </Button>
             </div>
 
             {localError && (

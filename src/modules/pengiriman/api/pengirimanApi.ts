@@ -42,6 +42,14 @@ export interface AssignablePanenDTO {
   timestamp: string;
 }
 
+export interface AssignmentRecommendationDTO {
+  panenIds: string[];
+  panenItems: AssignablePanenDTO[];
+  totalWeight: number;
+  maxCapacity: number;
+  remainingCapacity: number;
+}
+
 export interface AssignDeliveryRequest {
   supirId: string;
   panenIds: string[];
@@ -100,6 +108,13 @@ export const pengirimanApi = {
 
   listAssignablePanenForMandor: async (): Promise<AssignablePanenDTO[]> => {
     const { data } = await apiClient.get<AssignablePanenDTO[]>("/api/pengiriman/mandor/panen");
+    return data;
+  },
+
+  recommendAssignmentForMandor: async (maxCapacity?: number): Promise<AssignmentRecommendationDTO> => {
+    const { data } = await apiClient.get<AssignmentRecommendationDTO>("/api/pengiriman/mandor/recommendation", {
+      params: { maxCapacity },
+    });
     return data;
   },
 

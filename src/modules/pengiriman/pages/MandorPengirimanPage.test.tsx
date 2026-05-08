@@ -10,6 +10,7 @@ const mockGetToken = vi.fn();
 const mockGetRole = vi.fn();
 const mockUseMandorSupirList = vi.fn();
 const mockUseAssignablePanenForMandor = vi.fn();
+const mockUseAssignmentRecommendationForMandor = vi.fn();
 const mockUseMandorActiveDeliveries = vi.fn();
 const mockUseAssignDelivery = vi.fn();
 const mockUseMandorApproveDelivery = vi.fn();
@@ -30,6 +31,7 @@ vi.mock("@/lib/api/tokenStorage", () => ({
 vi.mock("../hooks/usePengiriman", () => ({
   useMandorSupirList: (...args: unknown[]) => mockUseMandorSupirList(...args),
   useAssignablePanenForMandor: (...args: unknown[]) => mockUseAssignablePanenForMandor(...args),
+  useAssignmentRecommendationForMandor: (...args: unknown[]) => mockUseAssignmentRecommendationForMandor(...args),
   useMandorActiveDeliveries: (...args: unknown[]) => mockUseMandorActiveDeliveries(...args),
   useAssignDelivery: () => mockUseAssignDelivery(),
   useMandorApproveDelivery: () => mockUseMandorApproveDelivery(),
@@ -42,6 +44,7 @@ function createQueryState(overrides?: Record<string, unknown>) {
     isLoading: false,
     isError: false,
     error: null,
+    isFetching: false,
     refetch: vi.fn(),
     ...overrides,
   };
@@ -79,6 +82,24 @@ beforeEach(() => {
         timestamp: "2026-04-12T12:00:00",
       },
     ],
+  }));
+  mockUseAssignmentRecommendationForMandor.mockReturnValue(createQueryState({
+    data: {
+      panenIds: ["panen-1"],
+      panenItems: [
+        {
+          panenId: "panen-1",
+          buruhId: "buruh-1",
+          buruhName: "Buruh A",
+          description: "Panen pagi",
+          weight: 180000,
+          timestamp: "2026-04-12T08:30:00",
+        },
+      ],
+      totalWeight: 180000,
+      maxCapacity: 400000,
+      remainingCapacity: 220000,
+    },
   }));
   mockUseMandorActiveDeliveries.mockReturnValue(createQueryState({
     data: [
@@ -149,6 +170,7 @@ describe("MandorPengirimanPage", () => {
     expect(screen.getByText("Ega Jawa")).toBeInTheDocument();
     expect(screen.getByText("Bima Raya")).toBeInTheDocument();
     expect(screen.getAllByText("180 kg")).toHaveLength(2);
+    expect(screen.getByText(/1 panen, 180 kg/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /tugaskan ke supir/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /setujui/i })).toBeInTheDocument();
   });
@@ -177,6 +199,89 @@ describe("MandorPengirimanPage", () => {
 
     fireEvent.click(checkbox);
     expect(checkbox).not.toBeChecked();
+  });
+
+  it("applies the cached knapsack recommendation to selected panen", () => {
+    render(<MandorPengirimanPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /rekomendasikan/i }));
+
+    expect(screen.getAllByRole("checkbox")[0]).toBeChecked();
+    expect(screen.getAllByRole("checkbox")[1]).not.toBeChecked();
+    expect(screen.getByText(/1 panen, 180 kg/i)).toBeInTheDocument();
+  });
+
+  it("fetches and applies a recommendation when it is not cached yet", async () => {
+    const refetch = vi.fn().mockResolvedValue({
+      data: {
+        panenIds: ["panen-2"],
+        panenItems: [],
+        totalWeight: 270000,
+        maxCapacity: 400000,
+        remainingCapacity: 130000,
+      },
+      error: null,
+    });
+    mockUseAssignmentRecommendationForMandor.mockReturnValue(createQueryState({
+      data: undefined,
+      refetch,
+    }));
+
+    render(<MandorPengirimanPage />);
+
+    expect(screen.getByText(/belum ada rekomendasi aktif/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /rekomendasikan/i }));
+
+    await waitFor(() => expect(refetch).toHaveBeenCalled());
+    expect(screen.getAllByRole("checkbox")[1]).toBeChecked();
+  });
+
+  it("shows recommendation errors and empty recommendation result", async () => {
+    const refetch = vi.fn().mockResolvedValue({
+      data: undefined,
+      error: new Error("Rekomendasi gagal"),
+    });
+    mockUseAssignmentRecommendationForMandor.mockReturnValueOnce(createQueryState({
+      data: undefined,
+      refetch,
+    }));
+
+    const { rerender } = render(<MandorPengirimanPage />);
+    fireEvent.click(screen.getByRole("button", { name: /rekomendasikan/i }));
+
+    await waitFor(() => expect(screen.getByText("Rekomendasi gagal")).toBeInTheDocument());
+
+    mockUseAssignmentRecommendationForMandor.mockReturnValue(createQueryState({
+      data: {
+        panenIds: [],
+        panenItems: [],
+        totalWeight: 0,
+        maxCapacity: 400000,
+        remainingCapacity: 400000,
+      },
+    }));
+    rerender(<MandorPengirimanPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /rekomendasikan/i }));
+    expect(screen.getByText(/belum ada kombinasi panen/i)).toBeInTheDocument();
+  });
+
+  it("handles a successful recommendation refetch without data", async () => {
+    const refetch = vi.fn().mockResolvedValue({
+      data: undefined,
+      error: null,
+    });
+    mockUseAssignmentRecommendationForMandor.mockReturnValue(createQueryState({
+      data: undefined,
+      refetch,
+    }));
+
+    render(<MandorPengirimanPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: /rekomendasikan/i }));
+
+    await waitFor(() => expect(refetch).toHaveBeenCalled());
+    expect(screen.getByText(/belum ada kombinasi panen/i)).toBeInTheDocument();
   });
 
   it("falls back to zero when a selected panen disappears from query data", () => {
