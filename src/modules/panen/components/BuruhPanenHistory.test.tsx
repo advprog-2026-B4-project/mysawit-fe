@@ -23,20 +23,20 @@ afterEach(() => {
 });
 
 describe("BuruhPanenHistory Component", () => {
-    it("memanggil refetch saat tombol 'Coba lagi' diklik", () => {
+  it("memanggil refetch saat tombol 'Coba lagi' diklik", () => {
     const refetchMock = vi.fn();
     vi.mocked(useCurrentUser).mockReturnValue({
       isLoading: false,
       data: null,
       isError: true,
       error: new Error("Sesi habis"),
-      refetch: refetchMock, // Masukkan mock refetch di sini
-    } as any);
+      refetch: refetchMock,
+    } as unknown as ReturnType<typeof useCurrentUser>);
 
     vi.mocked(usePanenByBuruh).mockReturnValue({
       isLoading: false,
       data: [],
-    } as any);
+    } as unknown as ReturnType<typeof usePanenByBuruh>);
 
     render(<BuruhPanenHistory />);
     
@@ -49,12 +49,12 @@ describe("BuruhPanenHistory Component", () => {
     vi.mocked(useCurrentUser).mockReturnValue({
       isLoading: false,
       data: { userId: "U-123" },
-    } as any);
+    } as unknown as ReturnType<typeof useCurrentUser>);
     
     const panenMock = vi.mocked(usePanenByBuruh).mockReturnValue({
       isLoading: false,
       data: [],
-    } as any);
+    } as unknown as ReturnType<typeof usePanenByBuruh>);
 
     render(<BuruhPanenHistory />);
 
@@ -87,14 +87,14 @@ describe("BuruhPanenHistory Component", () => {
     vi.mocked(useCurrentUser).mockReturnValue({
       isLoading: false,
       data: { userId: "U-123" },
-    } as any);
+    } as unknown as ReturnType<typeof useCurrentUser>);
     
     // Memberikan error pada hook list panen
     vi.mocked(usePanenByBuruh).mockReturnValue({
       isLoading: false,
       data: [],
       error: new Error("Koneksi ke server terputus"),
-    } as any);
+    } as unknown as ReturnType<typeof usePanenByBuruh>);
 
     render(<BuruhPanenHistory />);
     expect(screen.getByText("Koneksi ke server terputus")).toBeInTheDocument();
@@ -104,7 +104,7 @@ describe("BuruhPanenHistory Component", () => {
     vi.mocked(useCurrentUser).mockReturnValue({
       isLoading: false,
       data: { userId: "U-123" },
-    } as any);
+    } as unknown as ReturnType<typeof useCurrentUser>);
     
     vi.mocked(usePanenByBuruh).mockReturnValue({
       isLoading: false,
@@ -115,14 +115,13 @@ describe("BuruhPanenHistory Component", () => {
           description: "Panen dengan foto",
           weight: 1000,
           status: "APPROVED",
-          // Line 230: Berikan array foto yang tidak kosong
           photos: [
             { photoId: "foto-1", url: "https://example.com/foto1.jpg" }
           ],
         }
       ],
       isError: false,
-    } as any);
+    } as unknown as ReturnType<typeof usePanenByBuruh>);
 
     render(<BuruhPanenHistory />);
     
@@ -131,18 +130,18 @@ describe("BuruhPanenHistory Component", () => {
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute("src", "https://example.com/foto1.jpg");
   });
+
   it("merender state loading pengguna", () => {
     vi.mocked(useCurrentUser).mockReturnValue({
       isLoading: true,
       data: null,
       isError: false,
-    } as any);
+    } as unknown as ReturnType<typeof useCurrentUser>);
 
-    // Tambahkan mock kosongan ini agar tidak error saat di-destructure komponen
     vi.mocked(usePanenByBuruh).mockReturnValue({
       isLoading: false,
       data: [],
-    } as any);
+    } as unknown as ReturnType<typeof usePanenByBuruh>);
 
     render(<BuruhPanenHistory />);
     expect(screen.getByText(/Memuat data pengguna/i)).toBeInTheDocument();
@@ -155,13 +154,12 @@ describe("BuruhPanenHistory Component", () => {
       isError: true,
       error: new Error("Sesi habis"),
       refetch: vi.fn(),
-    } as any);
+    } as unknown as ReturnType<typeof useCurrentUser>);
 
-    // Tambahkan mock kosongan ini juga
     vi.mocked(usePanenByBuruh).mockReturnValue({
       isLoading: false,
       data: [],
-    } as any);
+    } as unknown as ReturnType<typeof usePanenByBuruh>);
 
     render(<BuruhPanenHistory />);
     expect(screen.getByText("Sesi habis")).toBeInTheDocument();
@@ -172,13 +170,13 @@ describe("BuruhPanenHistory Component", () => {
       isLoading: false,
       data: { userId: "U-123" },
       isError: false,
-    } as any);
+    } as unknown as ReturnType<typeof useCurrentUser>);
     
     vi.mocked(usePanenByBuruh).mockReturnValue({
       isLoading: false,
       data: [],
       isError: false,
-    } as any);
+    } as unknown as ReturnType<typeof usePanenByBuruh>);
 
     render(<BuruhPanenHistory />);
     expect(screen.getByText(/Belum ada data panen/i)).toBeInTheDocument();
@@ -188,7 +186,7 @@ describe("BuruhPanenHistory Component", () => {
     vi.mocked(useCurrentUser).mockReturnValue({
       isLoading: false,
       data: { userId: "U-123" },
-    } as any);
+    } as unknown as ReturnType<typeof useCurrentUser>);
     
     vi.mocked(usePanenByBuruh).mockReturnValue({
       isLoading: false,
@@ -204,37 +202,34 @@ describe("BuruhPanenHistory Component", () => {
         }
       ],
       isError: false,
-    } as any);
+    } as unknown as ReturnType<typeof usePanenByBuruh>);
 
     render(<BuruhPanenHistory />);
     
     expect(screen.getByText("Panen Blok A")).toBeInTheDocument();
     expect(screen.getByText("2.500")).toBeInTheDocument();
-    expect(screen.getByText("Ditolak", { selector: 'span' })).toBeInTheDocument(); // Badge
-    expect(screen.getByText("Foto gelap")).toBeInTheDocument(); // Keterangan error
+    expect(screen.getByText("Ditolak", { selector: 'span' })).toBeInTheDocument(); 
+    expect(screen.getByText("Foto gelap")).toBeInTheDocument(); 
   });
 
   it("menyimpan filter dan memanggil ulang hook saat Terapkan diklik", () => {
     vi.mocked(useCurrentUser).mockReturnValue({
       isLoading: false,
       data: { userId: "U-123" },
-    } as any);
+    } as unknown as ReturnType<typeof useCurrentUser>);
     
     const panenMock = vi.mocked(usePanenByBuruh).mockReturnValue({
       isLoading: false,
       data: [],
-    } as any);
+    } as unknown as ReturnType<typeof usePanenByBuruh>);
 
     render(<BuruhPanenHistory />);
 
-    // Ubah status dropdown
     const selectStatus = screen.getByRole("combobox");
     fireEvent.change(selectStatus, { target: { value: "APPROVED" } });
 
-    // Klik Terapkan
     fireEvent.click(screen.getByRole("button", { name: /Terapkan/i }));
 
-    // Cek apakah hook dipanggil dengan filter yang benar (panggilan terakhir)
     expect(panenMock).toHaveBeenLastCalledWith("U-123", { status: "APPROVED" });
   });
 });
