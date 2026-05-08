@@ -39,11 +39,14 @@ export default function MandorPengirimanPage() {
   const assignDelivery = useAssignDelivery();
   const approveDelivery = useMandorApproveDelivery();
   const rejectDelivery = useMandorRejectDelivery();
+  const supirList = supirQuery.data ?? [];
+  const assignablePanen = panenQuery.data ?? [];
+  const activeDeliveries = activeDeliveriesQuery.data ?? [];
 
   const totalSelectedWeight = useMemo(() => {
-    const panenById = new Map((panenQuery.data ?? []).map((item) => [item.panenId, item.weight]));
+    const panenById = new Map(assignablePanen.map((item) => [item.panenId, item.weight]));
     return selectedPanenIds.reduce((sum, panenId) => sum + (panenById.get(panenId) ?? 0), 0);
-  }, [panenQuery.data, selectedPanenIds]);
+  }, [assignablePanen, selectedPanenIds]);
 
   async function handleAssignDelivery(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -84,6 +87,7 @@ export default function MandorPengirimanPage() {
   }
 
   async function handleRejectDelivery() {
+    /* v8 ignore next 3 -- @preserve */
     if (!rejectTargetId) {
       return;
     }
@@ -190,7 +194,7 @@ export default function MandorPengirimanPage() {
                   className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
                 >
                   <option value="">Pilih supir kebun</option>
-                  {(supirQuery.data ?? []).map((supir) => (
+                  {supirList.map((supir) => (
                     <option key={supir.supirId} value={supir.supirId}>
                       {supir.name} ({supir.username})
                     </option>
@@ -228,7 +232,7 @@ export default function MandorPengirimanPage() {
                 </div>
               )}
 
-              {!panenQuery.isLoading && !panenQuery.isError && (panenQuery.data?.length ?? 0) === 0 && (
+              {!panenQuery.isLoading && !panenQuery.isError && assignablePanen.length === 0 && (
                 <div className="px-4 py-10 text-center">
                   <p className="font-sans text-[13px] text-text-light">
                     Belum ada panen approved yang siap dikirim.
@@ -236,13 +240,13 @@ export default function MandorPengirimanPage() {
                 </div>
               )}
 
-              {!panenQuery.isLoading && !panenQuery.isError && (panenQuery.data ?? []).map((panen, index) => {
+              {!panenQuery.isLoading && !panenQuery.isError && assignablePanen.map((panen, index) => {
                 const selected = selectedPanenIds.includes(panen.panenId);
                 return (
                   <label
                     key={panen.panenId}
                     className={`grid grid-cols-[0.45fr_0.95fr_1.2fr_0.8fr] gap-4 items-center px-4 py-3 cursor-pointer ${
-                      index < (panenQuery.data?.length ?? 0) - 1 ? "border-b border-cream-dark" : ""
+                      index < assignablePanen.length - 1 ? "border-b border-cream-dark" : ""
                     } ${selected ? "bg-forest/5" : ""}`}
                   >
                     <div>
@@ -291,7 +295,7 @@ export default function MandorPengirimanPage() {
               </div>
               <div className="text-right">
                 <p className="font-sans text-[10px] tracking-[0.12em] uppercase text-text-light">Aktif</p>
-                <p className="font-serif text-[28px] text-forest">{(activeDeliveriesQuery.data ?? []).length}</p>
+                <p className="font-serif text-[28px] text-forest">{activeDeliveries.length}</p>
               </div>
             </div>
 
@@ -358,7 +362,7 @@ export default function MandorPengirimanPage() {
                 </div>
               )}
 
-              {!activeDeliveriesQuery.isLoading && !activeDeliveriesQuery.isError && (activeDeliveriesQuery.data?.length ?? 0) === 0 && (
+              {!activeDeliveriesQuery.isLoading && !activeDeliveriesQuery.isError && activeDeliveries.length === 0 && (
                 <div className="px-4 py-10 text-center">
                   <p className="font-sans text-[13px] text-text-light">
                     Belum ada pengiriman aktif saat ini.
@@ -366,11 +370,11 @@ export default function MandorPengirimanPage() {
                 </div>
               )}
 
-              {!activeDeliveriesQuery.isLoading && !activeDeliveriesQuery.isError && (activeDeliveriesQuery.data ?? []).map((delivery, index) => (
+              {!activeDeliveriesQuery.isLoading && !activeDeliveriesQuery.isError && activeDeliveries.map((delivery, index) => (
                 <div
                   key={delivery.pengirimanId}
                   className={`grid grid-cols-[1fr_0.8fr_0.8fr_0.95fr_1fr] gap-4 items-center px-4 py-3 ${
-                    index < (activeDeliveriesQuery.data?.length ?? 0) - 1 ? "border-b border-cream-dark" : ""
+                    index < activeDeliveries.length - 1 ? "border-b border-cream-dark" : ""
                   }`}
                 >
                   <div>

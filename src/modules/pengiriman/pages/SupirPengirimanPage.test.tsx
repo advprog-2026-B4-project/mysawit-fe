@@ -65,11 +65,37 @@ afterEach(() => {
 
 describe("SupirPengirimanPage", () => {
   it("renders the assigned delivery list for the supir", () => {
+    mockUseSupirDeliveries.mockReturnValue(createQueryState({
+      data: [
+        {
+          pengirimanId: "pengiriman-1",
+          supirId: "supir-1",
+          mandorId: "mandor-1",
+          status: "ASSIGNED",
+          totalWeight: 120000,
+          acceptedWeight: 0,
+          statusReason: "Siap diangkut",
+          timestamp: "2026-02-25T08:30:00",
+        },
+        {
+          pengirimanId: "pengiriman-2",
+          supirId: "supir-1",
+          mandorId: "mandor-1",
+          status: "APPROVED_MANDOR",
+          totalWeight: 80000,
+          acceptedWeight: 0,
+          statusReason: "Selesai",
+          timestamp: "2026-02-25T09:30:00",
+        },
+      ],
+    }));
+
     render(<SupirPengirimanPage />);
 
     expect(screen.getByRole("heading", { name: /pengiriman saya/i })).toBeInTheDocument();
     expect(screen.getByText(/lihat riwayat penugasan pengiriman/i)).toBeInTheDocument();
     expect(screen.getByText("pengiriman-1")).toBeInTheDocument();
+    expect(screen.getByText("pengiriman-2")).toBeInTheDocument();
     expect(screen.getByText("ASSIGNED")).toBeInTheDocument();
     expect(screen.getByText("120 kg")).toBeInTheDocument();
     expect(screen.getByText("Siap diangkut")).toBeInTheDocument();
@@ -153,5 +179,54 @@ describe("SupirPengirimanPage", () => {
 
     expect(screen.getByRole("heading", { name: /belum ada pengiriman/i })).toBeInTheDocument();
     expect(screen.getByText(/saat ini belum ada penugasan pengiriman/i)).toBeInTheDocument();
+  });
+
+  it("renders login, forbidden, loading, and error states", () => {
+    mockGetToken.mockReturnValue("");
+    const { rerender } = render(<SupirPengirimanPage />);
+    expect(screen.getByRole("heading", { name: /daftar pengiriman supir/i })).toBeInTheDocument();
+
+    mockGetToken.mockReturnValue("token");
+    mockGetRole.mockReturnValue("MANDOR");
+    rerender(<SupirPengirimanPage />);
+    expect(screen.getByRole("heading", { name: /akses terbatas/i })).toBeInTheDocument();
+
+    mockGetRole.mockReturnValue("SUPIR");
+    mockUseSupirDeliveries.mockReturnValue(createQueryState({ isLoading: true }));
+    rerender(<SupirPengirimanPage />);
+    expect(screen.getByText(/memuat daftar pengiriman/i)).toBeInTheDocument();
+
+    const refetch = vi.fn();
+    mockUseSupirDeliveries.mockReturnValue(createQueryState({
+      isError: true,
+      error: undefined,
+      refetch,
+    }));
+    rerender(<SupirPengirimanPage />);
+    expect(screen.getByText(/gagal memuat daftar pengiriman/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /coba lagi/i }));
+    expect(refetch).toHaveBeenCalled();
+  });
+
+  it("renders completed delivery without actions and without status reason", () => {
+    mockUseSupirDeliveries.mockReturnValue(createQueryState({
+      data: [
+        {
+          pengirimanId: "pengiriman-3",
+          supirId: "supir-1",
+          mandorId: "mandor-1",
+          status: "APPROVED_ADMIN",
+          totalWeight: 120000,
+          acceptedWeight: 120000,
+          statusReason: null,
+          timestamp: "2026-02-25T08:30:00",
+        },
+      ],
+    }));
+
+    render(<SupirPengirimanPage />);
+
+    expect(screen.getByText(/tidak ada catatan/i)).toBeInTheDocument();
+    expect(screen.getByText(/tidak ada aksi/i)).toBeInTheDocument();
   });
 });
