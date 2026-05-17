@@ -40,7 +40,7 @@ export default function NotificationList() {
           <Button 
             onClick={() => markAllAsRead()} 
             disabled={isMarkingAllAsRead}
-            variant="outline"
+            variant="secondary"
           >
             Tandai semua dibaca
           </Button>
@@ -48,7 +48,7 @@ export default function NotificationList() {
       </div>
 
       <div className="overflow-hidden rounded-md border border-cream-dark bg-white">
-        {notifications.map((notif, i) => (
+        {notifications.map(notif => (
           <div 
             key={notif.notificationId} 
             className={`flex items-start justify-between gap-4 border-b border-cream-dark px-6 py-4 last:border-b-0 ${
@@ -79,7 +79,7 @@ export default function NotificationList() {
               <Button
                 onClick={() => markAsRead(notif.notificationId)}
                 disabled={isMarkingAsRead}
-                variant="outline"
+                variant="secondary"
                 className="shrink-0 text-[12px] h-8 px-3"
               >
                 Sudah dibaca
