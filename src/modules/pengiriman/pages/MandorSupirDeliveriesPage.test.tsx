@@ -104,6 +104,7 @@ describe("MandorSupirDeliveriesPage", () => {
     render(<MandorSupirDeliveriesPage />);
 
     expect(screen.getByRole("heading", { name: /ega jawa/i })).toBeInTheDocument();
+    expect(screen.getByText("ega@example.com - @ega")).toBeInTheDocument();
     expect(screen.getByText("Sudah diverifikasi")).toBeInTheDocument();
     expect(screen.getByText("Selesai")).toBeInTheDocument();
     expect(screen.getByText("180 kg")).toBeInTheDocument();

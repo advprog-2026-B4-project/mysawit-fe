@@ -67,7 +67,7 @@ export default function MandorSupirDeliveriesPage() {
               {supir?.name ?? "Profil Supir"}
             </h1>
             <p className="mt-2 font-sans text-[13px] font-light text-text-light">
-              {supir ? `${supir.email} • @${supir.username}` : `Riwayat pengiriman untuk supir ${supirId}.`}
+              {supir ? `${supir.email} - @${supir.username}` : `Riwayat pengiriman untuk supir ${supirId}.`}
             </p>
           </div>
 
