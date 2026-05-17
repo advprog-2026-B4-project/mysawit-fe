@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -249,9 +250,12 @@ export const CreatePanenForm: React.FC = () => {
             <ul className="mt-3 grid grid-cols-2 gap-3">
               {formData.photoUrls.map((url, idx) => (
                 <li key={idx} className="relative group rounded overflow-hidden border border-sand bg-white shadow-sm">
-                  <img
+                  <Image
                     src={url}
                     alt={photoNames.get(url) || getFileNameFromUrl(url)}
+                    width={400}
+                    height={160}
+                    unoptimized
                     className="w-full h-40 object-cover"
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/60 to-transparent px-3 py-2 flex items-end justify-between">

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { usePanenByBuruh, type GetPanenByBuruhParams } from '../hooks/usePanenList';
@@ -195,9 +196,12 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
                       rel="noopener noreferrer"
                       className="group relative block w-10 h-10 rounded border border-cream-dark overflow-hidden hover:border-forest transition-all"
                     >
-                      <img
+                      <Image
                         src={photo.url}
                         alt="Preview"
+                        width={40}
+                        height={40}
+                        unoptimized
                         className="w-full h-full object-cover transition-transform group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-forest/0 group-hover:bg-forest/10 transition-colors" />
