@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import React from 'react';
 
 export default function NotFound() {
   return (
@@ -17,8 +16,8 @@ export default function NotFound() {
         <p className="text-[13px] font-light text-text-mid max-w-[90%] md:max-w-[80%] mb-8">
           Maaf, halaman yang Anda cari tidak tersedia, telah dipindahkan, atau Anda tidak memiliki izin untuk mengaksesnya.
         </p>
-        
-        <Link 
+
+        <Link
           href="/"
           className="w-full sm:w-auto py-[11px] px-8 bg-forest text-white rounded font-sans text-[13px] font-medium transition-colors hover:opacity-90 flex items-center justify-center"
         >

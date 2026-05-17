@@ -12,13 +12,13 @@ interface VariabelPokokCardProps {
 
 function VariabelPokokCard({ item }: VariabelPokokCardProps) {
   const [editing, setEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(String(item.value));
+  const [inputValue, setInputValue] = useState(String(item.value / 100));
   const [fieldError, setFieldError] = useState<string | null>(null);
 
   const { mutate, isPending, isSuccess, isError, error, reset } = useUpdateVariabelPokok();
 
   function handleEdit() {
-    setInputValue(String(item.value));
+    setInputValue(String(item.value / 100));
     setFieldError(null);
     reset();
     setEditing(true);
@@ -39,7 +39,7 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
     }
     setFieldError(null);
     mutate(
-      { key: item.key as VariableKey, newValue: parsed },
+      { key: item.key as VariableKey, newValue: parsed * 100 },
       { onSuccess: () => setEditing(false) }
     );
   }
@@ -127,7 +127,7 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
         <div className="flex items-baseline gap-2">
           <span className="font-sans text-sm text-text-light">$</span>
           <span className="font-serif text-3xl font-semibold text-forest">
-            {item.value.toLocaleString()}
+            {(item.value / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           <span className="font-sans text-sm text-text-light">/ kg</span>
           {isSuccess && (
@@ -170,7 +170,7 @@ export default function VariabelPokokEditor({ items, readOnly = false }: Variabe
             <div className="flex items-baseline gap-2">
               <span className="font-sans text-sm text-text-light">$</span>
               <span className="font-serif text-3xl font-semibold text-forest">
-                {item.value.toLocaleString()}
+                {(item.value / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
               <span className="font-sans text-sm text-text-light">/ kg</span>
             </div>

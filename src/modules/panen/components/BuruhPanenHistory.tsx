@@ -206,7 +206,7 @@ export default function BuruhPanenHistory() {
               </div>
 
               <div className="text-[13px] text-text-mid font-medium">
-                {panen.weight.toLocaleString('id-ID')}
+                {(panen.weight / 1000).toLocaleString('id-ID')}
               </div>
 
               <div>

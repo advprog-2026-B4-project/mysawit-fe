@@ -84,7 +84,7 @@ function PayrollRow({
 
 			<div className="text-right">
 				<p className="font-serif text-[24px] leading-none text-forest">{formatPayrollMoney(payroll.netAmount)}</p>
-				<p className="font-sans text-[11px] text-text-light mt-0.5">{payroll.weight.toLocaleString("id-ID")} kg</p>
+				<p className="font-sans text-[11px] text-text-light mt-0.5">{(payroll.weight / 1000).toLocaleString("id-ID")} kg</p>
 			</div>
 
 			<div className="text-center">

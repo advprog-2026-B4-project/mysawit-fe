@@ -12,7 +12,7 @@ interface TopupInputProps {
 export default function TopupInput({ value, onChange, error, disabled }: TopupInputProps) {
   const rawValue = value.replace(/\D/g, "");
   const rupiahAmount = parseInt(rawValue || "0", 10);
-  const internalDollars = rupiahAmount / 10000;
+  const internalCents = rupiahAmount / 100;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, "");
@@ -39,7 +39,7 @@ export default function TopupInput({ value, onChange, error, disabled }: TopupIn
       />
       {rawValue && (
         <p className={`mt-1 font-sans text-[12px] ${error ? "text-error" : "text-text-mid"}`}>
-          = {formatRupiah(rupiahAmount)} ({formatDollar(internalDollars)})
+          = {formatRupiah(rupiahAmount)} ({formatDollar(internalCents / 100)})
         </p>
       )}
       {error && (

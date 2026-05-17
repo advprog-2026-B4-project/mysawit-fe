@@ -204,7 +204,7 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 							</div>
 
 							<div className="text-right font-sans text-[13px] text-text-dark">
-								{payroll.weight.toLocaleString("id-ID")} kg
+								{(payroll.weight / 1000).toLocaleString("id-ID")} kg
 							</div>
 
 							<div className="text-right font-serif text-[24px] leading-none text-forest">

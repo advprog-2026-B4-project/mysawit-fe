@@ -13,8 +13,8 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
   const [expanded, setExpanded] = useState(false);
   const isCredit = transaction.type === "CREDIT";
 
-  const internalDollars = transaction.amount;
-  const rupiahAmount = internalDollars * 10000;
+  const internalCents = transaction.amount;
+  const rupiahAmount = internalCents * 100;
 
   const handleClick = () => {
     if (onClick) {
@@ -59,7 +59,7 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
           <p className={`font-sans text-[12px] ${
             isCredit ? "text-green/70" : "text-text-mid"
           }`}>
-            {isCredit ? "+" : "-"} ${internalDollars.toFixed(2)}
+            {isCredit ? "+" : "-"} ${(internalCents / 100).toFixed(2)}
           </p>
           <div className="mt-1">
             {expanded ? (
@@ -84,7 +84,7 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
             </div>
             <div>
               <p className="text-text-light font-sans">Internal Amount</p>
-              <p className="text-text-dark font-sans">${internalDollars.toFixed(2)}</p>
+              <p className="text-text-dark font-sans">${(internalCents / 100).toFixed(2)}</p>
             </div>
             <div>
               <p className="text-text-light font-sans">Rupiah Equivalent</p>

@@ -1,9 +1,13 @@
 import apiClient from "@/lib/api/client";
 
-export const WALLET_EXCHANGE_RATE = 10000; // 1 internal dollar = Rp 10,000
+export const CENT_TO_RUPIAH = 100; // 1 SawitCent = Rp 100; 100 cents = $1 = Rp 10,000
 
-export function toRupiah(dollars: number): number {
-  return dollars * WALLET_EXCHANGE_RATE;
+export function toRupiah(cents: number): number {
+  return cents * CENT_TO_RUPIAH;
+}
+
+export function toDollar(cents: number): number {
+  return cents / 100;
 }
 
 export function formatRupiah(rupiah: number): string {
