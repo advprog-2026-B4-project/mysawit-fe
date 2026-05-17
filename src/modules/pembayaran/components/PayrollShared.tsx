@@ -13,7 +13,7 @@ export const PAYROLL_STATUS_FILTERS: Array<{ label: string; value: PayrollStatus
 ];
 
 export function formatPayrollMoney(value: number) {
-  return `${value.toLocaleString("id-ID")} $`;
+  return `${(value / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $`;
 }
 
 export function formatPayrollDate(value: string | null) {
@@ -149,13 +149,13 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
         <div className="border border-cream-dark rounded p-4 bg-cream/40">
           <p className="text-[10px] tracking-[0.12em] uppercase text-text-light mb-2">Detail Perhitungan</p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Berat: <span className="font-medium text-text-dark">{payroll.weight.toLocaleString("id-ID")} kg</span>
+            Berat: <span className="font-medium text-text-dark">{(payroll.weight / 1000).toLocaleString("id-ID")} kg</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Tarif upah: <span className="font-medium text-text-dark">{payroll.wageRateApplied.toLocaleString("id-ID")} $/kg</span>
+            Tarif upah: <span className="font-medium text-text-dark">{(payroll.wageRateApplied / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $/kg</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Rumus: <span className="font-medium text-text-dark">{payroll.weight.toLocaleString("id-ID")} x {payroll.wageRateApplied.toLocaleString("id-ID")}</span>
+            Rumus: <span className="font-medium text-text-dark">{(payroll.weight / 1000).toLocaleString("id-ID")} kg × {(payroll.wageRateApplied / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $/kg</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
             Total: <span className="font-medium text-text-dark">{formatPayrollMoney(payroll.netAmount)}</span>

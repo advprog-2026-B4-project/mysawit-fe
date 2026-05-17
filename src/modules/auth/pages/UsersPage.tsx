@@ -18,7 +18,6 @@ const ROLE_TABS: { value: UserRole | ""; label: string }[] = [
 
 export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState<UserRole | "">("");
-  const [search, setSearch]         = useState("");
   const [assignTarget, setAssignTarget] = useState<UserDTO | null>(null);
   const [selectedMandor, setSelectedMandor] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<UserDTO | null>(null);
@@ -28,10 +27,7 @@ export default function UsersPage() {
   const deleteUser  = useDeleteUser();
   const assignBuruh = useAssignBuruh();
 
-  const filtered = users.filter((u) =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = users;
 
   async function handleDelete() {
     if (!deleteTarget) return;
@@ -64,12 +60,6 @@ export default function UsersPage() {
 
       {/* Controls */}
       <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
-        <input
-          placeholder="Cari nama atau email..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-2.5 bg-white border border-sand rounded font-sans text-[13px] font-light text-text-dark outline-none w-full sm:w-[280px] focus:border-forest-mid transition-colors"
-        />
         <div className="w-full sm:w-auto overflow-x-auto">
           <div className="flex gap-1 min-w-max">
             {ROLE_TABS.map((tab) => (

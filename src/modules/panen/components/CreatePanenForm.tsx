@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
@@ -97,7 +98,7 @@ export const CreatePanenForm: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    createPanen(formData as CreatePanenRequestDTO, {
+    createPanen({ ...formData, weight: formData.weight * 1000 } as CreatePanenRequestDTO, {
       onSuccess: () => {
         toast.success('Laporan panen berhasil disimpan!');
         router.back();
@@ -246,20 +247,30 @@ export const CreatePanenForm: React.FC = () => {
           </label>
 
           {formData.photoUrls.length > 0 && (
-            <ul className="mt-3 space-y-2">
+            <ul className="mt-3 grid grid-cols-2 gap-3">
               {formData.photoUrls.map((url, idx) => (
-                <li key={idx} className="flex items-center justify-between py-2.5 px-4 bg-white border border-sand rounded shadow-sm text-[13px] text-text-mid">
-                  <span className="truncate w-5/6 font-medium text-text-dark">
-                    {photoNames.get(url) || getFileNameFromUrl(url)}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePhoto(idx)}
-                    disabled={deletingIdx === idx}
-                    className="text-error font-medium hover:opacity-80 transition-colors ml-2 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {deletingIdx === idx ? 'Menghapus...' : 'Hapus'}
-                  </button>
+                <li key={idx} className="relative group rounded overflow-hidden border border-sand bg-white shadow-sm">
+                  <Image
+                    src={url}
+                    alt={photoNames.get(url) || getFileNameFromUrl(url)}
+                    width={400}
+                    height={160}
+                    unoptimized
+                    className="w-full h-40 object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/60 to-transparent px-3 py-2 flex items-end justify-between">
+                    <span className="text-white text-[11px] truncate max-w-[70%]">
+                      {photoNames.get(url) || getFileNameFromUrl(url)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePhoto(idx)}
+                      disabled={deletingIdx === idx}
+                      className="text-white text-[11px] font-medium bg-error/80 hover:bg-error px-2 py-0.5 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                    >
+                      {deletingIdx === idx ? '...' : 'Hapus'}
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

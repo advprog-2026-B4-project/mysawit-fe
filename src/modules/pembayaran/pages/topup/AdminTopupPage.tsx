@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { getUserIdFromToken } from "@/lib/api/tokenStorage";
 import { useWalletBalance, useWalletTransactions, useInitiateTopUp } from "../../hooks/useWallet";
 import { formatPayrollDate } from "../../components/PayrollShared";
-import { formatRupiah } from "../../api/pembayaranApi";
+import { formatRupiah, formatDollar } from "../../api/pembayaranApi";
 import TopupInput from "../../components/TopupInput";
 import TransactionRow from "../../components/TransactionRow";
 
@@ -72,10 +72,10 @@ export default function AdminTopupPage() {
           <>
             <div className="flex items-baseline gap-3">
               <p className="font-serif text-[42px] leading-none text-forest">
-                ${balance.data?.balance ?? 0}
+                {formatDollar((balance.data?.balance ?? 0) / 100)}
               </p>
               <p className="font-sans text-[16px] text-text-mid">
-                = {formatRupiah((balance.data?.balance ?? 0) * 10000)}
+                = {formatRupiah((balance.data?.balance ?? 0) * 100)}
               </p>
             </div>
             <p className="mt-2 font-sans text-[12px] text-text-light">

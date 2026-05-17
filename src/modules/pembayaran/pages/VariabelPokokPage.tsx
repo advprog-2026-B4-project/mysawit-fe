@@ -30,7 +30,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
   const { mutate, isPending, isError, error, reset } = useUpdateVariabelPokok();
 
   function openEdit() {
-    setDraft(String(item.value));
+    setDraft(String(item.value / 100));
     setFieldError(null);
     reset();
     setEditing(true);
@@ -50,7 +50,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
       return;
     }
     mutate(
-      { key: item.key as VariableKey, newValue: parsed },
+      { key: item.key as VariableKey, newValue: parsed * 100 },
       { onSuccess: () => setEditing(false) },
     );
   }
@@ -130,7 +130,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
       <div className="text-right">
         <span className="font-sans text-xs text-text-light mr-0.5">$</span>
         <span className="font-serif text-[26px] font-semibold text-forest leading-none">
-          {item.value.toLocaleString("id-ID")}
+          {(item.value / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </span>
         <span className="font-sans text-xs text-text-light ml-1">/ kg</span>
       </div>

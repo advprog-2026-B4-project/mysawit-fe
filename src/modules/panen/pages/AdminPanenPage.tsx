@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useDeferredValue, useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { usePanenAdmin } from '../hooks/usePanenList'; 
@@ -160,9 +161,12 @@ export default function AdminPanenPage() {
                                             rel="noopener noreferrer"
                                             className="group relative block w-10 h-10 rounded border border-cream-dark overflow-hidden hover:border-forest transition-all"
                                         >
-                                            <img
+                                            <Image
                                                 src={photo.url}
                                                 alt="Preview"
+                                                width={40}
+                                                height={40}
+                                                unoptimized
                                                 className="w-full h-full object-cover transition-transform group-hover:scale-110"
                                             />
                                             {/* Overlay halus saat hover */}

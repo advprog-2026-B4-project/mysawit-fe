@@ -9,7 +9,7 @@ export interface UserDTO {
   role: UserRole;
   email: string;
   mandorCertificationNumber?: string | null;
-  mandorId: string | null;
+  mandorId?: string | null;
 }
 
 export interface LoginRequest {
@@ -75,12 +75,9 @@ export const authApi = {
     if (typeof window !== "undefined") delete window.__mysawit_access_token;
   },
 
-  listUsers: async (roleFilter?: UserRole, search?: string): Promise<UserDTO[]> => {
+  listUsers: async (roleFilter?: UserRole): Promise<UserDTO[]> => {
     const { data } = await apiClient.get<UserDTO[]>("/api/users", {
-      params: {
-        ...(roleFilter && { role: roleFilter }),
-        ...(search && { search })
-      },
+      params: roleFilter ? { role: roleFilter } : undefined,
     });
     return data;
   },

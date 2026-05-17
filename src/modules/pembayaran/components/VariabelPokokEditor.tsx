@@ -127,7 +127,7 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
         <div className="flex items-baseline gap-2">
           <span className="font-sans text-sm text-text-light">$</span>
           <span className="font-serif text-3xl font-semibold text-forest">
-            {item.value.toLocaleString()}
+            {item.value.toLocaleString("id-ID")}
           </span>
           <span className="font-sans text-sm text-text-light">/ kg</span>
           {isSuccess && (
@@ -170,7 +170,7 @@ export default function VariabelPokokEditor({ items, readOnly = false }: Variabe
             <div className="flex items-baseline gap-2">
               <span className="font-sans text-sm text-text-light">$</span>
               <span className="font-serif text-3xl font-semibold text-forest">
-                {item.value.toLocaleString()}
+                {item.value.toLocaleString("id-ID")}
               </span>
               <span className="font-sans text-sm text-text-light">/ kg</span>
             </div>
