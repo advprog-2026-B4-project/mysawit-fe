@@ -8,6 +8,7 @@ const supirNavItems = [
   { href: "/supir/profile", label: "Profil Saya" },
   { href: "/supir/pengiriman", label: "Pengiriman" },
   { href: "/supir/pembayaran", label: "Payroll & Wallet" },
+  { href: "/supir/notifikasi", label: "Notifikasi" },
 ];
 
 export default function SupirLayout({ children }: { children: React.ReactNode }) {
