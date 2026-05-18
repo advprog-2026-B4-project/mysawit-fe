@@ -10,6 +10,7 @@ const mandorNavItems = [
   { href: "/mandor/pengiriman", label: "Pengiriman" },
   { href: "/mandor/pembayaran", label: "Payroll & Wallet" },
   { href: "/mandor/panen", label: "Daftar Laporan Panen" },
+  { href: "/mandor/notifikasi", label: "Notifikasi" },
 ];
 
 export default function MandorLayout({ children }: { children: React.ReactNode }) {

@@ -9,6 +9,7 @@ const buruhNavItems = [
   { href: "/buruh/panen/create", label: "Catat Panen" },
   { href: "/buruh/pembayaran", label: "Payroll & Wallet" },
   { href: "/buruh/panen/history", label: "Riwayat Panen" },
+  { href: "/buruh/notifikasi", label: "Notifikasi" },
 ];
 
 export default function BuruhLayout({ children }: { children: React.ReactNode }) {
