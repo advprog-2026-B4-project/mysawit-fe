@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { PayrollDTO, PayrollStatus } from "../api/pembayaranApi";
@@ -188,12 +189,12 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
                     className="h-16 w-16 overflow-hidden rounded border border-cream-dark bg-white"
                     title={`Buka bukti foto ${index + 1}`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={url}
                       alt={`Bukti panen ${index + 1}`}
+                      width={64}
+                      height={64}
                       className="h-full w-full object-cover"
-                      loading="lazy"
                     />
                   </button>
                 ))}
@@ -241,12 +242,12 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
                 </div>
               </div>
 
-              <div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto relative">
+                <Image
                   src={selectedEvidenceUrl}
                   alt={`Preview bukti panen ${selectedEvidenceIndex}`}
-                  className="max-h-full max-w-full object-contain"
+                  fill
+                  className="object-contain"
                 />
               </div>
             </div>

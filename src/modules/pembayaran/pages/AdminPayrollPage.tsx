@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import AdminGuard from "@/components/guards/AdminGuard";
 import { Button } from "@/components/ui/Button";
 import { notify } from "@/lib/toast";
@@ -143,12 +144,12 @@ function PayrollRow({
 											className="block h-12 w-12 overflow-hidden rounded border border-cream-dark bg-cream"
 											title={`Lihat bukti foto ${index + 1}`}
 										>
-											{/* eslint-disable-next-line @next/next/no-img-element */}
-											<img
+											<Image
 												src={photoUrl}
 												alt={`Bukti panen ${index + 1}`}
+												width={48}
+												height={48}
 												className="h-full w-full object-cover"
-												loading="lazy"
 											/>
 										</button>
 									);
@@ -420,12 +421,12 @@ function AdminPayrollPageContent() {
 								</div>
 							</div>
 
-							<div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto flex items-center justify-center">
-								{/* eslint-disable-next-line @next/next/no-img-element */}
-								<img
+							<div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto relative">
+								<Image
 									src={selectedEvidenceUrl}
 									alt={`Preview bukti panen ${selectedEvidenceIndex}`}
-									className="max-h-full max-w-full object-contain"
+									fill
+									className="object-contain"
 								/>
 							</div>
 						</div>

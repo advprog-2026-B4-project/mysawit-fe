@@ -166,7 +166,6 @@ export default function AdminPanenPage() {
                                                 alt="Preview"
                                                 width={40}
                                                 height={40}
-                                                unoptimized
                                                 className="w-full h-full object-cover transition-transform group-hover:scale-110"
                                             />
                                             {/* Overlay halus saat hover */}

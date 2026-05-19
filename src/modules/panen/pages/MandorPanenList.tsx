@@ -253,7 +253,6 @@ export default function MandorPanenList() {
                                   alt="Preview"
                                   width={40}
                                   height={40}
-                                  unoptimized
                                   className="w-full h-full object-cover transition-transform group-hover:scale-110"
                               />
                               <div className="absolute inset-0 bg-forest/0 group-hover:bg-forest/10 transition-colors" />
