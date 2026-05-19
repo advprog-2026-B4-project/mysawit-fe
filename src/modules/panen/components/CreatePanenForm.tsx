@@ -68,6 +68,8 @@ export const CreatePanenForm: React.FC = () => {
       }));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Upload gagal');
+    } finally {
+      e.target.value = '';
     }
   };
 
@@ -122,14 +124,16 @@ export const CreatePanenForm: React.FC = () => {
   if (user && !user.mandorId) {
     return (
       <div className="w-full max-w-[600px] p-8 md:p-12">
-        <div className="px-6 py-10 bg-red-50 border border-red-200 rounded-lg text-center flex flex-col items-center">
-          <h2 className="font-serif text-[24px] text-red-700 mb-2">Akses Ditolak</h2>
-          <p className="text-[13px] text-red-600 max-w-[80%] mb-6">
-            Anda belum ditugaskan ke Mandor mana pun. Silakan hubungi Admin untuk mendapatkan penugasan sebelum dapat mencatat laporan panen.
+        <div className="px-6 py-10 min-h-[75vh] bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center justify-center">
+          <h2 className="font-serif text-[24px] text-text-dark mb-2">Belum Ada Penugasan</h2>
+          <p className="text-[13px] text-text-mid max-w-[80%] mb-6 leading-relaxed">
+            Anda belum ditugaskan ke Mandor mana pun. 
+            <br />
+            Silakan hubungi <strong>Admin</strong> untuk mendapatkan penugasan sebelum dapat mencatat laporan panen.
           </p>
           <button 
             onClick={() => router.back()}
-            className="py-[9px] px-6 bg-white border border-red-200 rounded font-sans text-[13px] font-medium text-red-700 hover:bg-red-50 transition-colors"
+            className="py-[9px] px-6 bg-white border border-sand rounded font-sans text-[13px] font-medium text-text-dark hover:border-forest hover:text-forest transition-colors"
           >
             Kembali
           </button>
@@ -160,7 +164,7 @@ export const CreatePanenForm: React.FC = () => {
   if (checkPanenToday) {
     return (
       <div className="w-full max-w-[600px] p-8 md:p-12">
-        <div className="px-6 py-10 bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center">
+        <div className="px-6 py-10 min-h-[75vh] bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center justify-center">
           <h2 className="font-serif text-[24px] text-text-dark mb-2">Sudah Tercatat</h2>
           <p className="text-[13px] text-text-mid max-w-[80%] mb-6">
             Anda sudah mencatat hasil panen untuk hari ini. Anda hanya bisa mengirimkan satu laporan per hari.
