@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { getRole, getToken, getUserIdFromToken } from "@/lib/api/tokenStorage";
 import { DEFAULT_PAYROLL_PAGE_SIZE, type PayrollListFilter } from "../api/pembayaranApi";
+import { formatNumber, formatWeight } from "@/lib/formatters";
 import { usePayrollsByUser } from "../hooks/usePayroll";
 import { useWalletBalance } from "../hooks/useWallet";
 import {
@@ -98,7 +99,7 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 							Ringkasan Payroll
 						</p>
 						<p className="font-serif text-[38px] leading-none text-forest">
-							{(payrolls.data?.totalElements ?? 0).toLocaleString("id-ID")}
+							{formatNumber(payrolls.data?.totalElements ?? 0)}
 						</p>
 						<p className="mt-2 font-sans text-[12px] text-text-light">
 							Total riwayat payroll berdasarkan filter aktif.
@@ -204,7 +205,7 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 							</div>
 
 							<div className="text-right font-sans text-[13px] text-text-dark">
-								{(payroll.weight / 1000).toLocaleString("id-ID")} kg
+								{formatWeight(payroll.weight)}
 							</div>
 
 							<div className="text-right font-serif text-[24px] leading-none text-forest">

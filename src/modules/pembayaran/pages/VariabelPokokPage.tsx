@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AdminGuard from "@/components/guards/AdminGuard";
+import { formatCents } from "@/lib/formatters";
 import { Button } from "@/components/ui/Button";
 import type { VariabelPokokDTO, VariableKey } from "@/modules/pembayaran/api/pembayaranApi";
 import {
@@ -130,7 +131,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
       <div className="text-right">
         <span className="font-sans text-xs text-text-light mr-0.5">$</span>
         <span className="font-serif text-[26px] font-semibold text-forest leading-none">
-          {(item.value / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {formatCents(item.value)}
         </span>
         <span className="font-sans text-xs text-text-light ml-1">/ kg</span>
       </div>

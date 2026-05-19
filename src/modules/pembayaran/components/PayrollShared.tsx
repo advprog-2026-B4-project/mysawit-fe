@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/Button";
+import { formatCents, formatDate, formatNumber, formatWeight } from "@/lib/formatters";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -14,18 +15,11 @@ export const PAYROLL_STATUS_FILTERS: Array<{ label: string; value: PayrollStatus
 ];
 
 export function formatPayrollMoney(value: number) {
-  return `${(value / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $`;
+  return `${formatCents(value)} $`;
 }
 
 export function formatPayrollDate(value: string | null) {
-  if (!value) return "-";
-  return new Date(value).toLocaleString("id-ID", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatDate(value);
 }
 
 export function payrollStatusClass(status: PayrollStatus): string {
@@ -150,13 +144,13 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
         <div className="border border-cream-dark rounded p-4 bg-cream/40">
           <p className="text-[10px] tracking-[0.12em] uppercase text-text-light mb-2">Detail Perhitungan</p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Berat: <span className="font-medium text-text-dark">{(payroll.weight / 1000).toLocaleString("id-ID")} kg</span>
+            Berat: <span className="font-medium text-text-dark">{formatWeight(payroll.weight)}</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Tarif upah: <span className="font-medium text-text-dark">{(payroll.wageRateApplied / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $/kg</span>
+            Tarif upah: <span className="font-medium text-text-dark">{formatCents(payroll.wageRateApplied)} $/kg</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Rumus: <span className="font-medium text-text-dark">{(payroll.weight / 1000).toLocaleString("id-ID")} kg × {(payroll.wageRateApplied / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $/kg</span>
+            Rumus: <span className="font-medium text-text-dark">{formatWeight(payroll.weight)} × {formatCents(payroll.wageRateApplied)} $/kg</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
             Total: <span className="font-medium text-text-dark">{formatPayrollMoney(payroll.netAmount)}</span>
@@ -348,7 +342,7 @@ export function PayrollPagination({
   if (totalPages <= 1) {
     return (
       <p className="mt-3 font-sans text-xs text-text-light text-right">
-        {totalElements.toLocaleString("id-ID")} payroll ditemukan
+        {formatNumber(totalElements)} payroll ditemukan
       </p>
     );
   }
@@ -356,7 +350,7 @@ export function PayrollPagination({
   return (
     <div className="mt-4 flex items-center justify-between gap-3 flex-wrap">
       <p className="font-sans text-xs text-text-light">
-        {totalElements.toLocaleString("id-ID")} payroll ditemukan
+        {formatNumber(totalElements)} payroll ditemukan
       </p>
 
       <div className="flex items-center justify-end gap-2 flex-wrap">

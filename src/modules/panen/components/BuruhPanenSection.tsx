@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { formatWeight } from '@/lib/formatters';
 import { usePanenByBuruh, type GetPanenByBuruhParams } from '../hooks/usePanenList';
 
 interface BuruhPanenSectionProps {
@@ -168,7 +169,7 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
               </div>
 
               <div className="text-[13px] text-text-mid font-medium">
-                {panen.weight.toLocaleString('id-ID')}
+                {formatWeight(panen.weight)}
               </div>
 
               <div>

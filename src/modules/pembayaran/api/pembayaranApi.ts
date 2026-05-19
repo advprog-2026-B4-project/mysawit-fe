@@ -1,4 +1,5 @@
 import apiClient from "@/lib/api/client";
+export { formatRupiah, formatDollar } from "@/lib/formatters";
 
 export const CENT_TO_RUPIAH = 100; // 1 SawitCent = Rp 100; 100 cents = $1 = Rp 10,000
 
@@ -10,13 +11,6 @@ export function toDollar(cents: number): number {
   return cents / 100;
 }
 
-export function formatRupiah(rupiah: number): string {
-  return "Rp " + rupiah.toLocaleString("id-ID");
-}
-
-export function formatDollar(dollars: number): string {
-  return "$" + dollars.toFixed(2);
-}
 
 export type PayrollStatus = "PENDING" | "APPROVED" | "REJECTED";
 export type WalletTransactionType = "CREDIT" | "DEBIT";

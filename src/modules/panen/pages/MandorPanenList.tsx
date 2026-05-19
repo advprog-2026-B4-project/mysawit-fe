@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { formatWeight } from '@/lib/formatters';
 import { usePanenMandor, useReviewPanen, PanenDTO, GetPanenMandorParams } from '../hooks/usePanenList';
 
 
@@ -226,7 +227,7 @@ export default function MandorPanenList() {
               </div>
 
               <div className="text-[13px] text-text-mid font-medium">
-                {panen.weight.toLocaleString('id-ID')}
+                {formatWeight(panen.weight)}
               </div>
 
               <div>

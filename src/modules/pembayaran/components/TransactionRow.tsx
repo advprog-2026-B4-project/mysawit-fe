@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { WalletTransactionDTO } from "../api/pembayaranApi";
+import { formatRupiah, formatDollar } from "@/lib/formatters";
 import { formatPayrollDate, compactPayrollId } from "./PayrollShared";
 
 interface TransactionRowProps {
@@ -54,12 +55,12 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
           <p className={`font-sans text-[16px] font-semibold ${
             isCredit ? "text-green" : "text-text-dark"
           }`}>
-            {isCredit ? "+" : "-"} Rp {rupiahAmount.toLocaleString("id-ID")}
+            {isCredit ? "+" : "-"} {formatRupiah(rupiahAmount)}
           </p>
           <p className={`font-sans text-[12px] ${
             isCredit ? "text-green/70" : "text-text-mid"
           }`}>
-            {isCredit ? "+" : "-"} ${(internalCents / 100).toFixed(2)}
+            {isCredit ? "+" : "-"} {formatDollar(internalCents / 100)}
           </p>
           <div className="mt-1">
             {expanded ? (
@@ -84,11 +85,11 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
             </div>
             <div>
               <p className="text-text-light font-sans">Internal Amount</p>
-              <p className="text-text-dark font-sans">${(internalCents / 100).toFixed(2)}</p>
+              <p className="text-text-dark font-sans">{formatDollar(internalCents / 100)}</p>
             </div>
             <div>
               <p className="text-text-light font-sans">Rupiah Equivalent</p>
-              <p className="text-text-dark font-sans">Rp {rupiahAmount.toLocaleString("id-ID")}</p>
+              <p className="text-text-dark font-sans">{formatRupiah(rupiahAmount)}</p>
             </div>
           </div>
         </div>

@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import { useDeferredValue, useState } from 'react';
 import { Input } from '@/components/ui/Input';
-import { usePanenAdmin } from '../hooks/usePanenList'; 
+import { formatWeight } from '@/lib/formatters';
+import { usePanenAdmin } from '../hooks/usePanenList';
 
 function getErrorMessage(error: unknown) {
     return error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
@@ -141,7 +142,7 @@ export default function AdminPanenPage() {
                                 {panen.buruhName}
                             </div>
                             <div className="text-[13px] text-text-mid font-medium">
-                                {panen.weight.toLocaleString('id-ID')}
+                                {formatWeight(panen.weight)}
                             </div>
                             <div>
                                 <StatusBadge status={panen.status} />

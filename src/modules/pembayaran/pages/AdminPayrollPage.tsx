@@ -6,6 +6,7 @@ import AdminGuard from "@/components/guards/AdminGuard";
 import { Button } from "@/components/ui/Button";
 import { notify } from "@/lib/toast";
 import { DEFAULT_PAYROLL_PAGE_SIZE, type PayrollDTO, type PayrollListFilter } from "../api/pembayaranApi";
+import { formatWeight } from "@/lib/formatters";
 import { useAllPayrolls, useApprovePayroll, useRejectPayroll } from "../hooks/usePayroll";
 import {
 	compactPayrollId,
@@ -85,7 +86,7 @@ function PayrollRow({
 
 			<div className="text-right">
 				<p className="font-serif text-[24px] leading-none text-forest">{formatPayrollMoney(payroll.netAmount)}</p>
-				<p className="font-sans text-[11px] text-text-light mt-0.5">{(payroll.weight / 1000).toLocaleString("id-ID")} kg</p>
+				<p className="font-sans text-[11px] text-text-light mt-0.5">{formatWeight(payroll.weight)}</p>
 			</div>
 
 			<div className="text-center">

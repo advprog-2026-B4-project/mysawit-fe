@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDate } from "@/lib/formatters";
 import { useNotifications, useMarkAllAsRead, useMarkAsRead } from "../hooks/useNotifications";
 import { Button } from "@/components/ui/Button";
 
@@ -68,10 +69,7 @@ export default function NotificationList() {
               </div>
               <p className="mt-1 text-[13px] text-text-light leading-relaxed">{notif.description}</p>
               <div className="mt-2 text-[11px] font-medium uppercase tracking-wider text-text-light/70">
-                {new Date(notif.timestamp).toLocaleString("id-ID", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
+                {formatDate(notif.timestamp)}
               </div>
             </div>
             
