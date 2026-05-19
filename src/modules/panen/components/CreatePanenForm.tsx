@@ -68,6 +68,8 @@ export const CreatePanenForm: React.FC = () => {
       }));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Upload gagal');
+    } finally {
+      e.target.value = '';
     }
   };
 
@@ -160,7 +162,7 @@ export const CreatePanenForm: React.FC = () => {
   if (checkPanenToday) {
     return (
       <div className="w-full max-w-[600px] p-8 md:p-12">
-        <div className="px-6 py-10 bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center">
+        <div className="px-6 py-10 min-h-[75vh] bg-[#f0f4f8] border border-sand rounded-lg text-center flex flex-col items-center justify-center">
           <h2 className="font-serif text-[24px] text-text-dark mb-2">Sudah Tercatat</h2>
           <p className="text-[13px] text-text-mid max-w-[80%] mb-6">
             Anda sudah mencatat hasil panen untuk hari ini. Anda hanya bisa mengirimkan satu laporan per hari.
