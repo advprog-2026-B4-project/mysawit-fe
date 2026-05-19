@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { formatCents } from "@/lib/formatters";
+import { formatNumber } from "@/lib/formatters";
 import type { VariabelPokokDTO, VariableKey } from "../api/pembayaranApi";
 import { useUpdateVariabelPokok } from "../hooks/useVariabelPokok";
 
@@ -13,13 +13,13 @@ interface VariabelPokokCardProps {
 
 function VariabelPokokCard({ item }: VariabelPokokCardProps) {
   const [editing, setEditing] = useState(false);
-  const [inputValue, setInputValue] = useState(String(item.value / 100));
+  const [inputValue, setInputValue] = useState(String(item.value));
   const [fieldError, setFieldError] = useState<string | null>(null);
 
   const { mutate, isPending, isSuccess, isError, error, reset } = useUpdateVariabelPokok();
 
   function handleEdit() {
-    setInputValue(String(item.value / 100));
+    setInputValue(String(item.value));
     setFieldError(null);
     reset();
     setEditing(true);
@@ -34,14 +34,13 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const parsed = Number.parseFloat(inputValue);
-    if (Number.isNaN(parsed) || parsed <= 0) {
-      setFieldError("Nilai harus berupa angka positif.");
+    if (Number.isNaN(parsed) || !Number.isInteger(parsed) || parsed <= 0) {
+      setFieldError("Nilai harus berupa bilangan bulat positif.");
       return;
     }
-    const cents = Math.round(parsed * 100);
     setFieldError(null);
     mutate(
-      { key: item.key as VariableKey, newValue: cents },
+      { key: item.key as VariableKey, newValue: Math.round(parsed) },
       { onSuccess: () => setEditing(false) }
     );
   }
@@ -84,8 +83,8 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
           <input
             id={`input-${item.key}`}
             type="number"
-            min={0.01}
-            step={0.01}
+            min={1}
+            step={1}
             value={inputValue}
             onChange={(e) => {
               setInputValue(e.target.value);
@@ -129,7 +128,7 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
         <div className="flex items-baseline gap-2">
           <span className="font-sans text-sm text-text-light">$</span>
           <span className="font-serif text-3xl font-semibold text-forest">
-            {formatCents(item.value)}
+            {formatNumber(item.value)}
           </span>
           <span className="font-sans text-sm text-text-light">/ kg</span>
           {isSuccess && (
@@ -172,7 +171,7 @@ export default function VariabelPokokEditor({ items, readOnly = false }: Variabe
             <div className="flex items-baseline gap-2">
               <span className="font-sans text-sm text-text-light">$</span>
               <span className="font-serif text-3xl font-semibold text-forest">
-                {formatCents(item.value)}
+                {formatNumber(item.value)}
               </span>
               <span className="font-sans text-sm text-text-light">/ kg</span>
             </div>

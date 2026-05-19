@@ -34,6 +34,8 @@ export function deliveryStatusClass(status: PengirimanStatus): string {
   return "text-forest border-forest/35 bg-forest/5";
 }
 
+const GRAMS_PER_KILOGRAM = 1000;
+
 export function kilogramsInputToGrams(value: string) {
   if (!value.trim()) {
     return null;

@@ -1,11 +1,10 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { useCurrentUser } from '@/modules/auth';
-import { formatWeight } from '@/lib/formatters';
+import { formatNumber } from '@/lib/formatters';
 import { usePanenByBuruh, type GetPanenByBuruhParams } from '../hooks/usePanenList';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -208,7 +207,7 @@ export default function BuruhPanenHistory() {
               </div>
 
               <div className="text-[13px] text-text-mid font-medium">
-                {formatWeight(panen.weight)}
+                {formatNumber(panen.weight)}
               </div>
 
               <div>
@@ -236,11 +235,9 @@ export default function BuruhPanenHistory() {
                       rel="noopener noreferrer"
                       className="group relative block w-10 h-10 rounded border border-cream-dark overflow-hidden hover:border-forest transition-all"
                     >
-                      <Image
+                      <img
                         src={photo.url}
                         alt="Preview"
-                        width={40}
-                        height={40}
                         className="w-full h-full object-cover transition-transform group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-forest/0 group-hover:bg-forest/10 transition-colors" />
