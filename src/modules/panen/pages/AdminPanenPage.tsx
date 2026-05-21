@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/Input';
 import { extractErrorMessage } from '@/lib/toast';
 import { formatWeight } from '@/lib/formatters';
 import { usePanenAdmin } from '../hooks/usePanenList';
+import AsyncBoundary from '@/components/ui/AsyncBoundary';
 
 
 const STATUS_CONFIG: Record<string, { label: string; dotClass: string }> = {
@@ -36,7 +37,7 @@ export default function AdminPanenPage() {
     const deferredNama = useDeferredValue(searchNama.trim());
 
     // Hook ini akan otomatis fetch SEMUA data saat halaman dibuka (karena tidak ada filter wajib)
-    const { data: panenList = [], isLoading, error } = usePanenAdmin({
+    const { data: panenList = [], isLoading, error, refetch } = usePanenAdmin({
         buruhName: deferredNama || undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
@@ -99,14 +100,7 @@ export default function AdminPanenPage() {
                 </div>
             </div>
 
-            {/* Error Message */}
-            {error && (
-                <div className="mb-5 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
-                    {extractErrorMessage(error, 'Terjadi kesalahan yang tidak diketahui')}
-                </div>
-            )}
-
-            {/* Tabel Data (menggunakan CSS Grid seperti KebunListPage) */}
+            {/* Tabel Data */}
             <div className="overflow-hidden rounded-md border border-cream-dark bg-white">
                 {/* Update Grid Columns menjadi 1.2fr untuk foto */}
                 <div className="grid grid-cols-[1fr_1.5fr_0.8fr_1fr_1.5fr_1.2fr] gap-4 border-b border-cream-dark px-6 py-3.5">
@@ -117,14 +111,15 @@ export default function AdminPanenPage() {
                     ))}
                 </div>
 
-                {isLoading ? (
-                    <div className="py-12 text-center text-[13px] text-text-light">Memuat data panen...</div>
-                ) : panenList.length === 0 ? (
-                    <div className="py-12 text-center text-[13px] text-text-light">
-                        Belum ada data panen yang cocok dengan filter.
-                    </div>
-                ) : (
-                    panenList.map((panen, index) => (
+                <AsyncBoundary
+                    isLoading={isLoading}
+                    isError={!!error}
+                    error={error ?? undefined}
+                    isEmpty={panenList.length === 0}
+                    emptyMessage="Belum ada data panen yang cocok dengan filter."
+                    onRetry={() => refetch()}
+                >
+                    {panenList.map((panen, index) => (
                         <div
                             key={panen.panenId}
                             className={`grid grid-cols-[1fr_1.5fr_0.8fr_1fr_1.5fr_1.2fr] items-center gap-4 px-6 py-4 ${
@@ -176,8 +171,8 @@ export default function AdminPanenPage() {
                                 )}
                             </div>
                         </div>
-                    ))
-                )}
+                    ))}
+                </AsyncBoundary>
             </div>
 
             <div className="mt-4 text-[12px] text-text-light">{panenList.length} hasil panen ditampilkan</div>
