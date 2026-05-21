@@ -6,9 +6,19 @@ import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
     kebunKeys,
+    useAssignMandorToKebun,
+    useAssignSupirToKebun,
     useCreateKebun,
+    useDeleteKebun,
+    useEditKebun,
+    useKebunBuruhList,
     useKebunDetail,
+    useKebunDirectoryUsers,
     useKebunList,
+    useKebunMandor,
+    useKebunSupirList,
+    useKebunUser,
+    useMoveMandorToKebun,
     useMoveSupirToKebun,
 } from "./useKebun";
 
@@ -80,8 +90,11 @@ afterEach(() => {
 describe("useKebun hooks", () => {
     it("builds stable query keys", () => {
         expect(kebunKeys.all).toEqual(["kebun"]);
+        expect(kebunKeys.list()).toEqual(["kebun", "list", "", ""]);
         expect(kebunKeys.list("Sei", "KB-01")).toEqual(["kebun", "list", "Sei", "KB-01"]);
         expect(kebunKeys.detail("kebun-1")).toEqual(["kebun", "detail", "kebun-1"]);
+        expect(kebunKeys.mandor("kebun-1")).toEqual(["kebun", "mandor", "kebun-1"]);
+        expect(kebunKeys.supir("kebun-1", "Supir")).toEqual(["kebun", "supir", "kebun-1", "Supir"]);
         expect(kebunKeys.buruh("kebun-1", "Buruh", "mandor-1")).toEqual([
             "kebun",
             "buruh",
@@ -89,6 +102,8 @@ describe("useKebun hooks", () => {
             "Buruh",
             "mandor-1",
         ]);
+        expect(kebunKeys.usersByRole("MANDOR")).toEqual(["kebun", "users-by-role", "MANDOR"]);
+        expect(kebunKeys.user("mandor-1")).toEqual(["kebun", "user", "mandor-1"]);
     });
 
     it("fetches kebun list using search params", async () => {
@@ -112,6 +127,64 @@ describe("useKebun hooks", () => {
 
         expect(result.current.fetchStatus).toBe("idle");
         expect(mockKebunApi.getKebunById).not.toHaveBeenCalled();
+    });
+
+    it("fetches every kebun detail relation query", async () => {
+        const user = {
+            userId: "mandor-1",
+            username: "mandor1",
+            name: "Mandor Satu",
+            role: "MANDOR",
+            email: "mandor@test.com",
+        };
+        mockKebunApi.getKebunById.mockResolvedValue(kebun);
+        mockKebunApi.getMandorByKebun.mockResolvedValue({ mandorId: "mandor-1" });
+        mockKebunApi.getSupirList.mockResolvedValue([user]);
+        mockKebunApi.getBuruhList.mockResolvedValue([user]);
+        mockKebunApi.listUsersByRole.mockResolvedValue([user]);
+        mockKebunApi.getUserById.mockResolvedValue(user);
+        const { Wrapper } = createWrapper();
+
+        const detail = renderHook(() => useKebunDetail("kebun-1"), { wrapper: Wrapper });
+        const mandor = renderHook(() => useKebunMandor("kebun-1"), { wrapper: Wrapper });
+        const supir = renderHook(() => useKebunSupirList("kebun-1", "Supir"), { wrapper: Wrapper });
+        const buruh = renderHook(() => useKebunBuruhList("kebun-1", "Buruh", "mandor-1"), { wrapper: Wrapper });
+        const users = renderHook(() => useKebunDirectoryUsers("MANDOR"), { wrapper: Wrapper });
+        const userDetail = renderHook(() => useKebunUser("mandor-1"), { wrapper: Wrapper });
+
+        await waitFor(() => {
+            expect(detail.result.current.isSuccess).toBe(true);
+            expect(mandor.result.current.isSuccess).toBe(true);
+            expect(supir.result.current.isSuccess).toBe(true);
+            expect(buruh.result.current.isSuccess).toBe(true);
+            expect(users.result.current.isSuccess).toBe(true);
+            expect(userDetail.result.current.isSuccess).toBe(true);
+        });
+
+        expect(mockKebunApi.getKebunById).toHaveBeenCalledWith("kebun-1");
+        expect(mockKebunApi.getMandorByKebun).toHaveBeenCalledWith("kebun-1");
+        expect(mockKebunApi.getSupirList).toHaveBeenCalledWith("kebun-1", "Supir");
+        expect(mockKebunApi.getBuruhList).toHaveBeenCalledWith("kebun-1", "Buruh");
+        expect(mockKebunApi.listUsersByRole).toHaveBeenCalledWith("MANDOR");
+        expect(mockKebunApi.getUserById).toHaveBeenCalledWith("mandor-1");
+    });
+
+    it("keeps disabled relation queries idle without required ids", () => {
+        const { Wrapper } = createWrapper();
+
+        const mandor = renderHook(() => useKebunMandor(""), { wrapper: Wrapper });
+        const supir = renderHook(() => useKebunSupirList(""), { wrapper: Wrapper });
+        const buruh = renderHook(() => useKebunBuruhList("", undefined, null), { wrapper: Wrapper });
+        const user = renderHook(() => useKebunUser(""), { wrapper: Wrapper });
+
+        expect(mandor.result.current.fetchStatus).toBe("idle");
+        expect(supir.result.current.fetchStatus).toBe("idle");
+        expect(buruh.result.current.fetchStatus).toBe("idle");
+        expect(user.result.current.fetchStatus).toBe("idle");
+        expect(mockKebunApi.getMandorByKebun).not.toHaveBeenCalled();
+        expect(mockKebunApi.getSupirList).not.toHaveBeenCalled();
+        expect(mockKebunApi.getBuruhList).not.toHaveBeenCalled();
+        expect(mockKebunApi.getUserById).not.toHaveBeenCalled();
     });
 
     it("invalidates kebun queries and shows success toast after create mutation", async () => {
@@ -157,5 +230,112 @@ describe("useKebun hooks", () => {
 
         expect(mockKebunApi.moveSupirToKebun).toHaveBeenCalledWith("supir-1", "kebun-2");
         expect(mockNotify.error).toHaveBeenCalledWith("Supir sudah terikat");
+    });
+
+    it("runs all kebun mutations successfully", async () => {
+        mockKebunApi.editKebun.mockResolvedValue(kebun);
+        mockKebunApi.deleteKebun.mockResolvedValue(undefined);
+        mockKebunApi.assignMandorToKebun.mockResolvedValue(undefined);
+        mockKebunApi.moveMandorToKebun.mockResolvedValue(undefined);
+        mockKebunApi.assignSupirToKebun.mockResolvedValue(undefined);
+        mockKebunApi.moveSupirToKebun.mockResolvedValue(undefined);
+        const { Wrapper, queryClient } = createWrapper();
+        const invalidateSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+        const edit = renderHook(() => useEditKebun(), { wrapper: Wrapper });
+        const deleteKebun = renderHook(() => useDeleteKebun(), { wrapper: Wrapper });
+        const assignMandor = renderHook(() => useAssignMandorToKebun(), { wrapper: Wrapper });
+        const moveMandor = renderHook(() => useMoveMandorToKebun(), { wrapper: Wrapper });
+        const assignSupir = renderHook(() => useAssignSupirToKebun(), { wrapper: Wrapper });
+        const moveSupir = renderHook(() => useMoveSupirToKebun(), { wrapper: Wrapper });
+
+        await act(async () => {
+            await edit.result.current.mutateAsync({
+                kebunId: "kebun-1",
+                payload: {
+                    nama: "Kebun Edit",
+                    luas: 25,
+                    coordinates: kebun.coordinates,
+                },
+            });
+            await deleteKebun.result.current.mutateAsync("kebun-1");
+            await assignMandor.result.current.mutateAsync({ mandorId: "mandor-1", kebunId: "kebun-1" });
+            await moveMandor.result.current.mutateAsync({ mandorId: "mandor-1", newKebunId: "kebun-2" });
+            await assignSupir.result.current.mutateAsync({ supirId: "supir-1", kebunId: "kebun-1" });
+            await moveSupir.result.current.mutateAsync({ supirId: "supir-1", newKebunId: "kebun-2" });
+        });
+
+        expect(mockKebunApi.editKebun).toHaveBeenCalledWith("kebun-1", {
+            nama: "Kebun Edit",
+            luas: 25,
+            coordinates: kebun.coordinates,
+        });
+        expect(mockKebunApi.deleteKebun).toHaveBeenCalledWith("kebun-1");
+        expect(mockKebunApi.assignMandorToKebun).toHaveBeenCalledWith("mandor-1", "kebun-1");
+        expect(mockKebunApi.moveMandorToKebun).toHaveBeenCalledWith("mandor-1", "kebun-2");
+        expect(mockKebunApi.assignSupirToKebun).toHaveBeenCalledWith("supir-1", "kebun-1");
+        expect(mockKebunApi.moveSupirToKebun).toHaveBeenCalledWith("supir-1", "kebun-2");
+        expect(invalidateSpy).toHaveBeenCalledTimes(6);
+        expect(mockNotify.success).toHaveBeenCalledWith("Perubahan kebun berhasil disimpan.");
+        expect(mockNotify.success).toHaveBeenCalledWith("Kebun berhasil dihapus.");
+        expect(mockNotify.success).toHaveBeenCalledWith("Mandor berhasil ditugaskan.");
+        expect(mockNotify.success).toHaveBeenCalledWith("Mandor berhasil dipindahkan.");
+        expect(mockNotify.success).toHaveBeenCalledWith("Supir berhasil ditugaskan.");
+        expect(mockNotify.success).toHaveBeenCalledWith("Supir berhasil dipindahkan.");
+    });
+
+    it("shows fallback error toast for every mutation type", async () => {
+        mockKebunApi.createKebun.mockRejectedValue("");
+        mockKebunApi.editKebun.mockRejectedValue("");
+        mockKebunApi.deleteKebun.mockRejectedValue("");
+        mockKebunApi.assignMandorToKebun.mockRejectedValue("");
+        mockKebunApi.moveMandorToKebun.mockRejectedValue("");
+        mockKebunApi.assignSupirToKebun.mockRejectedValue("");
+        const { Wrapper } = createWrapper();
+
+        const create = renderHook(() => useCreateKebun(), { wrapper: Wrapper });
+        const edit = renderHook(() => useEditKebun(), { wrapper: Wrapper });
+        const deleteKebun = renderHook(() => useDeleteKebun(), { wrapper: Wrapper });
+        const assignMandor = renderHook(() => useAssignMandorToKebun(), { wrapper: Wrapper });
+        const moveMandor = renderHook(() => useMoveMandorToKebun(), { wrapper: Wrapper });
+        const assignSupir = renderHook(() => useAssignSupirToKebun(), { wrapper: Wrapper });
+
+        await act(async () => {
+            await expect(
+                create.result.current.mutateAsync({
+                    nama: "Kebun Baru",
+                    kode: "KB-NEW",
+                    luas: 30,
+                    coordinates: kebun.coordinates,
+                }),
+            ).rejects.toBe("");
+            await expect(
+                edit.result.current.mutateAsync({
+                    kebunId: "kebun-1",
+                    payload: {
+                        nama: "Kebun Edit",
+                        luas: 25,
+                        coordinates: kebun.coordinates,
+                    },
+                }),
+            ).rejects.toBe("");
+            await expect(deleteKebun.result.current.mutateAsync("kebun-1")).rejects.toBe("");
+            await expect(
+                assignMandor.result.current.mutateAsync({ mandorId: "mandor-1", kebunId: "kebun-1" }),
+            ).rejects.toBe("");
+            await expect(
+                moveMandor.result.current.mutateAsync({ mandorId: "mandor-1", newKebunId: "kebun-2" }),
+            ).rejects.toBe("");
+            await expect(
+                assignSupir.result.current.mutateAsync({ supirId: "supir-1", kebunId: "kebun-1" }),
+            ).rejects.toBe("");
+        });
+
+        expect(mockNotify.error).toHaveBeenCalledWith("Gagal membuat kebun.");
+        expect(mockNotify.error).toHaveBeenCalledWith("Gagal memperbarui kebun.");
+        expect(mockNotify.error).toHaveBeenCalledWith("Gagal menghapus kebun.");
+        expect(mockNotify.error).toHaveBeenCalledWith("Gagal menugaskan mandor.");
+        expect(mockNotify.error).toHaveBeenCalledWith("Gagal memindahkan mandor.");
+        expect(mockNotify.error).toHaveBeenCalledWith("Gagal menugaskan supir.");
     });
 });

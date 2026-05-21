@@ -33,15 +33,21 @@ vi.mock("../hooks/useKebun", () => ({
 vi.mock("../components/KebunFormModal", () => ({
     default: ({
         title,
+        errorMessage,
+        loading,
         onClose,
         onSubmit,
     }: {
         title: string;
+        errorMessage?: string;
+        loading?: boolean;
         onClose: () => void;
         onSubmit: (value: typeof modalPayload) => Promise<void> | void;
     }) => (
         <div role="dialog" aria-label={title}>
             <h2>{title}</h2>
+            {errorMessage && <div>{errorMessage}</div>}
+            {loading && <div>Memproses modal</div>}
             <button type="button" onClick={() => onSubmit(modalPayload)}>
                 Submit Modal
             </button>
@@ -56,7 +62,7 @@ function buildMutationStub() {
     return {
         mutateAsync: vi.fn().mockResolvedValue(undefined),
         isPending: false,
-        error: null,
+        error: null as Error | null,
         reset: vi.fn(),
     };
 }
@@ -166,6 +172,66 @@ describe("KebunListPage", () => {
         await waitFor(() => {
             expect(deleteMutation.mutateAsync).toHaveBeenCalledWith("kebun-1");
         });
+    });
+
+    it("handles mobile card edit and delete actions", async () => {
+        render(<KebunListPage />);
+
+        fireEvent.click(screen.getAllByRole("button", { name: /^edit$/i })[1]);
+
+        expect(screen.getByRole("dialog", { name: /edit kebun sei lestari/i })).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /close modal/i }));
+        fireEvent.click(screen.getAllByRole("button", { name: /^hapus$/i })[1]);
+
+        expect(screen.getByRole("heading", { name: /hapus kebun/i })).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /batal/i }));
+
+        expect(screen.queryByRole("heading", { name: /hapus kebun/i })).not.toBeInTheDocument();
+    });
+
+    it("keeps create, edit, and delete dialogs open when mutations fail", async () => {
+        createMutation.mutateAsync.mockRejectedValueOnce(new Error("Nama kebun duplikat"));
+        createMutation.error = new Error("Nama kebun duplikat");
+        editMutation.mutateAsync.mockRejectedValueOnce(new Error("Overlap kebun"));
+        editMutation.error = new Error("Overlap kebun");
+        deleteMutation.mutateAsync.mockRejectedValueOnce(new Error("Masih ada mandor"));
+        deleteMutation.error = new Error("Masih ada mandor");
+
+        render(<KebunListPage />);
+
+        fireEvent.click(screen.getByRole("button", { name: /tambah kebun/i }));
+        expect(screen.getByText(/nama kebun duplikat/i)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /submit modal/i }));
+
+        await waitFor(() => {
+            expect(createMutation.mutateAsync).toHaveBeenCalledTimes(1);
+        });
+        expect(screen.getByRole("dialog", { name: /tambah kebun sawit/i })).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /close modal/i }));
+        fireEvent.click(screen.getAllByRole("button", { name: /^edit$/i })[0]);
+        expect(screen.getByText(/overlap kebun/i)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /submit modal/i }));
+
+        await waitFor(() => {
+            expect(editMutation.mutateAsync).toHaveBeenCalledTimes(1);
+        });
+        expect(screen.getByRole("dialog", { name: /edit kebun sei lestari/i })).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /close modal/i }));
+        fireEvent.click(screen.getAllByRole("button", { name: /^hapus$/i })[0]);
+        expect(screen.getByText(/masih ada mandor/i)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /hapus kebun/i }));
+
+        await waitFor(() => {
+            expect(deleteMutation.mutateAsync).toHaveBeenCalledTimes(1);
+        });
+        expect(screen.getByRole("heading", { name: /hapus kebun/i })).toBeInTheDocument();
     });
 
     it("shows loading, empty, and error states", () => {
