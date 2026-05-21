@@ -176,19 +176,21 @@ describe("KebunDetailPage", () => {
         render(<KebunDetailPage />);
 
         expect(screen.getByRole("heading", { name: /kebun sei lestari/i })).toBeInTheDocument();
-        expect(screen.getByText(/luas 20 ha \| 4 titik koordinat/i)).toBeInTheDocument();
+        expect(screen.getByText(/luas 20 ha/i)).toBeInTheDocument();
 
+        fireEvent.click(screen.getByRole("button", { name: /^mandor$/i }));
         expect(screen.getByRole("heading", { name: /mandor kebun/i })).toBeInTheDocument();
         expect(screen.getByText("Mandor Satu")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /pindahkan mandor/i })).toBeInTheDocument();
 
+        fireEvent.click(screen.getByRole("button", { name: /^supir$/i }));
         expect(screen.getByRole("heading", { name: /daftar supir truk/i })).toBeInTheDocument();
         expect(screen.getByText("Supir Satu")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /tugaskan supir/i })).toBeInTheDocument();
 
+        fireEvent.click(screen.getByRole("button", { name: /^buruh$/i }));
         expect(screen.getByRole("heading", { name: /daftar buruh/i })).toBeInTheDocument();
         expect(screen.getByText("Buruh Satu")).toBeInTheDocument();
-
-        expect(screen.getByRole("button", { name: /pindahkan mandor/i })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: /tugaskan supir/i })).toBeInTheDocument();
     });
 
     it("shows empty states and opens assign mandor modal when no mandor is assigned", () => {
@@ -212,14 +214,20 @@ describe("KebunDetailPage", () => {
 
         render(<KebunDetailPage />);
 
+        fireEvent.click(screen.getByRole("button", { name: /^mandor$/i }));
         expect(screen.getByText(/belum ada mandor yang ditugaskan/i)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /^supir$/i }));
         expect(screen.getByText(/belum ada supir yang terdaftar/i)).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: /^buruh$/i }));
         expect(screen.getByText(/belum ada buruh yang tampil/i)).toBeInTheDocument();
 
+        fireEvent.click(screen.getByRole("button", { name: /^mandor$/i }));
         fireEvent.click(screen.getByRole("button", { name: /tugaskan mandor/i }));
 
         expect(screen.getByRole("heading", { name: /tugaskan mandor/i })).toBeInTheDocument();
-        expect(screen.getByRole("option", { name: "Mandor Dua" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: /mandor dua/i })).toBeInTheDocument();
     });
 
     it("shows error state when kebun detail fails to load", () => {
