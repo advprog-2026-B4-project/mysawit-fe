@@ -20,10 +20,8 @@ import {
     useMoveMandorToKebun,
     useMoveSupirToKebun,
 } from "../hooks/useKebun";
+import { extractErrorMessage } from "@/lib/toast";
 
-function getErrorMessage(error: unknown) {
-    return error instanceof Error ? error.message : "Terjadi kesalahan yang tidak diketahui";
-}
 
 export default function KebunDetailPage() {
     const { kebunId } = useParams<{ kebunId: string }>();
@@ -199,7 +197,7 @@ export default function KebunDetailPage() {
     if (error || !kebun) {
         return (
             <div className="p-12 text-[13px] text-error">
-                {error ? getErrorMessage(error) : "Detail kebun tidak ditemukan."}
+                {error ? extractErrorMessage(error, "Terjadi kesalahan yang tidak diketahui") : "Detail kebun tidak ditemukan."}
             </div>
         );
     }

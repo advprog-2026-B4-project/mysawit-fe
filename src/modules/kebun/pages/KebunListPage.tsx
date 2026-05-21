@@ -12,10 +12,8 @@ import {
     useKebunList,
 } from "../hooks/useKebun";
 import KebunFormModal from "../components/KebunFormModal";
+import { extractErrorMessage } from "@/lib/toast";
 
-function getErrorMessage(error: unknown) {
-    return error instanceof Error ? error.message : "Terjadi kesalahan yang tidak diketahui";
-}
 
 export default function KebunListPage() {
     const [searchNama, setSearchNama] = useState("");
@@ -129,7 +127,7 @@ export default function KebunListPage() {
 
             {error && (
                 <div className="mb-5 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
-                    {getErrorMessage(error)}
+                    {extractErrorMessage(error, "Terjadi kesalahan yang tidak diketahui")}
                 </div>
             )}
 

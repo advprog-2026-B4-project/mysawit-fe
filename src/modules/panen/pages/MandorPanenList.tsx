@@ -5,15 +5,12 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { extractErrorMessage } from '@/lib/toast';
 import { formatWeight } from '@/lib/formatters';
 import { usePanenMandor, useReviewPanen, PanenDTO, GetPanenMandorParams } from '../hooks/usePanenList';
 
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui.';
-}
 
 const STATUS_CONFIG: Record<string, { label: string; dotClass: string }> = {
   PENDING:  { label: 'Menunggu',  dotClass: 'bg-amber-400' },
@@ -179,7 +176,7 @@ export default function MandorPanenList() {
       {/* Error Message */}
       {error && (
         <div className="mb-5 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
-          {getErrorMessage(error)}
+          {extractErrorMessage(error, 'Terjadi kesalahan yang tidak diketahui.')}
         </div>
       )}
 

@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { extractErrorMessage, notify } from "@/lib/toast";
+import { useQuery } from "@tanstack/react-query";
+import { createMutation } from "@/lib/api/mutations";
 import {
   pengirimanApi,
   type AssignedSupirDTO,
@@ -29,6 +29,8 @@ export const pengirimanKeys = {
   mandorSupirDeliveries: (supirId: string) => ["pengiriman", "mandor", "supir", supirId, "deliveries"] as const,
   adminApproved: (filter?: PengirimanListFilter) => ["pengiriman", "admin", "approved", filter] as const,
 } as const;
+
+// ── Queries ──────────────────────────────────────────────────────
 
 export function useSupirDeliveries(
   filter?: SupirDeliveryFilter,
@@ -89,18 +91,14 @@ export function useApprovedDeliveriesForAdmin(filter?: PengirimanListFilter, opt
   });
 }
 
-export function useAssignDelivery() {
-  const queryClient = useQueryClient();
+// ── Mutations ────────────────────────────────────────────────────
 
-  return useMutation<PengirimanDTO, Error, AssignDeliveryRequest>({
+export function useAssignDelivery() {
+  return createMutation<PengirimanDTO, AssignDeliveryRequest>({
     mutationFn: (payload) => pengirimanApi.assignSupirForDelivery(payload),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: pengirimanKeys.all });
-      notify.success("Pengiriman berhasil ditugaskan ke supir.");
-    },
-    onError: (error: unknown) => {
-      notify.error(extractErrorMessage(error, "Gagal menugaskan pengiriman."));
-    },
+    invalidateKeys: pengirimanKeys.all,
+    successMessage: "Pengiriman berhasil ditugaskan ke supir.",
+    errorMessage: "Gagal menugaskan pengiriman.",
   });
 }
 
@@ -110,32 +108,20 @@ type UpdateDeliveryVariables = {
 };
 
 export function useUpdateDeliveryStatus() {
-  const queryClient = useQueryClient();
-
-  return useMutation<PengirimanDTO, Error, UpdateDeliveryVariables>({
+  return createMutation<PengirimanDTO, UpdateDeliveryVariables>({
     mutationFn: ({ pengirimanId, payload }) => pengirimanApi.updateDeliveryStatus(pengirimanId, payload),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: pengirimanKeys.all });
-      notify.success("Status pengiriman berhasil diperbarui.");
-    },
-    onError: (error: unknown) => {
-      notify.error(extractErrorMessage(error, "Gagal memperbarui status pengiriman."));
-    },
+    invalidateKeys: pengirimanKeys.all,
+    successMessage: "Status pengiriman berhasil diperbarui.",
+    errorMessage: "Gagal memperbarui status pengiriman.",
   });
 }
 
 export function useMandorApproveDelivery() {
-  const queryClient = useQueryClient();
-
-  return useMutation<PengirimanDTO, Error, string>({
+  return createMutation<PengirimanDTO, string>({
     mutationFn: (pengirimanId) => pengirimanApi.mandorApproveDelivery(pengirimanId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: pengirimanKeys.all });
-      notify.success("Pengiriman berhasil disetujui mandor.");
-    },
-    onError: (error: unknown) => {
-      notify.error(extractErrorMessage(error, "Gagal menyetujui pengiriman."));
-    },
+    invalidateKeys: pengirimanKeys.all,
+    successMessage: "Pengiriman berhasil disetujui mandor.",
+    errorMessage: "Gagal menyetujui pengiriman.",
   });
 }
 
@@ -145,17 +131,11 @@ type RejectDeliveryVariables = {
 };
 
 export function useMandorRejectDelivery() {
-  const queryClient = useQueryClient();
-
-  return useMutation<PengirimanDTO, Error, RejectDeliveryVariables>({
+  return createMutation<PengirimanDTO, RejectDeliveryVariables>({
     mutationFn: ({ pengirimanId, reason }) => pengirimanApi.mandorRejectDelivery(pengirimanId, reason),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: pengirimanKeys.all });
-      notify.success("Pengiriman berhasil ditolak mandor.");
-    },
-    onError: (error: unknown) => {
-      notify.error(extractErrorMessage(error, "Gagal menolak pengiriman."));
-    },
+    invalidateKeys: pengirimanKeys.all,
+    successMessage: "Pengiriman berhasil ditolak mandor.",
+    errorMessage: "Gagal menolak pengiriman.",
   });
 }
 
@@ -165,24 +145,14 @@ type AdminProcessVariables = {
 };
 
 export function useAdminProcessDelivery() {
-  const queryClient = useQueryClient();
-
-  return useMutation<PengirimanDTO, Error, AdminProcessVariables>({
+  return createMutation<PengirimanDTO, AdminProcessVariables>({
     mutationFn: ({ pengirimanId, payload }) => pengirimanApi.adminProcessDelivery(pengirimanId, payload),
-    onSuccess: async (updated) => {
-      await queryClient.invalidateQueries({ queryKey: pengirimanKeys.all });
-      if (updated.status === "APPROVED_ADMIN") {
-        notify.success("Pengiriman berhasil disetujui admin.");
-        return;
-      }
-      if (updated.status === "PARTIAL") {
-        notify.success("Pengiriman berhasil diproses parsial oleh admin.");
-        return;
-      }
-      notify.success("Pengiriman berhasil ditolak admin.");
+    invalidateKeys: pengirimanKeys.all,
+    successMessage: (updated) => {
+      if (updated.status === "APPROVED_ADMIN") return "Pengiriman berhasil disetujui admin.";
+      if (updated.status === "PARTIAL") return "Pengiriman berhasil diproses parsial oleh admin.";
+      return "Pengiriman berhasil ditolak admin.";
     },
-    onError: (error: unknown) => {
-      notify.error(extractErrorMessage(error, "Gagal memproses pengiriman."));
-    },
+    errorMessage: "Gagal memproses pengiriman.",
   });
 }
