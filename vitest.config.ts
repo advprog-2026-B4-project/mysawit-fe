@@ -1,4 +1,4 @@
-import path from "path";
+import path from "node:path";
 import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
@@ -12,5 +12,19 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: false,
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "lcov", "json-summary"],
+      reportsDirectory: "./coverage",
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: [
+        "src/**/*.test.{ts,tsx}",
+        "src/**/*.spec.{ts,tsx}",
+        "src/**/*.d.ts",
+        "src/**/types.ts",
+        "src/app/**/layout.tsx",
+        "src/**/index.ts",
+      ],
+    },
   },
 });
