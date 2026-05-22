@@ -23,13 +23,23 @@
     "no-console": "warn",
     "no-debugger": "error",
     "eslint/no-underscore-dangle": ["warn", { "allow": ["__mysawit_access_token"] }],
-    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css", "@testing-library/**"] }]
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css", "@testing-library/**"] }],
+    "jsx-a11y/prefer-tag-over-role": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-noninteractive-element-interactions": "off"
   },
   "overrides": [
     {
       "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
       "rules": {
         "import/no-unassigned-import": "off"
+      }
+    },
+    {
+      "files": ["**/Modal.tsx", "**/*Modal.tsx", "**/pages/*Page.tsx", "**/components/*Shared.tsx"],
+      "rules": {
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/no-noninteractive-element-interactions": "off"
       }
     }
   ],

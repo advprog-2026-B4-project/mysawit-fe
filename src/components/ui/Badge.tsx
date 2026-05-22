@@ -14,10 +14,10 @@ const roleLabel: Record<UserRole, string> = {
   SUPIR:  "Supir",
 };
 
-export function RoleBadge({ role }: { role: UserRole }) {
+export function RoleBadge({ userRole }: { userRole: UserRole }) {
   return (
-    <span className={`inline-block px-2.5 py-[3px] rounded-[2px] text-[11px] font-medium tracking-[0.08em] uppercase ${roleClasses[role]}`}>
-      {roleLabel[role]}
+    <span className={`inline-block px-2.5 py-[3px] rounded-[2px] text-[11px] font-medium tracking-[0.08em] uppercase ${roleClasses[userRole]}`}>
+      {roleLabel[userRole]}
     </span>
   );
 }

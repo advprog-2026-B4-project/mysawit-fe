@@ -106,6 +106,7 @@ export default function MandorSupirPage() {
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               placeholder="Contoh: Ega"
+              aria-label="Cari supir"
               className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
             />
           </label>

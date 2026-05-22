@@ -90,6 +90,7 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
               setInputValue(e.target.value);
               setFieldError(null);
             }}
+            aria-label="Nilai baru"
             className="font-sans text-sm border border-sand rounded-sm px-4 py-2.5 bg-cream
                        text-text-dark placeholder-text-light focus:outline-none focus:border-gold
                        transition-colors w-full max-w-xs"

@@ -96,6 +96,7 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
             type="date"
             value={startDateInput}
             onChange={(e) => setStartDateInput(e.target.value)}
+            aria-label="Dari tanggal"
             className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white"
           />
         </div>
@@ -108,6 +109,7 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
             type="date"
             value={endDateInput}
             onChange={(e) => setEndDateInput(e.target.value)}
+            aria-label="Sampai tanggal"
             className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white"
           />
         </div>

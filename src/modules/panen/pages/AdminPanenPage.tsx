@@ -70,16 +70,18 @@ export default function AdminPanenPage() {
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
+                        aria-label="Dari tanggal"
                         className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white h-10"
                     />
                 </div>
-                
+
                 <div className="flex flex-col gap-1">
                     <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-text-light">Sampai Tanggal</span>
                     <input
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
+                        aria-label="Sampai tanggal"
                         className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white h-10"
                     />
                 </div>

@@ -18,7 +18,6 @@ import {
 	PayrollPagination,
 	resolveEvidencePhotoUrl,
 	resolvePayrollReferenceLink,
-	type PayrollStatusFilter,
 } from "../components/PayrollShared";
 
 function PayrollRow({
@@ -47,17 +46,10 @@ function PayrollRow({
 	}, [payroll.evidencePhotoUrls]);
 
 	return (
-		<div
-			role="button"
-			tabIndex={0}
+		<button
+			type="button"
 			onClick={() => onOpenDetail(payroll)}
-			onKeyDown={(event) => {
-				if (event.key === "Enter" || event.key === " ") {
-					event.preventDefault();
-					onOpenDetail(payroll);
-				}
-			}}
-			className={`grid grid-cols-[1.2fr_0.65fr_1.2fr_0.8fr_0.7fr_0.95fr] gap-4 items-center px-6 py-4 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors ${
+			className={`grid grid-cols-[1.2fr_0.65fr_1.2fr_0.8fr_0.7fr_0.95fr] gap-4 items-center px-6 py-4 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors text-left w-full ${
 				isSelected ? "bg-forest/5" : "hover:bg-cream"
 			}`}
 		>
@@ -137,7 +129,7 @@ function PayrollRow({
 									return (
 										<button
 											type="button"
-											key={`${photoUrl}-${index}`}
+											key={photoUrl}
 											onClick={(event) => {
 												event.stopPropagation();
 												onOpenEvidencePhoto(photoUrl, index + 1);
@@ -162,12 +154,11 @@ function PayrollRow({
 					</div>
 				)}
 			</div>
-		</div>
+		</button>
 	);
 }
 
 function AdminPayrollPageContent() {
-	const [status, setStatus] = useState<PayrollStatusFilter>("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
 	const [page, setPage] = useState(0);
@@ -187,7 +178,7 @@ function AdminPayrollPageContent() {
 			page,
 			size: DEFAULT_PAYROLL_PAGE_SIZE,
 		}),
-		[endDate, page, startDate, status],
+		[endDate, page, startDate],
 	);
 
 	const { data, isLoading, isError, error, refetch } = useAllPayrolls(filter);
@@ -302,6 +293,7 @@ function AdminPayrollPageContent() {
 						value={rejectReason}
 						onChange={(e) => setRejectReason(e.target.value)}
 						placeholder="Tuliskan alasan penolakan payroll..."
+						aria-label="Alasan penolakan payroll"
 						className="w-full px-3 py-2.5 font-sans text-[13px] text-text-dark bg-white border border-sand rounded-sm outline-none focus:border-forest-mid"
 					/>
 					<div className="mt-3 flex flex-wrap gap-2 justify-end">
@@ -390,7 +382,10 @@ function AdminPayrollPageContent() {
 				<div
 					className="fixed inset-0 z-[130] bg-forest/70 backdrop-blur-[1px] p-4 sm:p-8"
 					onClick={() => setSelectedEvidenceUrl(null)}
+					role="presentation"
+					onKeyDown={(e) => { if (e.key === 'Escape') setSelectedEvidenceUrl(null); }}
 				>
+					{/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
 					<div
 						role="dialog"
 						aria-modal="true"

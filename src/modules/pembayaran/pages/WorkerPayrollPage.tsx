@@ -177,10 +177,9 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 							)}
 
 							{!payrolls.isLoading && !payrolls.isError && payrollItems.map((payroll) => (
-								<div
+								<button
 									key={payroll.payrollId}
-									role="button"
-									tabIndex={0}
+									type="button"
 									onClick={() => setSelectedPayrollId(payroll.payrollId)}
 									onKeyDown={(event) => {
 										if (event.key === "Enter" || event.key === " ") {
@@ -188,7 +187,7 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 											setSelectedPayrollId(payroll.payrollId);
 										}
 									}}
-									className={`grid grid-cols-[1.1fr_1fr_0.8fr_0.9fr_0.8fr] gap-4 items-center px-6 py-4 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors ${
+									className={`grid grid-cols-[1.1fr_1fr_0.8fr_0.9fr_0.8fr] gap-4 items-center px-6 py-4 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors bg-transparent text-left ${
 										selectedPayrollId === payroll.payrollId ? "bg-forest/5" : "hover:bg-cream"
 									}`}
 								>
@@ -220,7 +219,7 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 									<p className="mt-1 font-sans text-[11px] text-error">{payroll.rejectionReason}</p>
 								)}
 							</div>
-								</div>
+								</button>
 							))}
 						</div>
 					</div>

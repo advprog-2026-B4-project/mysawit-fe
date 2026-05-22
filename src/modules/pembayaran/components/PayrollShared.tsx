@@ -103,7 +103,10 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
     <div
       className="fixed inset-0 z-[120] bg-forest/45 backdrop-blur-[2px] px-4 py-6 sm:px-6 sm:py-10 overflow-y-auto"
       onClick={onClose}
+      role="presentation"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
+      {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
       <div
         role="dialog"
         aria-modal="true"
@@ -174,7 +177,7 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
               <div className="flex flex-wrap gap-2">
                 {evidencePhotoUrls.map((url, index) => (
                   <button
-                    key={`${url}-${index}`}
+                    key={url}
                     type="button"
                     onClick={() => {
                       setSelectedEvidenceUrl(url);
@@ -204,7 +207,10 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
         <div
           className="fixed inset-0 z-[130] bg-forest/70 backdrop-blur-[1px] p-4 sm:p-8"
           onClick={() => setSelectedEvidenceUrl(null)}
+          role="presentation"
+          onKeyDown={(e) => { if (e.key === 'Escape') setSelectedEvidenceUrl(null); }}
         >
+          {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
           <div
             role="dialog"
             aria-modal="true"
@@ -282,6 +288,7 @@ export function PayrollFilterCard({
             type="date"
             value={startDate}
             onChange={(e) => onStartDateChange(e.target.value)}
+            aria-label="Tanggal mulai"
             className="w-full px-3 py-2.5 font-sans text-[13px] text-text-dark bg-cream border border-sand rounded-sm outline-none focus:border-forest-mid"
           />
         </label>
@@ -294,6 +301,7 @@ export function PayrollFilterCard({
             type="date"
             value={endDate}
             onChange={(e) => onEndDateChange(e.target.value)}
+            aria-label="Tanggal akhir"
             className="w-full px-3 py-2.5 font-sans text-[13px] text-text-dark bg-cream border border-sand rounded-sm outline-none focus:border-forest-mid"
           />
         </label>

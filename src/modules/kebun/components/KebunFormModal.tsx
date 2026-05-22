@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import type { CoordinateDTO } from "../api/kebunApi";
 
 interface CoordinateField {
+    id: string;
     lat: string;
     lng: string;
 }
@@ -41,11 +42,12 @@ interface KebunFormState {
 }
 
 function createEmptyCoordinates(): CoordinateField[] {
+    const base = Date.now().toString();
     return [
-        { lat: "", lng: "" },
-        { lat: "", lng: "" },
-        { lat: "", lng: "" },
-        { lat: "", lng: "" },
+        { id: `${base}-0`, lat: "", lng: "" },
+        { id: `${base}-1`, lat: "", lng: "" },
+        { id: `${base}-2`, lat: "", lng: "" },
+        { id: `${base}-3`, lat: "", lng: "" },
     ];
 }
 
@@ -54,7 +56,9 @@ function toCoordinateFields(coordinates?: CoordinateDTO[]): CoordinateField[] {
         return createEmptyCoordinates();
     }
 
-    return coordinates.map((coordinate) => ({
+    const base = Date.now().toString();
+    return coordinates.map((coordinate, idx) => ({
+        id: `${base}-${idx}`,
         lat: String(coordinate.lat),
         lng: String(coordinate.lng),
     }));
@@ -147,10 +151,7 @@ export default function KebunFormModal({
             nextErrors.coordinates = "Semua latitude dan longitude harus berupa bilangan bulat";
         }
 
-        const parsedCoordinates = coordinates.map((coordinate) => ({
-            lat: Number.parseInt(coordinate.lat, 10),
-            lng: Number.parseInt(coordinate.lng, 10),
-        }));
+        const parsedCoordinates = mappedCoordinates();
 
         if (!hasInvalidCoordinate && !isSquareCoordinates(parsedCoordinates)) {
             nextErrors.coordinates = "Koordinat harus membentuk 4 sudut persegi";
@@ -183,13 +184,24 @@ export default function KebunFormModal({
         );
     }
 
+    // helper to map to DTO coordinates (drop ids)
+    function mappedCoordinates(): CoordinateDTO[] {
+        return coordinates.map((c) => ({ lat: Number.parseInt(c.lat || "0", 10), lng: Number.parseInt(c.lng || "0", 10) }));
+    }
+
     return (
         <div
             className="fixed inset-0 z-[120] flex items-center justify-center bg-forest/40 backdrop-blur-sm"
             onClick={onClose}
+            role="presentation"
+            onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
         >
+            {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
             <div
                 onClick={(event) => event.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label={title}
                 className="w-[760px] max-w-[94vw] rounded-lg border border-cream-dark bg-white p-8 shadow-[0_24px_64px_rgba(26,46,26,0.18)]"
             >
                 <div className="mb-6">
@@ -246,7 +258,7 @@ export default function KebunFormModal({
 
                     <div className="grid grid-cols-2 gap-4">
                         {coordinates.map((coordinate, index) => (
-                            <div key={`coordinate-${index}`} className="rounded border border-cream-dark bg-cream/50 p-4">
+                            <div key={coordinate.id} className="rounded border border-cream-dark bg-cream/50 p-4">
                                 <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-text-mid">
                                     Titik {index + 1}
                                 </div>

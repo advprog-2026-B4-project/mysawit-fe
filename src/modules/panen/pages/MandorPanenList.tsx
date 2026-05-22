@@ -57,9 +57,15 @@ function RejectDialog({
     <div
       className="fixed inset-0 z-[120] flex items-center justify-center bg-forest/40 backdrop-blur-sm"
       onClick={onClose}
+      role="presentation"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
+      {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
       <div
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Tolak Hasil Panen"
         className="w-[460px] max-w-[92vw] rounded-lg border border-cream-dark bg-white p-8 shadow-[0_24px_64px_rgba(26,46,26,0.18)]"
       >
         <h2 className="font-serif text-[24px] font-normal text-text-dark">Tolak Hasil Panen</h2>
@@ -76,6 +82,7 @@ function RejectDialog({
             onChange={(e) => setReason(e.target.value)}
             placeholder="Tuliskan alasan penolakan..."
             rows={3}
+            aria-label="Alasan penolakan"
             className="w-full px-3 py-2.5 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark resize-none"
           />
         </div>
@@ -163,6 +170,7 @@ export default function MandorPanenList() {
             type="date"
             value={dateInput}
             onChange={(e) => setDateInput(e.target.value)}
+            aria-label="Tanggal"
             className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white h-10"
           />
         </div>

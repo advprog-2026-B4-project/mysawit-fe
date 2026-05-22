@@ -27,8 +27,10 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
 
   return (
     <div className="border-b border-cream-dark last:border-b-0">
-      <div
-        className="grid grid-cols-[1fr_auto] gap-4 px-6 py-4 items-center cursor-pointer hover:bg-cream/50 transition-colors"
+      <button
+        type="button"
+        aria-label={`Transaction ${transaction.transactionId}`}
+        className="grid grid-cols-[1fr_auto] gap-4 px-6 py-4 items-center cursor-pointer hover:bg-cream/50 transition-colors w-full text-left bg-transparent border-0"
         onClick={handleClick}
       >
         <div>
@@ -70,7 +72,7 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
             )}
           </div>
         </div>
-      </div>
+      </button>
 
       {expanded && (
         <div className="px-6 pb-4 bg-cream/30">

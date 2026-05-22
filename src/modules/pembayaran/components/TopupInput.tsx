@@ -31,6 +31,7 @@ export default function TopupInput({ value, onChange, error, disabled }: TopupIn
         value={value}
         onChange={handleChange}
         disabled={disabled}
+        aria-label="Nominal topup"
         className={`w-full px-4 py-3 border rounded-md font-sans text-[14px] text-text-dark placeholder:text-text-light bg-white focus:outline-none focus:ring-1 ${
           error
             ? "border-error focus:ring-error"

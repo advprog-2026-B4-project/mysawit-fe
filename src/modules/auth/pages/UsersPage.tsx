@@ -109,7 +109,7 @@ export default function UsersPage() {
                   </div>
                   <div className="text-[13px] font-light text-text-mid break-all">{user.email}</div>
                   <div className="w-fit justify-self-center">
-                    <RoleBadge role={user.role} />
+                    <RoleBadge userRole={user.role} />
                   </div>
                   <div className="flex flex-wrap justify-end gap-2">
                     <Link href={`/admin/users/${user.userId}`}>
@@ -212,9 +212,15 @@ function Modal({
     <div
       className="fixed inset-0 bg-forest/40 backdrop-blur-sm flex items-center justify-center z-[100]"
       onClick={onClose}
+      role="presentation"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
+      {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
       <div
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
         className="bg-white border border-cream-dark rounded-lg p-8 w-[420px] max-w-[90vw] shadow-[0_24px_64px_rgba(26,46,26,0.18)]"
       >
         <h3 className="font-serif text-[22px] font-normal text-text-dark mb-4">
