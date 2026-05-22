@@ -6,6 +6,8 @@ import {
   type Renderable,
 } from "react-hot-toast";
 
+export { extractErrorMessage } from "./errorMessage";
+
 type ToastText = ValueOrFunction<Renderable, Toast>;
 
 type PromiseMessages<T> = {
@@ -57,21 +59,3 @@ export const notify = {
 };
 
 export type Notify = typeof notify;
-
-export function extractErrorMessage(error: unknown, fallback = "Terjadi kesalahan. Silakan coba lagi.") {
-  if (error instanceof Error) {
-    const message = error.message.trim();
-    if (message) {
-      return message;
-    }
-  }
-
-  if (typeof error === "string") {
-    const message = error.trim();
-    if (message) {
-      return message;
-    }
-  }
-
-  return fallback;
-}

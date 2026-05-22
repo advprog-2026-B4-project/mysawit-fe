@@ -106,9 +106,9 @@ function OAuthRoleSelectionContent() {
 
         <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-5">
           <div>
-            <label className="block mb-2.5 text-[11px] font-medium tracking-[0.12em] uppercase text-text-mid">
+            <span className="block mb-2.5 text-[11px] font-medium tracking-[0.12em] uppercase text-text-mid">
               Role
-            </label>
+            </span>
             <div className="flex flex-col gap-2">
               {OAUTH_ROLES.map((r) => (
                 <label
@@ -123,6 +123,7 @@ function OAuthRoleSelectionContent() {
                     value={r.value}
                     checked={selectedRole === r.value}
                     onChange={() => setSelectedRole(r.value)}
+                    aria-label="Pilih peran"
                     className="hidden"
                   />
                   <div className="flex-1">

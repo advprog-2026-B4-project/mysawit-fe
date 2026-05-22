@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { formatNumber } from "@/lib/formatters";
 import type { VariabelPokokDTO, VariableKey } from "../api/pembayaranApi";
 import { useUpdateVariabelPokok } from "../hooks/useVariabelPokok";
 
@@ -32,14 +33,14 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const parsed = Number(inputValue);
-    if (!Number.isInteger(parsed) || parsed <= 0) {
+    const parsed = Number.parseFloat(inputValue);
+    if (Number.isNaN(parsed) || !Number.isInteger(parsed) || parsed <= 0) {
       setFieldError("Nilai harus berupa bilangan bulat positif.");
       return;
     }
     setFieldError(null);
     mutate(
-      { key: item.key as VariableKey, newValue: parsed },
+      { key: item.key as VariableKey, newValue: Math.round(parsed) },
       { onSuccess: () => setEditing(false) }
     );
   }
@@ -89,6 +90,7 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
               setInputValue(e.target.value);
               setFieldError(null);
             }}
+            aria-label="Nilai baru"
             className="font-sans text-sm border border-sand rounded-sm px-4 py-2.5 bg-cream
                        text-text-dark placeholder-text-light focus:outline-none focus:border-gold
                        transition-colors w-full max-w-xs"
@@ -127,7 +129,7 @@ function VariabelPokokCard({ item }: VariabelPokokCardProps) {
         <div className="flex items-baseline gap-2">
           <span className="font-sans text-sm text-text-light">$</span>
           <span className="font-serif text-3xl font-semibold text-forest">
-            {item.value.toLocaleString("id-ID")}
+            {formatNumber(item.value)}
           </span>
           <span className="font-sans text-sm text-text-light">/ kg</span>
           {isSuccess && (
@@ -170,7 +172,7 @@ export default function VariabelPokokEditor({ items, readOnly = false }: Variabe
             <div className="flex items-baseline gap-2">
               <span className="font-sans text-sm text-text-light">$</span>
               <span className="font-serif text-3xl font-semibold text-forest">
-                {item.value.toLocaleString("id-ID")}
+                {formatNumber(item.value)}
               </span>
               <span className="font-sans text-sm text-text-light">/ kg</span>
             </div>

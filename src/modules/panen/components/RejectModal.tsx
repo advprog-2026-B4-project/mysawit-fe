@@ -24,6 +24,7 @@ export default function RejectModal({ panenId, onConfirm, onCancel, isLoading }:
           onChange={(e) => setReason(e.target.value)}
           placeholder="Contoh: Berat tidak sesuai dengan hasil timbangan di lapangan."
           rows={4}
+          aria-label="Alasan penolakan"
           className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"
         />
         <div className="flex justify-end gap-2 mt-4">

@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 // ✅ Import useCurrentUser
 import { useCurrentUser } from '@/modules/auth/hooks/useUsers'; 
 import { useCreatePanen } from '../hooks/useCreatePanen';
@@ -66,8 +66,8 @@ export const CreatePanenForm: React.FC = () => {
         ...prev,
         photoUrls: [...prev.photoUrls, ...urls],
       }));
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Upload gagal');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload gagal');
     } finally {
       e.target.value = '';
     }
@@ -81,9 +81,8 @@ export const CreatePanenForm: React.FC = () => {
       const urlObj = new URL(urlToRemove);
       const fileKey = urlObj.pathname.replace(/^\//, '');
       await storageApi.deleteFile(fileKey);
-    } catch (e) {
+    } catch {
       // Non-fatal: file may not exist in R2 yet
-      console.warn('Gagal menghapus file dari R2:', e);
     }
 
     const newNames = new Map(photoNames);
@@ -105,8 +104,8 @@ export const CreatePanenForm: React.FC = () => {
         toast.success('Laporan panen berhasil disimpan!');
         router.back();
       },
-      onError: (error) => {
-        console.error('Panen creation failed:', error);
+      onError: (err) => {
+        toast.error(err instanceof Error ? err.message : 'Gagal menyimpan laporan.');
       }
     });
   };
@@ -201,10 +200,11 @@ export const CreatePanenForm: React.FC = () => {
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-medium text-text-mid uppercase tracking-[0.08em]">
+          <label htmlFor="panen-weight" className="text-[11px] font-medium text-text-mid uppercase tracking-[0.08em]">
             Berat Panen (Kilogram)
           </label>
           <input
+            id="panen-weight"
             type="number"
             name="weight"
             required
@@ -212,27 +212,30 @@ export const CreatePanenForm: React.FC = () => {
             value={formData.weight || ''}
             onChange={handleChange}
             placeholder="Contoh: 1500"
+            aria-label="Berat panen"
             className="w-full px-4 py-[11px] bg-[#f0f4f8] border border-sand rounded text-[13px] text-text-dark focus:outline-none focus:border-forest focus:ring-1 focus:ring-forest transition-colors"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-medium text-text-mid uppercase tracking-[0.08em]">
+          <label htmlFor="panen-description" className="text-[11px] font-medium text-text-mid uppercase tracking-[0.08em]">
             Deskripsi
           </label>
           <textarea
+            id="panen-description"
             name="description"
             required
             value={formData.description}
             onChange={handleChange}
             placeholder="Masukkan catatan mengenai panen..."
             rows={3}
+            aria-label="Catatan panen"
             className="w-full px-4 py-[11px] bg-[#f0f4f8] border border-sand rounded text-[13px] text-text-dark focus:outline-none focus:border-forest focus:ring-1 focus:ring-forest transition-colors resize-y"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-[11px] font-medium text-text-mid uppercase tracking-[0.08em]">
+          <label htmlFor="panen-photos" className="text-[11px] font-medium text-text-mid uppercase tracking-[0.08em]">
             Foto Bukti
           </label>
           <label className={`flex flex-col items-center justify-center w-full px-4 py-8 bg-[#f0f4f8] border-2 border-dashed border-sand rounded cursor-pointer hover:border-forest transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
@@ -241,11 +244,13 @@ export const CreatePanenForm: React.FC = () => {
             </span>
             <span className="text-[11px] text-text-light">JPG, PNG • Maks. 5MB per file</span>
             <input
+              id="panen-photos"
               type="file"
               accept="image/jpeg,image/png"
               multiple
               disabled={isUploading}
               onChange={handleFileChange}
+              aria-label="Unggah foto bukti panen"
               className="hidden"
             />
           </label>
@@ -253,13 +258,12 @@ export const CreatePanenForm: React.FC = () => {
           {formData.photoUrls.length > 0 && (
             <ul className="mt-3 grid grid-cols-2 gap-3">
               {formData.photoUrls.map((url, idx) => (
-                <li key={idx} className="relative group rounded overflow-hidden border border-sand bg-white shadow-sm">
+                <li key={url} className="relative group rounded overflow-hidden border border-sand bg-white shadow-sm">
                   <Image
                     src={url}
                     alt={photoNames.get(url) || getFileNameFromUrl(url)}
                     width={400}
                     height={160}
-                    unoptimized
                     className="w-full h-40 object-cover"
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/60 to-transparent px-3 py-2 flex items-end justify-between">

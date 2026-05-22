@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { getUserIdFromToken } from "@/lib/api/tokenStorage";
 import { useWalletBalance, useWalletTransactions, useInitiateTopUp } from "../../hooks/useWallet";
 import { formatPayrollDate } from "../../components/PayrollShared";
-import { formatRupiah, formatDollar } from "../../api/pembayaranApi";
+import { formatRupiah, formatDollar } from "@/lib/formatters";
 import TopupInput from "../../components/TopupInput";
 import TransactionRow from "../../components/TransactionRow";
 

@@ -3,11 +3,10 @@
 import Image from 'next/image';
 import { useDeferredValue, useState } from 'react';
 import { Input } from '@/components/ui/Input';
-import { usePanenAdmin } from '../hooks/usePanenList'; 
+import { formatWeight } from '@/lib/formatters';
+import { usePanenAdmin } from '../hooks/usePanenList';
+import AsyncBoundary from '@/components/ui/AsyncBoundary';
 
-function getErrorMessage(error: unknown) {
-    return error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui';
-}
 
 const STATUS_CONFIG: Record<string, { label: string; dotClass: string }> = {
     PENDING:  { label: 'Menunggu',  dotClass: 'bg-amber-400' },
@@ -37,7 +36,7 @@ export default function AdminPanenPage() {
     const deferredNama = useDeferredValue(searchNama.trim());
 
     // Hook ini akan otomatis fetch SEMUA data saat halaman dibuka (karena tidak ada filter wajib)
-    const { data: panenList = [], isLoading, error } = usePanenAdmin({
+    const { data: panenList = [], isLoading, error, refetch } = usePanenAdmin({
         buruhName: deferredNama || undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
@@ -71,16 +70,18 @@ export default function AdminPanenPage() {
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
+                        aria-label="Dari tanggal"
                         className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white h-10"
                     />
                 </div>
-                
+
                 <div className="flex flex-col gap-1">
                     <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-text-light">Sampai Tanggal</span>
                     <input
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
+                        aria-label="Sampai tanggal"
                         className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white h-10"
                     />
                 </div>
@@ -100,14 +101,7 @@ export default function AdminPanenPage() {
                 </div>
             </div>
 
-            {/* Error Message */}
-            {error && (
-                <div className="mb-5 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
-                    {getErrorMessage(error)}
-                </div>
-            )}
-
-            {/* Tabel Data (menggunakan CSS Grid seperti KebunListPage) */}
+            {/* Tabel Data */}
             <div className="overflow-hidden rounded-md border border-cream-dark bg-white">
                 {/* Update Grid Columns menjadi 1.2fr untuk foto */}
                 <div className="grid grid-cols-[1fr_1.5fr_0.8fr_1fr_1.5fr_1.2fr] gap-4 border-b border-cream-dark px-6 py-3.5">
@@ -118,14 +112,15 @@ export default function AdminPanenPage() {
                     ))}
                 </div>
 
-                {isLoading ? (
-                    <div className="py-12 text-center text-[13px] text-text-light">Memuat data panen...</div>
-                ) : panenList.length === 0 ? (
-                    <div className="py-12 text-center text-[13px] text-text-light">
-                        Belum ada data panen yang cocok dengan filter.
-                    </div>
-                ) : (
-                    panenList.map((panen, index) => (
+                <AsyncBoundary
+                    isLoading={isLoading}
+                    isError={!!error}
+                    error={error ?? undefined}
+                    isEmpty={panenList.length === 0}
+                    emptyMessage="Belum ada data panen yang cocok dengan filter."
+                    onRetry={() => refetch()}
+                >
+                    {panenList.map((panen, index) => (
                         <div
                             key={panen.panenId}
                             className={`grid grid-cols-[1fr_1.5fr_0.8fr_1fr_1.5fr_1.2fr] items-center gap-4 px-6 py-4 ${
@@ -141,7 +136,7 @@ export default function AdminPanenPage() {
                                 {panen.buruhName}
                             </div>
                             <div className="text-[13px] text-text-mid font-medium">
-                                {panen.weight.toLocaleString('id-ID')}
+                                {formatWeight(panen.weight)}
                             </div>
                             <div>
                                 <StatusBadge status={panen.status} />
@@ -166,7 +161,6 @@ export default function AdminPanenPage() {
                                                 alt="Preview"
                                                 width={40}
                                                 height={40}
-                                                unoptimized
                                                 className="w-full h-full object-cover transition-transform group-hover:scale-110"
                                             />
                                             {/* Overlay halus saat hover */}
@@ -178,8 +172,8 @@ export default function AdminPanenPage() {
                                 )}
                             </div>
                         </div>
-                    ))
-                )}
+                    ))}
+                </AsyncBoundary>
             </div>
 
             <div className="mt-4 text-[12px] text-text-light">{panenList.length} hasil panen ditampilkan</div>

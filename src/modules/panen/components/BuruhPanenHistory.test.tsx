@@ -1,6 +1,4 @@
-// @vitest-environment jsdom
 
-import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -128,7 +126,8 @@ describe("BuruhPanenHistory Component", () => {
     // Pastikan gambar di-render berdasarkan alt tag
     const img = screen.getByAltText("Preview");
     expect(img).toBeInTheDocument();
-    expect(img).toHaveAttribute("src", "https://example.com/foto1.jpg");
+    // next/image rewrites src to /_next/image?url=...
+    expect(img).toHaveAttribute("src", expect.stringContaining("foto1.jpg"));
   });
 
   it("merender state loading pengguna", () => {

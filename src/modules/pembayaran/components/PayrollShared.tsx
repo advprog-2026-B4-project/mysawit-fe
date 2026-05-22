@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/Button";
+import { formatCents, formatDate, formatNumber, formatWeight } from "@/lib/formatters";
+import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { PayrollDTO, PayrollStatus } from "../api/pembayaranApi";
@@ -13,18 +15,11 @@ export const PAYROLL_STATUS_FILTERS: Array<{ label: string; value: PayrollStatus
 ];
 
 export function formatPayrollMoney(value: number) {
-  return `${(value / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $`;
+  return `${formatCents(value)} $`;
 }
 
 export function formatPayrollDate(value: string | null) {
-  if (!value) return "-";
-  return new Date(value).toLocaleString("id-ID", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatDate(value);
 }
 
 export function payrollStatusClass(status: PayrollStatus): string {
@@ -108,7 +103,10 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
     <div
       className="fixed inset-0 z-[120] bg-forest/45 backdrop-blur-[2px] px-4 py-6 sm:px-6 sm:py-10 overflow-y-auto"
       onClick={onClose}
+      role="presentation"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
+      {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
       <div
         role="dialog"
         aria-modal="true"
@@ -149,13 +147,13 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
         <div className="border border-cream-dark rounded p-4 bg-cream/40">
           <p className="text-[10px] tracking-[0.12em] uppercase text-text-light mb-2">Detail Perhitungan</p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Berat: <span className="font-medium text-text-dark">{(payroll.weight / 1000).toLocaleString("id-ID")} kg</span>
+            Berat: <span className="font-medium text-text-dark">{formatWeight(payroll.weight)}</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Tarif upah: <span className="font-medium text-text-dark">{(payroll.wageRateApplied / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $/kg</span>
+            Tarif upah: <span className="font-medium text-text-dark">{formatCents(payroll.wageRateApplied)} $/kg</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Rumus: <span className="font-medium text-text-dark">{(payroll.weight / 1000).toLocaleString("id-ID")} kg × {(payroll.wageRateApplied / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $/kg</span>
+            Rumus: <span className="font-medium text-text-dark">{formatWeight(payroll.weight)} × {formatCents(payroll.wageRateApplied)} $/kg</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
             Total: <span className="font-medium text-text-dark">{formatPayrollMoney(payroll.netAmount)}</span>
@@ -179,7 +177,7 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
               <div className="flex flex-wrap gap-2">
                 {evidencePhotoUrls.map((url, index) => (
                   <button
-                    key={`${url}-${index}`}
+                    key={url}
                     type="button"
                     onClick={() => {
                       setSelectedEvidenceUrl(url);
@@ -188,12 +186,12 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
                     className="h-16 w-16 overflow-hidden rounded border border-cream-dark bg-white"
                     title={`Buka bukti foto ${index + 1}`}
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                    <Image
                       src={url}
                       alt={`Bukti panen ${index + 1}`}
+                      width={64}
+                      height={64}
                       className="h-full w-full object-cover"
-                      loading="lazy"
                     />
                   </button>
                 ))}
@@ -209,7 +207,10 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
         <div
           className="fixed inset-0 z-[130] bg-forest/70 backdrop-blur-[1px] p-4 sm:p-8"
           onClick={() => setSelectedEvidenceUrl(null)}
+          role="presentation"
+          onKeyDown={(e) => { if (e.key === 'Escape') setSelectedEvidenceUrl(null); }}
         >
+          {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
           <div
             role="dialog"
             aria-modal="true"
@@ -241,12 +242,12 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
                 </div>
               </div>
 
-              <div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto relative">
+                <Image
                   src={selectedEvidenceUrl}
                   alt={`Preview bukti panen ${selectedEvidenceIndex}`}
-                  className="max-h-full max-w-full object-contain"
+                  fill
+                  className="object-contain"
                 />
               </div>
             </div>
@@ -287,6 +288,7 @@ export function PayrollFilterCard({
             type="date"
             value={startDate}
             onChange={(e) => onStartDateChange(e.target.value)}
+            aria-label="Tanggal mulai"
             className="w-full px-3 py-2.5 font-sans text-[13px] text-text-dark bg-cream border border-sand rounded-sm outline-none focus:border-forest-mid"
           />
         </label>
@@ -299,6 +301,7 @@ export function PayrollFilterCard({
             type="date"
             value={endDate}
             onChange={(e) => onEndDateChange(e.target.value)}
+            aria-label="Tanggal akhir"
             className="w-full px-3 py-2.5 font-sans text-[13px] text-text-dark bg-cream border border-sand rounded-sm outline-none focus:border-forest-mid"
           />
         </label>
@@ -347,7 +350,7 @@ export function PayrollPagination({
   if (totalPages <= 1) {
     return (
       <p className="mt-3 font-sans text-xs text-text-light text-right">
-        {totalElements.toLocaleString("id-ID")} payroll ditemukan
+        {formatNumber(totalElements)} payroll ditemukan
       </p>
     );
   }
@@ -355,7 +358,7 @@ export function PayrollPagination({
   return (
     <div className="mt-4 flex items-center justify-between gap-3 flex-wrap">
       <p className="font-sans text-xs text-text-light">
-        {totalElements.toLocaleString("id-ID")} payroll ditemukan
+        {formatNumber(totalElements)} payroll ditemukan
       </p>
 
       <div className="flex items-center justify-end gap-2 flex-wrap">

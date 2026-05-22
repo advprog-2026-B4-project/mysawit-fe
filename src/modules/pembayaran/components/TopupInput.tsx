@@ -1,6 +1,6 @@
 "use client";
 
-import { formatRupiah, formatDollar } from "../api/pembayaranApi";
+import { formatRupiah, formatDollar, formatNumber } from "@/lib/formatters";
 
 interface TopupInputProps {
   value: string;
@@ -18,7 +18,7 @@ export default function TopupInput({ value, onChange, error, disabled }: TopupIn
     const digits = e.target.value.replace(/\D/g, "");
     const num = parseInt(digits || "0", 10);
     // Format as locale string while typing
-    const formatted = num === 0 ? "" : num.toLocaleString("id-ID");
+    const formatted = num === 0 ? "" : formatNumber(num);
     onChange(formatted);
   };
 
@@ -31,6 +31,7 @@ export default function TopupInput({ value, onChange, error, disabled }: TopupIn
         value={value}
         onChange={handleChange}
         disabled={disabled}
+        aria-label="Nominal topup"
         className={`w-full px-4 py-3 border rounded-md font-sans text-[14px] text-text-dark placeholder:text-text-light bg-white focus:outline-none focus:ring-1 ${
           error
             ? "border-error focus:ring-error"

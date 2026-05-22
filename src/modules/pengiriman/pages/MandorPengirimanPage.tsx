@@ -304,6 +304,7 @@ export default function MandorPengirimanPage() {
                         type="checkbox"
                         checked={selected}
                         onChange={() => togglePanenSelection(panen.panenId)}
+                        aria-label="Pilih panen"
                         className="h-4 w-4 rounded border-sand text-forest focus:ring-forest"
                       />
                     </div>
@@ -359,6 +360,7 @@ export default function MandorPengirimanPage() {
                   value={rejectReason}
                   onChange={(event) => setRejectReason(event.target.value)}
                   placeholder="Tuliskan alasan penolakan pengiriman..."
+                  aria-label="Alasan penolakan"
                   className="w-full rounded border border-sand bg-white px-3 py-2.5 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
                 />
                 <div className="mt-3 flex flex-wrap justify-end gap-2">

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AdminGuard from "@/components/guards/AdminGuard";
+import { formatCents } from "@/lib/formatters";
 import { Button } from "@/components/ui/Button";
 import type { VariabelPokokDTO, VariableKey } from "@/modules/pembayaran/api/pembayaranApi";
 import {
@@ -71,17 +72,18 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
 
           <div className="flex items-end gap-3 flex-wrap">
             <div>
-              <label className="block font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light mb-1.5">
+              <label htmlFor="variabel-nilai-baru" className="block font-sans text-[10px] font-medium tracking-[0.12em] uppercase text-text-light mb-1.5">
                 Nilai baru ($ per kg)
               </label>
               <input
+                id="variabel-nilai-baru"
                 type="number"
                 min={1}
                 step={1}
                 value={draft}
                 onChange={(e) => { setDraft(e.target.value); setFieldError(null); }}
                 disabled={isPending}
-                autoFocus
+                aria-label="Nilai baru variabel pokok"
                 className={[
                   "w-40 px-3.5 py-2.5 font-sans text-sm font-light text-text-dark bg-cream",
                   "border rounded-sm outline-none transition-colors",
@@ -130,7 +132,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
       <div className="text-right">
         <span className="font-sans text-xs text-text-light mr-0.5">$</span>
         <span className="font-serif text-[26px] font-semibold text-forest leading-none">
-          {(item.value / 100).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          {formatCents(item.value)}
         </span>
         <span className="font-sans text-xs text-text-light ml-1">/ kg</span>
       </div>

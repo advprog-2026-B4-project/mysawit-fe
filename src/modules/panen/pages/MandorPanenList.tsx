@@ -5,14 +5,12 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { formatWeight } from '@/lib/formatters';
 import { usePanenMandor, useReviewPanen, PanenDTO, GetPanenMandorParams } from '../hooks/usePanenList';
+import AsyncBoundary from '@/components/ui/AsyncBoundary';
 
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : 'Terjadi kesalahan yang tidak diketahui.';
-}
 
 const STATUS_CONFIG: Record<string, { label: string; dotClass: string }> = {
   PENDING:  { label: 'Menunggu',  dotClass: 'bg-amber-400' },
@@ -59,9 +57,15 @@ function RejectDialog({
     <div
       className="fixed inset-0 z-[120] flex items-center justify-center bg-forest/40 backdrop-blur-sm"
       onClick={onClose}
+      role="presentation"
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
     >
+      {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
       <div
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Tolak Hasil Panen"
         className="w-[460px] max-w-[92vw] rounded-lg border border-cream-dark bg-white p-8 shadow-[0_24px_64px_rgba(26,46,26,0.18)]"
       >
         <h2 className="font-serif text-[24px] font-normal text-text-dark">Tolak Hasil Panen</h2>
@@ -78,6 +82,7 @@ function RejectDialog({
             onChange={(e) => setReason(e.target.value)}
             placeholder="Tuliskan alasan penolakan..."
             rows={3}
+            aria-label="Alasan penolakan"
             className="w-full px-3 py-2.5 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark resize-none"
           />
         </div>
@@ -107,7 +112,7 @@ export default function MandorPanenList() {
 
   const [rejectTarget, setRejectTarget] = useState<PanenDTO | null>(null);
 
-  const { data: listPanen = [], isLoading, error } = usePanenMandor(appliedFilters);
+  const { data: listPanen = [], isLoading, error, refetch } = usePanenMandor(appliedFilters);
   const { mutate: reviewPanen, isPending } = useReviewPanen();
 
   const handleApplyFilter = () => {
@@ -165,6 +170,7 @@ export default function MandorPanenList() {
             type="date"
             value={dateInput}
             onChange={(e) => setDateInput(e.target.value)}
+            aria-label="Tanggal"
             className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white h-10"
           />
         </div>
@@ -175,16 +181,8 @@ export default function MandorPanenList() {
         </div>
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div className="mb-5 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
-          {getErrorMessage(error)}
-        </div>
-      )}
-
       {/* Tabel Data */}
       <div className="overflow-hidden rounded-md border border-cream-dark bg-white">
-        {/* Update urutan dan Grid Columns agar sejajar dengan desain Admin */}
         <div className="grid grid-cols-[1fr_1.2fr_0.8fr_1fr_1.5fr_1fr_140px] gap-4 border-b border-cream-dark px-6 py-3.5">
           {['Tanggal', 'Nama Buruh', 'Berat (Kg)', 'Status', 'Deskripsi', 'Foto Bukti', 'Aksi'].map((header) => (
             <div
@@ -196,16 +194,15 @@ export default function MandorPanenList() {
           ))}
         </div>
 
-        {isLoading ? (
-          <div className="py-12 text-center text-[13px] text-text-light">
-            Memuat data panen...
-          </div>
-        ) : listPanen.length === 0 ? (
-          <div className="py-12 text-center text-[13px] text-text-light">
-            Belum ada data panen yang cocok dengan filter.
-          </div>
-        ) : (
-          listPanen.map((panen, index) => (
+        <AsyncBoundary
+          isLoading={isLoading}
+          isError={!!error}
+          error={error ?? undefined}
+          isEmpty={listPanen.length === 0}
+          emptyMessage="Belum ada data panen yang cocok dengan filter."
+          onRetry={() => refetch()}
+        >
+          {listPanen.map((panen, index) => (
             <div
               key={panen.panenId}
               className={`grid grid-cols-[1fr_1.2fr_0.8fr_1fr_1.5fr_1fr_140px] items-center gap-4 px-6 py-4 ${
@@ -226,7 +223,7 @@ export default function MandorPanenList() {
               </div>
 
               <div className="text-[13px] text-text-mid font-medium">
-                {panen.weight.toLocaleString('id-ID')}
+                {formatWeight(panen.weight)}
               </div>
 
               <div>
@@ -253,7 +250,6 @@ export default function MandorPanenList() {
                                   alt="Preview"
                                   width={40}
                                   height={40}
-                                  unoptimized
                                   className="w-full h-full object-cover transition-transform group-hover:scale-110"
                               />
                               <div className="absolute inset-0 bg-forest/0 group-hover:bg-forest/10 transition-colors" />
@@ -290,8 +286,8 @@ export default function MandorPanenList() {
                 )}
               </div>
             </div>
-          ))
-        )}
+          ))}
+        </AsyncBoundary>
       </div>
 
       <div className="mt-4 text-[12px] text-text-light">

@@ -53,7 +53,7 @@ export default function MyProfilePage() {
         <div>
           <div className="flex items-center gap-3 mb-1.5">
             <h1 className="font-serif text-[34px] font-normal text-text-dark">Profil Saya</h1>
-            <RoleBadge role={user.role} />
+            <RoleBadge userRole={user.role} />
           </div>
           <p className="text-[13px] font-light text-text-light">Informasi akun Anda di sistem MySawit.</p>
         </div>
