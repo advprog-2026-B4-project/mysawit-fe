@@ -1,6 +1,4 @@
-// @vitest-environment jsdom
 
-import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import KebunFormModal from "./KebunFormModal";

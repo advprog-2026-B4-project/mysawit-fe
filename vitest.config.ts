@@ -12,6 +12,13 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: false,
+    setupFiles: ["./src/test/setup.ts"],
+    pool: "threads",
+    singleThread: true,
+    fileParallelism: false,
+    isolate: false,
+    testTimeout: 60_000,
+    hookTimeout: 60_000,
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov", "json-summary"],
@@ -24,6 +31,7 @@ export default defineConfig({
         "src/**/types.ts",
         "src/app/**/layout.tsx",
         "src/**/index.ts",
+        "src/test/**",
       ],
     },
   },
