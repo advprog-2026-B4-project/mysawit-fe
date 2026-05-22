@@ -86,7 +86,10 @@ export function useMandorSupirDeliveries(supirId: string, options?: UseSupirDeli
 export function useApprovedDeliveriesForAdmin(filter?: PengirimanListFilter, options?: UseSupirDeliveriesOptions) {
   return useQuery<PengirimanDTO[], Error>({
     queryKey: pengirimanKeys.adminApproved(filter),
-    queryFn: () => pengirimanApi.listApprovedDeliveriesForAdmin(filter),
+    queryFn: async () => {
+      const response = await pengirimanApi.listApprovedDeliveriesForAdmin(filter);
+      return response.items ?? [];
+    },
     enabled: options?.enabled ?? true,
   });
 }

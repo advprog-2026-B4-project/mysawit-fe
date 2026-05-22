@@ -33,25 +33,26 @@ export function compactPayrollId(value: string) {
   return `${value.slice(0, 8)}...${value.slice(-4)}`;
 }
 
-export function resolvePayrollReferenceLink(payroll: PayrollDTO): { href: string; label: string } {
+export function resolvePayrollReferenceLink(payroll: PayrollDTO, isAdmin = false): { href: string; label: string } {
   if (payroll.referenceType === "PANEN") {
-    return {
-      href: `/panen/create?referenceId=${encodeURIComponent(payroll.referenceId)}`,
-      label: "Buka modul panen",
-    };
+    if (isAdmin) {
+      return { href: "/admin/panen", label: "Buka modul panen" };
+    }
+    if (payroll.role === "MANDOR") {
+      return { href: "/mandor/panen", label: "Buka modul panen mandor" };
+    }
+    return { href: "/buruh/panen/history", label: "Buka riwayat panen" };
+  }
+
+  if (isAdmin) {
+    return { href: "/admin/pengiriman", label: "Buka modul pengiriman" };
   }
 
   if (payroll.role === "MANDOR") {
-    return {
-      href: `/mandor/supir?referenceId=${encodeURIComponent(payroll.referenceId)}`,
-      label: "Buka modul pengiriman mandor",
-    };
+    return { href: "/mandor/pengiriman", label: "Buka modul pengiriman mandor" };
   }
 
-  return {
-    href: `/supir/pengiriman?referenceId=${encodeURIComponent(payroll.referenceId)}`,
-    label: "Buka modul pengiriman supir",
-  };
+  return { href: "/supir/pengiriman", label: "Buka modul pengiriman supir" };
 }
 
 export function resolveEvidencePhotoUrl(rawUrl: string): string {
