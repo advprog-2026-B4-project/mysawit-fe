@@ -1,6 +1,8 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 export interface SelectionOption {
     value: string;
@@ -37,7 +39,21 @@ export default function KebunSelectionModal({
                                                 onChange,
                                                 onConfirm,
                                             }: KebunSelectionModalProps) {
+    
+    const [search, setSearch] = useState("");
+
+    const filteredOptions = useMemo(() => {
+        const query = search.trim().toLowerCase();
+        if (!query) return options;
+
+        return options.filter((option) => {
+            const searchableText = `${option.label} ${option.description ?? ""}`.toLowerCase();
+            return searchableText.includes(query);
+        });
+    }, [options, search]);
+
     const hasOptions = options.length > 0;
+    const hasFilteredOptions = filteredOptions.length > 0;
 
     return (
         <div
@@ -66,31 +82,50 @@ export default function KebunSelectionModal({
                 <div className="mt-6">
                     {hasOptions ? (
                         <>
-                            <select
-                                value={selectedValue}
-                                onChange={(event) => onChange(event.target.value)}
-                                className="w-full rounded border border-sand bg-white px-4 py-[11px] text-[13px] text-text-dark outline-none transition-colors focus:border-forest-mid"
-                            >
-                                <option value="">{placeholder}</option>
-                                {options.map((option) => (
-                                    <option key={option.value} value={option.value}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
+                            <Input
+                                label="Cari"
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                placeholder={placeholder}
+                            />
 
-                            <div className="mt-4 max-h-[180px] overflow-y-auto rounded border border-cream-dark">
-                                {options.map((option, index) => (
-                                    <div
-                                        key={option.value}
-                                        className={`px-4 py-3 ${index < options.length - 1 ? "border-b border-cream-dark" : ""}`}
-                                    >
-                                        <div className="text-[13px] text-text-dark">{option.label}</div>
-                                        {option.description && (
-                                            <div className="mt-1 text-[11px] text-text-light">{option.description}</div>
-                                        )}
+                            <div className="mt-4 max-h-[240px] overflow-y-auto rounded border border-cream-dark">
+                                {hasFilteredOptions ? (
+                                    filteredOptions.map((option, index) => {
+                                        const selected = selectedValue === option.value;
+
+                                        return (
+                                            <button
+                                                key={`${option.value}-${index}`}
+                                                type="button"
+                                                onClick={() => onChange(option.value)}
+                                                className={`block w-full border-0 px-4 py-3 text-left transition-colors ${
+                                                    index < filteredOptions.length - 1 ? "border-b border-cream-dark" : ""
+                                                } ${selected ? "bg-forest/[.08]" : "bg-white hover:bg-cream/70"}`}
+                                            >
+                                                <div className="flex items-start justify-between gap-3">
+                                                    <div>
+                                                        <div className="text-[13px] text-text-dark">{option.label}</div>
+                                                        {option.description && (
+                                                            <div className="mt-1 text-[11px] text-text-light">
+                                                                {option.description}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    {selected && (
+                                                        <span className="rounded bg-forest px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] text-cream">
+                                                            Dipilih
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                        );
+                                    })
+                                ) : (
+                                    <div className="px-4 py-5 text-[13px] text-text-light">
+                                        Tidak ada pilihan yang cocok dengan pencarian.
                                     </div>
-                                ))}
+                                )}
                             </div>
                         </>
                     ) : (

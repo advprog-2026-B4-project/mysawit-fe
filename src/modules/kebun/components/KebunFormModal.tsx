@@ -110,6 +110,17 @@ function isSquareCoordinates(coordinates: CoordinateDTO[]) {
         maxLat - minLat === maxLng - minLng;
 }
 
+function parseCoordinateFields(coordinates: CoordinateField[]) {
+    if (coordinates.some((coordinate) => !isIntegerString(coordinate.lat) || !isIntegerString(coordinate.lng))) {
+        return null;
+    }
+
+    return coordinates.map((coordinate) => ({
+        lat: Number.parseInt(coordinate.lat, 10),
+        lng: Number.parseInt(coordinate.lng, 10),
+    }));
+}
+
 export default function KebunFormModal({
                                            mode,
                                            title,
@@ -127,6 +138,19 @@ export default function KebunFormModal({
     const [luas, setLuas] = useState(initialFormState.luas);
     const [coordinates, setCoordinates] = useState<CoordinateField[]>(initialFormState.coordinates);
     const [errors, setErrors] = useState<Partial<Record<"nama" | "kode" | "luas" | "coordinates", string>>>({});
+
+    const parsedCoordinates = parseCoordinateFields(coordinates);
+    const isDirty =
+        nama !== initialFormState.nama ||
+        kode !== initialFormState.kode ||
+        luas !== initialFormState.luas ||
+        JSON.stringify(coordinates) !== JSON.stringify(initialFormState.coordinates);
+
+    function requestClose() {
+        if (!isDirty || window.confirm("Tutup form dan buang perubahan yang belum disimpan?")) {
+            onClose();
+        }
+    }
 
     async function handleSubmit() {
         const nextErrors: Partial<Record<"nama" | "kode" | "luas" | "coordinates", string>> = {};
@@ -151,9 +175,9 @@ export default function KebunFormModal({
             nextErrors.coordinates = "Semua latitude dan longitude harus berupa bilangan bulat";
         }
 
-        const parsedCoordinates = mappedCoordinates();
+        const submitCoordinates = parsedCoordinates ?? [];
 
-        if (!hasInvalidCoordinate && !isSquareCoordinates(parsedCoordinates)) {
+        if (!hasInvalidCoordinate && !isSquareCoordinates(submitCoordinates)) {
             nextErrors.coordinates = "Koordinat harus membentuk 4 sudut persegi";
         }
 
@@ -169,7 +193,7 @@ export default function KebunFormModal({
                 nama: nama.trim(),
                 kode: kode.trim(),
                 luas: Number.parseInt(luas, 10),
-                coordinates: parsedCoordinates,
+                coordinates: submitCoordinates,
             });
         } catch {
             // error backend ditampilkan oleh parent lewat errorMessage
@@ -184,9 +208,14 @@ export default function KebunFormModal({
         );
     }
 
-    // helper to map to DTO coordinates (drop ids)
-    function mappedCoordinates(): CoordinateDTO[] {
-        return coordinates.map((c) => ({ lat: Number.parseInt(c.lat || "0", 10), lng: Number.parseInt(c.lng || "0", 10) }));
+    function fillExampleSquare() {
+        setCoordinates([
+            { lat: "0", lng: "0" },
+            { lat: "0", lng: "10" },
+            { lat: "10", lng: "0" },
+            { lat: "10", lng: "10" },
+        ]);
+        setErrors((current) => ({ ...current, coordinates: undefined }));
     }
 
     return (
@@ -249,35 +278,44 @@ export default function KebunFormModal({
                 </div>
 
                 <div className="mt-7 border-t border-cream-dark pt-6">
-                    <div className="mb-4">
-                        <h3 className="font-serif text-[18px] font-normal text-text-dark">Koordinat Ujung Kebun</h3>
-                        <p className="mt-1 text-[12px] font-light text-text-light">
-                            Masukkan tepat empat titik sudut kebun yang membentuk persegi.
-                        </p>
+                    <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                        <div>
+                            <h3 className="font-serif text-[18px] font-normal text-text-dark">Koordinat Ujung Kebun</h3>
+                            <p className="mt-1 text-[12px] font-light text-text-light">
+                                Masukkan empat titik sudut persegi. Urutan titik bebas selama sudutnya lengkap.
+                            </p>
+                        </div>
+                        <Button variant="ghost" className="px-3.5 py-1.5 text-[12px]" onClick={fillExampleSquare}>
+                            Isi Contoh
+                        </Button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                        {coordinates.map((coordinate, index) => (
-                            <div key={coordinate.id} className="rounded border border-cream-dark bg-cream/50 p-4">
-                                <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-text-mid">
-                                    Titik {index + 1}
+                    <div className="grid gap-5 lg:grid-cols-[1fr_240px]">
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            {coordinates.map((coordinate, index) => (
+                                <div key={`coordinate-${index}`} className="rounded border border-cream-dark bg-cream/50 p-4">
+                                    <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-text-mid">
+                                        Titik {index + 1}
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <Input
+                                            label="Latitude"
+                                            value={coordinate.lat}
+                                            onChange={(event) => updateCoordinate(index, "lat", event.target.value)}
+                                            placeholder="0"
+                                        />
+                                        <Input
+                                            label="Longitude"
+                                            value={coordinate.lng}
+                                            onChange={(event) => updateCoordinate(index, "lng", event.target.value)}
+                                            placeholder="0"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <Input
-                                        label="Latitude"
-                                        value={coordinate.lat}
-                                        onChange={(event) => updateCoordinate(index, "lat", event.target.value)}
-                                        placeholder="0"
-                                    />
-                                    <Input
-                                        label="Longitude"
-                                        value={coordinate.lng}
-                                        onChange={(event) => updateCoordinate(index, "lng", event.target.value)}
-                                        placeholder="0"
-                                    />
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
+
+                        <CoordinatePreview coordinates={parsedCoordinates} />
                     </div>
 
                     {errors.coordinates && (
@@ -286,13 +324,68 @@ export default function KebunFormModal({
                 </div>
 
                 <div className="mt-8 flex justify-end gap-3">
-                    <Button variant="ghost" onClick={onClose}>
+                    <Button variant="ghost" onClick={requestClose}>
                         Batal
                     </Button>
                     <Button onClick={handleSubmit} loading={loading}>
                         {submitLabel}
                     </Button>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+function CoordinatePreview({ coordinates }: { coordinates: CoordinateDTO[] | null }) {
+    if (!coordinates || coordinates.length !== 4) {
+        return (
+            <div className="rounded border border-dashed border-cream-dark bg-white p-4">
+                <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-text-mid">Preview</div>
+                <div className="mt-4 flex h-[180px] items-center justify-center rounded bg-cream/50 px-4 text-center text-[12px] leading-5 text-text-light">
+                    Preview muncul setelah semua koordinat terisi angka.
+                </div>
+            </div>
+        );
+    }
+
+    const latValues = coordinates.map((coordinate) => coordinate.lat);
+    const lngValues = coordinates.map((coordinate) => coordinate.lng);
+    const minLat = Math.min(...latValues);
+    const maxLat = Math.max(...latValues);
+    const minLng = Math.min(...lngValues);
+    const maxLng = Math.max(...lngValues);
+    const latRange = maxLat - minLat;
+    const lngRange = maxLng - minLng;
+    const validShape = isSquareCoordinates(coordinates);
+
+    return (
+        <div className="rounded border border-cream-dark bg-white p-4">
+            <div className="flex items-center justify-between gap-2">
+                <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-text-mid">Preview</div>
+                <span className={`rounded px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] ${
+                    validShape ? "bg-success/10 text-success" : "bg-error/10 text-error"
+                }`}>
+                    {validShape ? "Valid" : "Belum valid"}
+                </span>
+            </div>
+            <div className="relative mt-4 h-[180px] rounded border border-cream-dark bg-cream/40">
+                {coordinates.map((coordinate, index) => {
+                    const left = lngRange === 0 ? 50 : ((coordinate.lng - minLng) / lngRange) * 82 + 9;
+                    const top = latRange === 0 ? 50 : 91 - ((coordinate.lat - minLat) / latRange) * 82;
+
+                    return (
+                        <div
+                            key={`${coordinate.lat}-${coordinate.lng}-${index}`}
+                            className="absolute flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-forest text-[11px] text-cream"
+                            style={{ left: `${left}%`, top: `${top}%` }}
+                        >
+                            {index + 1}
+                        </div>
+                    );
+                })}
+            </div>
+            <div className="mt-3 text-[11px] leading-5 text-text-light">
+                Lat {minLat}..{maxLat}, Lng {minLng}..{maxLng}
             </div>
         </div>
     );
