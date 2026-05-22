@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createMutation } from "@/lib/api/mutations";
+import { useCreateMutation } from "@/lib/api/mutations";
 import { panenApi, PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams } from "../api/panenApi";
 export type { PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams } from "../api/panenApi";
 
@@ -19,7 +19,7 @@ export const usePanenByBuruh = (buruhId: string, filters?: GetPanenByBuruhParams
 };
 
 export const useReviewPanen = () => {
-  return createMutation<PanenDTO, { panenId: string; data: ReviewPanenRequestDTO }>({
+  return useCreateMutation<PanenDTO, { panenId: string; data: ReviewPanenRequestDTO }>({
     mutationFn: ({ panenId, data }) => panenApi.reviewPanen(panenId, data),
     invalidateKeys: ["panen"],
     successMessage: "Status panen berhasil diperbarui.",

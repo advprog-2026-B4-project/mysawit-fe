@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createMutation } from "@/lib/api/mutations";
+import { useCreateMutation } from "@/lib/api/mutations";
 import { useAuth } from "@/modules/auth";
 import {
   pembayaranApi,
@@ -44,7 +44,7 @@ export function useAllPayrolls(filter?: PayrollListFilter) {
 }
 
 export function useApprovePayroll() {
-  return createMutation<PayrollDTO, string>({
+  return useCreateMutation<PayrollDTO, string>({
     mutationFn: (payrollId) => pembayaranApi.approvePayroll(payrollId),
     invalidateKeys: [payrollKeys.all, (data: PayrollDTO) => payrollKeys.status(data.payrollId)],
     successMessage: "Payroll berhasil disetujui.",
@@ -58,7 +58,7 @@ interface RejectVariables {
 }
 
 export function useRejectPayroll() {
-  return createMutation<PayrollDTO, RejectVariables>({
+  return useCreateMutation<PayrollDTO, RejectVariables>({
     mutationFn: ({ payrollId, reason }) => pembayaranApi.rejectPayroll(payrollId, reason),
     invalidateKeys: [
       payrollKeys.all,

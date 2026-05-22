@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createMutation } from "@/lib/api/mutations";
+import { useCreateMutation } from "@/lib/api/mutations";
 import { useAuth } from "@/modules/auth";
 import { pembayaranApi, type VariabelPokokDTO, type VariableKey } from "../api/pembayaranApi";
 
@@ -32,7 +32,7 @@ interface UpdateVariables {
 }
 
 export function useUpdateVariabelPokok() {
-  return createMutation<VariabelPokokDTO, UpdateVariables>({
+  return useCreateMutation<VariabelPokokDTO, UpdateVariables>({
     mutationFn: ({ key, newValue }) => pembayaranApi.updateVariabelPokok(key, newValue),
     invalidateKeys: variabelPokokKeys.all,
     successMessage: (updated) => `Variabel ${updated.key} berhasil diperbarui.`,

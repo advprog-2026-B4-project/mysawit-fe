@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createMutation } from "@/lib/api/mutations";
+import { useCreateMutation } from "@/lib/api/mutations";
 import {
   pengirimanApi,
   type AssignedSupirDTO,
@@ -94,7 +94,7 @@ export function useApprovedDeliveriesForAdmin(filter?: PengirimanListFilter, opt
 // ── Mutations ────────────────────────────────────────────────────
 
 export function useAssignDelivery() {
-  return createMutation<PengirimanDTO, AssignDeliveryRequest>({
+  return useCreateMutation<PengirimanDTO, AssignDeliveryRequest>({
     mutationFn: (payload) => pengirimanApi.assignSupirForDelivery(payload),
     invalidateKeys: pengirimanKeys.all,
     successMessage: "Pengiriman berhasil ditugaskan ke supir.",
@@ -108,7 +108,7 @@ type UpdateDeliveryVariables = {
 };
 
 export function useUpdateDeliveryStatus() {
-  return createMutation<PengirimanDTO, UpdateDeliveryVariables>({
+  return useCreateMutation<PengirimanDTO, UpdateDeliveryVariables>({
     mutationFn: ({ pengirimanId, payload }) => pengirimanApi.updateDeliveryStatus(pengirimanId, payload),
     invalidateKeys: pengirimanKeys.all,
     successMessage: "Status pengiriman berhasil diperbarui.",
@@ -117,7 +117,7 @@ export function useUpdateDeliveryStatus() {
 }
 
 export function useMandorApproveDelivery() {
-  return createMutation<PengirimanDTO, string>({
+  return useCreateMutation<PengirimanDTO, string>({
     mutationFn: (pengirimanId) => pengirimanApi.mandorApproveDelivery(pengirimanId),
     invalidateKeys: pengirimanKeys.all,
     successMessage: "Pengiriman berhasil disetujui mandor.",
@@ -131,7 +131,7 @@ type RejectDeliveryVariables = {
 };
 
 export function useMandorRejectDelivery() {
-  return createMutation<PengirimanDTO, RejectDeliveryVariables>({
+  return useCreateMutation<PengirimanDTO, RejectDeliveryVariables>({
     mutationFn: ({ pengirimanId, reason }) => pengirimanApi.mandorRejectDelivery(pengirimanId, reason),
     invalidateKeys: pengirimanKeys.all,
     successMessage: "Pengiriman berhasil ditolak mandor.",
@@ -145,7 +145,7 @@ type AdminProcessVariables = {
 };
 
 export function useAdminProcessDelivery() {
-  return createMutation<PengirimanDTO, AdminProcessVariables>({
+  return useCreateMutation<PengirimanDTO, AdminProcessVariables>({
     mutationFn: ({ pengirimanId, payload }) => pengirimanApi.adminProcessDelivery(pengirimanId, payload),
     invalidateKeys: pengirimanKeys.all,
     successMessage: (updated) => {

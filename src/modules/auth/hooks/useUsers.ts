@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createMutation } from "@/lib/api/mutations";
+import { useCreateMutation } from "@/lib/api/mutations";
 import { authApi, type UserRole, type UserDTO } from "../api/authApi";
 
 export const userKeys = {
@@ -41,7 +41,7 @@ export function useBuruhByMandor(mandorId: string) {
 }
 
 export function useEditUser() {
-  return createMutation({
+  return useCreateMutation({
     mutationFn: ({
       userId,
       payload,
@@ -56,7 +56,7 @@ export function useEditUser() {
 }
 
 export function useDeleteUser() {
-  return createMutation<void, string>({
+  return useCreateMutation<void, string>({
     mutationFn: (userId) => authApi.deleteUser(userId),
     invalidateKeys: userKeys.all,
     successMessage: "Pengguna berhasil dihapus.",
@@ -65,7 +65,7 @@ export function useDeleteUser() {
 }
 
 export function useAssignBuruh() {
-  return createMutation({
+  return useCreateMutation({
     mutationFn: ({ buruhId, mandorId }: { buruhId: string; mandorId: string }) =>
       authApi.assignBuruhToMandor(buruhId, mandorId),
     invalidateKeys: [userKeys.all, ["kebun"]],

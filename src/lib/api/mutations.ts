@@ -20,7 +20,7 @@ function resolveKeys<TData>(
   return list.map((k) => (typeof k === "function" ? k(data) : k));
 }
 
-export function createMutation<TData = unknown, TVariables = void>(
+export function useCreateMutation<TData = unknown, TVariables = void>(
   config: CreateMutationConfig<TData, TVariables>
 ) {
   const queryClient = useQueryClient();

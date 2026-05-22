@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import { useDeferredValue, useState } from 'react';
 import { Input } from '@/components/ui/Input';
-import { extractErrorMessage } from '@/lib/toast';
 import { formatWeight } from '@/lib/formatters';
 import { usePanenAdmin } from '../hooks/usePanenList';
 import AsyncBoundary from '@/components/ui/AsyncBoundary';

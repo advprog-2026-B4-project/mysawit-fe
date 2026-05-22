@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { createMutation } from "@/lib/api/mutations";
+import { useQuery } from "@tanstack/react-query";
+import { useCreateMutation } from "@/lib/api/mutations";
 import { useAuth } from "@/modules/auth";
 import {
   pembayaranApi,
@@ -31,7 +31,7 @@ export function useWalletTransactions(userId: string) {
 }
 
 export function useInitiateTopUp() {
-  return createMutation<{ paymentUrl: string }, number>({
+  return useCreateMutation<{ paymentUrl: string }, number>({
     mutationFn: (amount) => pembayaranApi.initiateTopUp(amount),
     errorMessage: "Gagal memulai top-up wallet.",
   });
