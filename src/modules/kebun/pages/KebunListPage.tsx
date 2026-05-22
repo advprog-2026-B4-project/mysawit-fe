@@ -17,6 +17,12 @@ function getErrorMessage(error: unknown) {
     return error instanceof Error ? error.message : "Terjadi kesalahan yang tidak diketahui";
 }
 
+function formatCoordinates(kebun: KebunDTO) {
+    return kebun.coordinates
+        .map((coordinate) => `(${coordinate.lat}, ${coordinate.lng})`)
+        .join(", ");
+}
+
 export default function KebunListPage() {
     const [searchNama, setSearchNama] = useState("");
     const [searchKode, setSearchKode] = useState("");
@@ -35,6 +41,8 @@ export default function KebunListPage() {
     const createKebun = useCreateKebun();
     const editKebun = useEditKebun();
     const deleteKebun = useDeleteKebun();
+
+    const hasActiveFilters = !!deferredNama || !!deferredKode;
 
     async function handleCreate(form: {
         nama: string;
@@ -100,6 +108,11 @@ export default function KebunListPage() {
         setDeletingKebun(kebun);
     }
 
+    function resetFilters() {
+        setSearchNama("");
+        setSearchKode("");
+    }
+
     return (
         <div>
             <div className="mb-10 flex items-start justify-between gap-4">
@@ -112,19 +125,39 @@ export default function KebunListPage() {
                 <Button onClick={openCreateModal}>Tambah Kebun</Button>
             </div>
 
-            <div className="mb-6 grid grid-cols-[minmax(0,280px)_minmax(0,220px)] gap-4">
-                <Input
-                    label="Cari Nama Kebun"
-                    value={searchNama}
-                    onChange={(event) => setSearchNama(event.target.value)}
-                    placeholder="Contoh: Sei Lestari"
-                />
-                <Input
-                    label="Cari Kode Kebun"
-                    value={searchKode}
-                    onChange={(event) => setSearchKode(event.target.value)}
-                    placeholder="Contoh: KBN-SL-01"
-                />
+            <div className="mb-6 rounded-md border border-cream-dark bg-white p-5">
+                <div className="flex flex-wrap items-end gap-4">
+                    <div className="w-full sm:w-[280px]">
+                        <Input
+                            label="Cari Nama Kebun"
+                            value={searchNama}
+                            onChange={(event) => setSearchNama(event.target.value)}
+                            placeholder="Contoh: Sei Lestari"
+                        />
+                    </div>
+                    <div className="w-full sm:w-[220px]">
+                        <Input
+                            label="Cari Kode Kebun"
+                            value={searchKode}
+                            onChange={(event) => setSearchKode(event.target.value)}
+                            placeholder="Contoh: KBN-SL-01"
+                        />
+                    </div>
+                    <Button
+                        variant="ghost"
+                        onClick={resetFilters}
+                        disabled={!hasActiveFilters}
+                        className="h-[46px] w-fit px-4"
+                    >
+                        Reset Filter
+                    </Button>
+                </div>
+
+                <div className="mt-3 text-[12px] text-text-light">
+                    {hasActiveFilters
+                        ? `${kebunList.length} hasil untuk filter aktif.`
+                        : `${kebunList.length} kebun ditampilkan.`}
+                </div>
             </div>
 
             {error && (
@@ -133,8 +166,8 @@ export default function KebunListPage() {
                 </div>
             )}
 
-            <div className="overflow-hidden rounded-md border border-cream-dark bg-white">
-                <div className="grid grid-cols-[1.3fr_0.8fr_0.6fr_1.4fr_auto] gap-4 border-b border-cream-dark px-6 py-3.5">
+            <div className="hidden overflow-hidden rounded-md border border-cream-dark bg-white lg:block">
+                <div className="grid grid-cols-[minmax(0,1.05fr)_minmax(120px,0.55fr)_minmax(90px,0.35fr)_minmax(0,1.35fr)_230px] gap-3 border-b border-cream-dark px-6 py-3.5">
                     {["Nama Kebun", "Kode", "Luas", "Koordinat", ""].map((header) => (
                         <div
                             key={header}
@@ -155,25 +188,85 @@ export default function KebunListPage() {
                     kebunList.map((kebun, index) => (
                         <div
                             key={kebun.kebunId}
-                            className={`grid grid-cols-[1.3fr_0.8fr_0.6fr_1.4fr_auto] items-center gap-4 px-6 py-4 ${
+                            className={`grid grid-cols-[minmax(0,1.05fr)_minmax(120px,0.55fr)_minmax(90px,0.35fr)_minmax(0,1.35fr)_230px] items-center gap-3 px-6 py-4 ${
                                 index < kebunList.length - 1 ? "border-b border-cream-dark" : ""
                             }`}
                         >
-                            <div>
-                                <div className="text-[14px] text-text-dark">{kebun.nama}</div>
-                                <div className="mt-1 text-[11px] text-text-light">{kebun.coordinates.length} titik koordinat</div>
+                            <div className="min-w-0">
+                                <div className="truncate text-[14px] text-text-dark" title={kebun.nama}>
+                                    {kebun.nama}
+                                </div>
                             </div>
-                            <div className="text-[13px] text-text-mid">{kebun.kode}</div>
-                            <div className="text-[13px] text-text-mid">{kebun.luas} Ha</div>
-                            <div className="text-[12px] leading-5 text-text-light">
-                                {kebun.coordinates.map((coordinate) => `(${coordinate.lat}, ${coordinate.lng})`).join(", ")}
+                            <div className="min-w-0 truncate text-[13px] text-text-mid" title={kebun.kode}>
+                                {kebun.kode}
                             </div>
-                            <div className="flex justify-end gap-2">
+                            <div className="min-w-0 whitespace-nowrap text-[13px] text-text-mid">
+                                {kebun.luas} Ha
+                            </div>
+                            <div
+                                className="min-w-0 truncate text-[12px] leading-5 text-text-light"
+                                title={formatCoordinates(kebun)}
+                            >
+                                {formatCoordinates(kebun)}
+                            </div>
+
+                            <div className="flex min-w-0 justify-end gap-2">
                                 <Link href={`/admin/kebun/${kebun.kebunId}`}>
-                                    <Button
-                                        variant="ghost"
-                                        className="px-3.5 py-1.5 text-[12px]"
-                                    >
+                                    <Button variant="ghost" className="px-3 py-1.5 text-[12px]">
+                                        Detail
+                                    </Button>
+                                </Link>
+                                <Button
+                                    variant="secondary"
+                                    className="px-3 py-1.5 text-[12px]"
+                                    onClick={() => openEditModal(kebun)}
+                                >
+                                    Edit
+                                </Button>
+                                <Button
+                                    variant="danger"
+                                    className="px-3 py-1.5 text-[12px]"
+                                    onClick={() => openDeleteModal(kebun)}
+                                >
+                                    Hapus
+                                </Button>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+
+            <div className="space-y-3 lg:hidden">
+                {isLoading ? (
+                    <div className="rounded-md border border-cream-dark bg-white py-10 text-center text-[13px] text-text-light">
+                        Memuat data kebun...
+                    </div>
+                ) : kebunList.length === 0 ? (
+                    <div className="rounded-md border border-cream-dark bg-white py-10 text-center text-[13px] text-text-light">
+                        {hasActiveFilters ? "Tidak ada kebun yang cocok dengan filter." : "Belum ada kebun yang dibuat."}
+                    </div>
+                ) : (
+                    kebunList.map((kebun) => (
+                        <div key={kebun.kebunId} className="rounded-md border border-cream-dark bg-white p-5">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <div className="text-[15px] text-text-dark">{kebun.nama}</div>
+                                    <div className="mt-1 text-[12px] text-text-light">{kebun.kode}</div>
+                                </div>
+                                <div className="rounded bg-forest/[.08] px-3 py-1 text-[11px] text-forest">
+                                    {kebun.luas} Ha
+                                </div>
+                            </div>
+
+                            <div className="mt-4 rounded border border-cream-dark bg-cream/50 px-4 py-3">
+                                <div className="text-[12px] leading-5 text-text-light">
+                                    {formatCoordinates(kebun)}
+                                </div>
+                            </div>
+
+                            <div className="mt-4 flex flex-wrap justify-end gap-2">
+                                <Link href={`/admin/kebun/${kebun.kebunId}`}>
+                                    <Button variant="ghost" className="px-3.5 py-1.5 text-[12px]">
                                         Detail
                                     </Button>
                                 </Link>
@@ -196,8 +289,6 @@ export default function KebunListPage() {
                     ))
                 )}
             </div>
-
-            <div className="mt-4 text-[12px] text-text-light">{kebunList.length} kebun ditampilkan</div>
 
             {isCreateOpen && (
                 <KebunFormModal
