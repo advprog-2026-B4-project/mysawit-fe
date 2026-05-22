@@ -209,11 +209,12 @@ export default function KebunFormModal({
     }
 
     function fillExampleSquare() {
+        const base = Date.now().toString();
         setCoordinates([
-            { lat: "0", lng: "0" },
-            { lat: "0", lng: "10" },
-            { lat: "10", lng: "0" },
-            { lat: "10", lng: "10" },
+            { id: `${base}-0`, lat: "0", lng: "0" },
+            { id: `${base}-1`, lat: "0", lng: "10" },
+            { id: `${base}-2`, lat: "10", lng: "0" },
+            { id: `${base}-3`, lat: "10", lng: "10" },
         ]);
         setErrors((current) => ({ ...current, coordinates: undefined }));
     }
