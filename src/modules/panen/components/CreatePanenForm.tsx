@@ -257,7 +257,7 @@ export const CreatePanenForm: React.FC = () => {
 
           {formData.photoUrls.length > 0 && (
             <ul className="mt-3 grid grid-cols-2 gap-3">
-              {formData.photoUrls.map((url) => (
+              {formData.photoUrls.map((url, idx) => (
                 <li key={url} className="relative group rounded overflow-hidden border border-sand bg-white shadow-sm">
                   <Image
                     src={url}

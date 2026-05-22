@@ -165,7 +165,7 @@ export default function BuruhPanenHistory() {
       {/* Error panen */}
       {panenError && (
         <div className="mb-5 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
-          {extractErrorMessage(error, 'Terjadi kesalahan yang tidak diketahui.')}
+          {extractErrorMessage(panenError, 'Terjadi kesalahan yang tidak diketahui.')}
         </div>
       )}
 

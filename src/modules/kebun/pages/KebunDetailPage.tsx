@@ -305,7 +305,7 @@ export default function KebunDetailPage() {
 
                 {supirError && (
                     <div className="mb-4 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
-                        {getErrorMessage(supirError)}
+                        {extractErrorMessage(supirError)}
                     </div>
                 )}
 
@@ -358,7 +358,7 @@ export default function KebunDetailPage() {
 
                 {buruhError && (
                     <div className="mb-4 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
-                        {getErrorMessage(buruhError)}
+                        {extractErrorMessage(buruhError)}
                     </div>
                 )}
 
@@ -393,7 +393,7 @@ export default function KebunDetailPage() {
                     options={assignMandorSelectionOptions}
                     emptyMessage="Belum ada data mandor yang bisa dipilih."
                     loading={assignMandor.isPending}
-                    errorMessage={assignMandor.error ? getErrorMessage(assignMandor.error) : undefined}
+                    errorMessage={assignMandor.error ? extractErrorMessage(assignMandor.error) : undefined}
                     onClose={() => setIsAssignMandorOpen(false)}
                     onChange={setSelectedMandorId}
                     onConfirm={handleAssignMandor}
@@ -410,7 +410,7 @@ export default function KebunDetailPage() {
                     options={targetKebunSelectionOptions}
                     emptyMessage="Belum ada kebun lain yang bisa dijadikan tujuan."
                     loading={moveMandor.isPending}
-                    errorMessage={moveMandor.error ? getErrorMessage(moveMandor.error) : undefined}
+                    errorMessage={moveMandor.error ? extractErrorMessage(moveMandor.error) : undefined}
                     onClose={() => setIsMoveMandorOpen(false)}
                     onChange={setSelectedTargetKebunId}
                     onConfirm={handleMoveMandor}
@@ -427,7 +427,7 @@ export default function KebunDetailPage() {
                     options={assignSupirSelectionOptions}
                     emptyMessage="Belum ada supir yang tersedia untuk dipilih."
                     loading={assignSupir.isPending}
-                    errorMessage={assignSupir.error ? getErrorMessage(assignSupir.error) : undefined}
+                    errorMessage={assignSupir.error ? extractErrorMessage(assignSupir.error) : undefined}
                     onClose={() => setIsAssignSupirOpen(false)}
                     onChange={setSelectedSupirId}
                     onConfirm={handleAssignSupir}
@@ -444,7 +444,7 @@ export default function KebunDetailPage() {
                     options={targetKebunSelectionOptions}
                     emptyMessage="Belum ada kebun lain yang bisa dijadikan tujuan."
                     loading={moveSupir.isPending}
-                    errorMessage={moveSupir.error ? getErrorMessage(moveSupir.error) : undefined}
+                    errorMessage={moveSupir.error ? extractErrorMessage(moveSupir.error) : undefined}
                     onClose={() => setMovingSupir(null)}
                     onChange={setSelectedSupirTargetKebunId}
                     onConfirm={handleMoveSupir}

@@ -203,7 +203,7 @@ export default function KebunListPage() {
                     title="Tambah Kebun Sawit"
                     submitLabel="Simpan Kebun"
                     loading={createKebun.isPending}
-                    errorMessage={createKebun.error ? getErrorMessage(createKebun.error) : undefined}
+                    errorMessage={createKebun.error ? extractErrorMessage(createKebun.error) : undefined}
                     onClose={() => setIsCreateOpen(false)}
                     onSubmit={handleCreate}
                 />
@@ -216,7 +216,7 @@ export default function KebunListPage() {
                     title={`Edit ${editingKebun.nama}`}
                     submitLabel="Simpan Perubahan"
                     loading={editKebun.isPending}
-                    errorMessage={editKebun.error ? getErrorMessage(editKebun.error) : undefined}
+                    errorMessage={editKebun.error ? extractErrorMessage(editKebun.error) : undefined}
                     initialValue={editingKebun}
                     onClose={() => setEditingKebun(null)}
                     onSubmit={handleEdit}
@@ -229,7 +229,7 @@ export default function KebunListPage() {
                     description={`Anda yakin ingin menghapus kebun ${deletingKebun.nama}? Proses ini akan gagal jika kebun masih memiliki mandor terikat.`}
                     confirmLabel="Hapus Kebun"
                     loading={deleteKebun.isPending}
-                    errorMessage={deleteKebun.error ? getErrorMessage(deleteKebun.error) : undefined}
+                    errorMessage={deleteKebun.error ? extractErrorMessage(deleteKebun.error) : undefined}
                     onClose={() => setDeletingKebun(null)}
                     onConfirm={handleDelete}
                 />

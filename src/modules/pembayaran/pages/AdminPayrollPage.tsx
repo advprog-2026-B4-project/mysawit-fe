@@ -18,6 +18,7 @@ import {
 	PayrollPagination,
 	resolveEvidencePhotoUrl,
 	resolvePayrollReferenceLink,
+	type PayrollStatusFilter,
 } from "../components/PayrollShared";
 
 function PayrollRow({
@@ -159,6 +160,7 @@ function PayrollRow({
 }
 
 function AdminPayrollPageContent() {
+	const [status, setStatus] = useState<PayrollStatusFilter>("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
 	const [page, setPage] = useState(0);
@@ -178,7 +180,7 @@ function AdminPayrollPageContent() {
 			page,
 			size: DEFAULT_PAYROLL_PAGE_SIZE,
 		}),
-		[endDate, page, startDate],
+		[endDate, page, startDate, status],
 	);
 
 	const { data, isLoading, isError, error, refetch } = useAllPayrolls(filter);
