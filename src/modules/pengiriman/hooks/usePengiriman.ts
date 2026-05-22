@@ -78,6 +78,8 @@ export function useMandorSupirDeliveries(supirId: string, options?: UseSupirDeli
     queryKey: pengirimanKeys.mandorSupirDeliveries(supirId),
     queryFn: () => pengirimanApi.listDeliveriesOfSupirByMandor(supirId),
     enabled: (options?.enabled ?? true) && !!supirId,
+    staleTime: 0,
+    refetchOnMount: "always",
   });
 }
 

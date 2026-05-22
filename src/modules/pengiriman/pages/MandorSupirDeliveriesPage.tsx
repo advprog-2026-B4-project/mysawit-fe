@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/Button";
 import { getRole, getToken } from "@/lib/api/tokenStorage";
 import { compactPengirimanId, deliveryStatusClass, formatTimestamp, formatWeight } from "../components/PengirimanShared";
@@ -20,8 +21,15 @@ export default function MandorSupirDeliveriesPage() {
   });
 
   const supirList = supirListQuery.data ?? [];
-  const deliveries = deliveriesQuery.data ?? [];
+  const deliveries = (deliveriesQuery.data ?? []).filter((delivery) => delivery.supirId === supirId);
   const supir = supirList.find((item) => item.supirId === supirId);
+  const refetchDeliveries = deliveriesQuery.refetch;
+
+  useEffect(() => {
+    if (hasSession && role === "MANDOR" && supirId) {
+      void refetchDeliveries();
+    }
+  }, [hasSession, refetchDeliveries, role, supirId]);
 
   if (!hasSession) {
     return (
