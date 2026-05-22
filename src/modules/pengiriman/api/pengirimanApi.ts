@@ -72,6 +72,16 @@ export interface PengirimanListFilter {
   mandorName?: string;
 }
 
+export interface PengirimanPageDTO {
+  items: PengirimanDTO[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export const pengirimanApi = {
   assignSupirForDelivery: async (payload: AssignDeliveryRequest): Promise<PengirimanDTO> => {
     const { data } = await apiClient.post<PengirimanDTO>("/api/pengiriman", payload);
@@ -151,8 +161,8 @@ export const pengirimanApi = {
     return data;
   },
 
-  listApprovedDeliveriesForAdmin: async (filter?: PengirimanListFilter): Promise<PengirimanDTO[]> => {
-    const { data } = await apiClient.get<PengirimanDTO[]>("/api/pengiriman/admin/approved", {
+  listApprovedDeliveriesForAdmin: async (filter?: PengirimanListFilter): Promise<PengirimanPageDTO> => {
+    const { data } = await apiClient.get<PengirimanPageDTO>("/api/pengiriman/admin/approved", {
       params: {
         mandorName: filter?.mandorName,
         date: filter?.date,

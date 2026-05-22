@@ -4,7 +4,7 @@ import type { PengirimanStatus } from "../api/pengirimanApi";
 import { formatWeight as fmtWeight, formatDate } from "@/lib/formatters";
 
 export function formatWeight(weightInGrams: number) {
-  return fmtWeight(weightInGrams);
+  return fmtWeight(weightInGrams / 1000);
 }
 
 export function formatTimestamp(timestamp: string) {

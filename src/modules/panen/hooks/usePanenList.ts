@@ -28,9 +28,12 @@ export const useReviewPanen = () => {
 };
 
 export function usePanenAdmin(params?: GetPanenAdminParams) {
-  return useQuery({
+  return useQuery<PanenDTO[], Error>({
     queryKey: ["panen", "admin", params],
-    queryFn: () => panenApi.getPanenAdmin(params),
+    queryFn: async () => {
+      const response = await panenApi.getPanenAdmin(params);
+      return response.items ?? [];
+    },
     staleTime: 1000 * 60 * 5,
   });
 }

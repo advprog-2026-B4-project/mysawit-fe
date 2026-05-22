@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/Button";
-import { formatCents, formatDate, formatNumber, formatWeight } from "@/lib/formatters";
+import { formatRupiahAsDollar, formatDate, formatNumber, formatWeight } from "@/lib/formatters";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -15,7 +15,7 @@ export const PAYROLL_STATUS_FILTERS: Array<{ label: string; value: PayrollStatus
 ];
 
 export function formatPayrollMoney(value: number) {
-  return `${formatCents(value)} $`;
+  return formatRupiahAsDollar(value);
 }
 
 export function formatPayrollDate(value: string | null) {
@@ -33,25 +33,26 @@ export function compactPayrollId(value: string) {
   return `${value.slice(0, 8)}...${value.slice(-4)}`;
 }
 
-export function resolvePayrollReferenceLink(payroll: PayrollDTO): { href: string; label: string } {
+export function resolvePayrollReferenceLink(payroll: PayrollDTO, isAdmin = false): { href: string; label: string } {
   if (payroll.referenceType === "PANEN") {
-    return {
-      href: `/panen/create?referenceId=${encodeURIComponent(payroll.referenceId)}`,
-      label: "Buka modul panen",
-    };
+    if (isAdmin) {
+      return { href: "/admin/panen", label: "Buka modul panen" };
+    }
+    if (payroll.role === "MANDOR") {
+      return { href: "/mandor/panen", label: "Buka modul panen mandor" };
+    }
+    return { href: "/buruh/panen/history", label: "Buka riwayat panen" };
+  }
+
+  if (isAdmin) {
+    return { href: "/admin/pengiriman", label: "Buka modul pengiriman" };
   }
 
   if (payroll.role === "MANDOR") {
-    return {
-      href: `/mandor/supir?referenceId=${encodeURIComponent(payroll.referenceId)}`,
-      label: "Buka modul pengiriman mandor",
-    };
+    return { href: "/mandor/pengiriman", label: "Buka modul pengiriman mandor" };
   }
 
-  return {
-    href: `/supir/pengiriman?referenceId=${encodeURIComponent(payroll.referenceId)}`,
-    label: "Buka modul pengiriman supir",
-  };
+  return { href: "/supir/pengiriman", label: "Buka modul pengiriman supir" };
 }
 
 export function resolveEvidencePhotoUrl(rawUrl: string): string {
@@ -150,10 +151,10 @@ export function PayrollDetailDialog({ payroll, relationLinks, onClose }: Payroll
             Berat: <span className="font-medium text-text-dark">{formatWeight(payroll.weight)}</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Tarif upah: <span className="font-medium text-text-dark">{formatCents(payroll.wageRateApplied)} $/kg</span>
+            Tarif upah: <span className="font-medium text-text-dark">{formatRupiahAsDollar(payroll.wageRateApplied)}/kg</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
-            Rumus: <span className="font-medium text-text-dark">{formatWeight(payroll.weight)} × {formatCents(payroll.wageRateApplied)} $/kg</span>
+            Rumus: <span className="font-medium text-text-dark">{formatWeight(payroll.weight)} × {formatRupiahAsDollar(payroll.wageRateApplied)}/kg</span>
           </p>
           <p className="font-sans text-[13px] text-text-mid mb-1">
             Total: <span className="font-medium text-text-dark">{formatPayrollMoney(payroll.netAmount)}</span>

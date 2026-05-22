@@ -31,7 +31,7 @@ export default function AdminPengirimanPage() {
     enabled: hasSession && role === "ADMIN",
   });
   const adminProcessDelivery = useAdminProcessDelivery();
-  const approvedDeliveries = approvedDeliveriesQuery.data ?? [];
+  const approvedDeliveries = Array.isArray(approvedDeliveriesQuery.data) ? approvedDeliveriesQuery.data : [];
 
   const approvedCount = approvedDeliveries.length;
 

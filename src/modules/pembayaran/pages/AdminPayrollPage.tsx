@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type KeyboardEvent } from "react";
 import Image from "next/image";
 import AdminGuard from "@/components/guards/AdminGuard";
 import { Button } from "@/components/ui/Button";
@@ -46,10 +46,19 @@ function PayrollRow({
 		return Array.from(new Set(urls));
 	}, [payroll.evidencePhotoUrls]);
 
+	function handleRowKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault();
+			onOpenDetail(payroll);
+		}
+	}
+
 	return (
-		<button
-			type="button"
+		<div
 			onClick={() => onOpenDetail(payroll)}
+			onKeyDown={handleRowKeyDown}
+			role="button"
+			tabIndex={0}
 			className={`grid grid-cols-[1.2fr_0.65fr_1.2fr_0.8fr_0.7fr_0.95fr] gap-4 items-center px-6 py-4 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors text-left w-full ${
 				isSelected ? "bg-forest/5" : "hover:bg-cream"
 			}`}
@@ -155,7 +164,7 @@ function PayrollRow({
 					</div>
 				)}
 			</div>
-		</button>
+		</div>
 	);
 }
 
@@ -196,7 +205,7 @@ function AdminPayrollPageContent() {
 			return [];
 		}
 
-		const referenceLink = resolvePayrollReferenceLink(selectedPayroll);
+		const referenceLink = resolvePayrollReferenceLink(selectedPayroll, true);
 		return [
 			{
 				label: "Pekerja terkait",

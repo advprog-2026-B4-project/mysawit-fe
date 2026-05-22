@@ -36,12 +36,14 @@ export default function AdminPanenPage() {
     const deferredNama = useDeferredValue(searchNama.trim());
 
     // Hook ini akan otomatis fetch SEMUA data saat halaman dibuka (karena tidak ada filter wajib)
-    const { data: panenList = [], isLoading, error, refetch } = usePanenAdmin({
+    const { data: panenData, isLoading, error, refetch } = usePanenAdmin({
         buruhName: deferredNama || undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         status: status || undefined,
     });
+
+    const panenList = Array.isArray(panenData) ? panenData : [];
 
     return (
         <div>

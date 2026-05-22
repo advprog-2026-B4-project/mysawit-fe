@@ -8,6 +8,14 @@ export function formatDollar(dollars: number): string {
   return "$" + dollars.toFixed(2);
 }
 
+/** $1 = Rp 10,000 — converts raw rupiah to dollar display. */
+export function formatRupiahAsDollar(rupiah: number): string {
+  return "$" + (rupiah / 10000).toLocaleString(LOCALE, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
 // No currency symbol - use when the symbol is supplied by surrounding JSX.
 export function formatCents(cents: number): string {
   return (cents / 100).toLocaleString(LOCALE, {
@@ -16,9 +24,10 @@ export function formatCents(cents: number): string {
   });
 }
 
-export function formatWeight(grams: number): string {
+/** Weight is stored as integer kg, not grams. Display as "N kg". */
+export function formatWeight(kg: number): string {
   return (
-    (grams / 1000).toLocaleString(LOCALE, {
+    kg.toLocaleString(LOCALE, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 3,
     }) + " kg"

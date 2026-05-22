@@ -79,7 +79,7 @@ export default function UserDetailPage() {
       return [];
     }
 
-    const referenceLink = resolvePayrollReferenceLink(selectedPayroll);
+    const referenceLink = resolvePayrollReferenceLink(selectedPayroll, true);
     return [
       {
         label: "Pekerja terkait",
