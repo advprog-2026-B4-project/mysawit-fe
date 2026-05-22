@@ -32,7 +32,7 @@ function ErrorDisplay({
     <div className="flex min-h-[200px] flex-col items-center justify-center gap-4">
       <p className="text-sm text-rose-600">{message}</p>
       {onRetry && (
-        <Button variant="secondary" size="sm" onClick={onRetry}>
+        <Button variant="secondary" onClick={onRetry}>
           Coba Lagi
         </Button>
       )}

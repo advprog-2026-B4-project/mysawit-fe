@@ -40,4 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# lint
+oxlint-report.sarif
 .omc/

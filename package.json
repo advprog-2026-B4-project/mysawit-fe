@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "oxlint",
+    "lint:report": "oxlint --format sarif > oxlint-report.sarif; exit 0",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage --coverage.reporter=lcov --coverage.reporter=text"
@@ -29,9 +30,8 @@
     "@vitejs/plugin-react": "^5.1.4",
     "@vitest/coverage-v8": "4.0.18",
     "babel-plugin-react-compiler": "1.0.0",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "16.1.6",
     "jsdom": "^29.1.1",
+    "oxlint": "^1.66.0",
     "tailwindcss": "^4",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
