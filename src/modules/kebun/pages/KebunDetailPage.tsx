@@ -289,7 +289,7 @@ export default function KebunDetailPage() {
                         <div className="grid gap-3 sm:grid-cols-2">
                             {kebun.coordinates.map((coordinate, index) => (
                                 <div
-                                    key={`${coordinate.lat}-${coordinate.lng}-${index}`}
+                                    key={`${coordinate.lat}-${coordinate.lng}`}
                                     className="rounded border border-cream-dark bg-cream/50 px-4 py-4"
                                 >
                                     <div className="text-[10px] uppercase tracking-[0.12em] text-text-light">

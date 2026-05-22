@@ -293,7 +293,7 @@ export default function KebunFormModal({
                     <div className="grid gap-5 lg:grid-cols-[1fr_240px]">
                         <div className="grid gap-4 sm:grid-cols-2">
                             {coordinates.map((coordinate, index) => (
-                                <div key={`coordinate-${index}`} className="rounded border border-cream-dark bg-cream/50 p-4">
+                                <div key={coordinate.id} className="rounded border border-cream-dark bg-cream/50 p-4">
                                     <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-text-mid">
                                         Titik {index + 1}
                                     </div>
@@ -375,7 +375,7 @@ function CoordinatePreview({ coordinates }: { coordinates: CoordinateDTO[] | nul
 
                     return (
                         <div
-                            key={`${coordinate.lat}-${coordinate.lng}-${index}`}
+                            key={`${coordinate.lat}-${coordinate.lng}`}
                             className="absolute flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-forest text-[11px] text-cream"
                             style={{ left: `${left}%`, top: `${top}%` }}
                         >

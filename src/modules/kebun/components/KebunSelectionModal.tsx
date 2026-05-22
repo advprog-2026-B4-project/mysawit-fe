@@ -96,7 +96,7 @@ export default function KebunSelectionModal({
 
                                         return (
                                             <button
-                                                key={`${option.value}-${index}`}
+                                                key={option.value}
                                                 type="button"
                                                 onClick={() => onChange(option.value)}
                                                 className={`block w-full border-0 px-4 py-3 text-left transition-colors ${
