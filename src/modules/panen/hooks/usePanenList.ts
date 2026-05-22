@@ -1,0 +1,39 @@
+import { useQuery } from "@tanstack/react-query";
+import { useCreateMutation } from "@/lib/api/mutations";
+import { panenApi, PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams } from "../api/panenApi";
+export type { PanenDTO, GetPanenMandorParams, GetPanenByBuruhParams, ReviewPanenRequestDTO, GetPanenAdminParams } from "../api/panenApi";
+
+export const usePanenMandor = (filters?: GetPanenMandorParams) => {
+  return useQuery<PanenDTO[], Error>({
+    queryKey: ["panen", "mandor", filters],
+    queryFn: () => panenApi.getPanenMandor(filters),
+  });
+};
+
+export const usePanenByBuruh = (buruhId: string, filters?: GetPanenByBuruhParams) => {
+  return useQuery<PanenDTO[], Error>({
+    queryKey: ["panen", "buruh", buruhId, filters],
+    queryFn: () => panenApi.getPanenByBuruhId(buruhId, filters),
+    enabled: !!buruhId,
+  });
+};
+
+export const useReviewPanen = () => {
+  return useCreateMutation<PanenDTO, { panenId: string; data: ReviewPanenRequestDTO }>({
+    mutationFn: ({ panenId, data }) => panenApi.reviewPanen(panenId, data),
+    invalidateKeys: ["panen"],
+    successMessage: "Status panen berhasil diperbarui.",
+    errorMessage: "Gagal memperbarui status panen.",
+  });
+};
+
+export function usePanenAdmin(params?: GetPanenAdminParams) {
+  return useQuery<PanenDTO[], Error>({
+    queryKey: ["panen", "admin", params],
+    queryFn: async () => {
+      const response = await panenApi.getPanenAdmin(params);
+      return response.items ?? [];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+}

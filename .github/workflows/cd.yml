@@ -9,13 +9,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Main branch step
-        run: echo "Deploying MAIN"
+      - name: Trigger Vercel Deploy for Main Branch
+        run: curl -X POST ${{ secrets.VERCEL_DEPLOY_HOOK }}
 
   cd-staging:
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Staging branch step
-        run: echo "Deploying STAGING"
+      - name: Trigger Vercel Deploy for Staging Branch
+        run: curl -X POST ${{ secrets.VERCEL_DEPLOY_HOOK_STAGING }}

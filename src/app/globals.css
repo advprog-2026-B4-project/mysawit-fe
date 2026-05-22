@@ -1,26 +1,60 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Brand palette */
+  --color-forest:       #1a2e1a;
+  --color-forest-mid:   #2d4a2d;
+  --color-forest-light: #3d6b3d;
+  --color-bark:         #6b4c2a;
+  --color-bark-light:   #8a6340;
+  --color-cream:        #f5f0e8;
+  --color-cream-dark:   #ede5d4;
+  --color-sand:         #d4c4a0;
+  --color-gold:         #c9a84c;
+
+  /* Semantic text */
+  --color-text-dark:    #1a1a14;
+  --color-text-mid:     #4a4a3a;
+  --color-text-light:   #8a8a7a;
+
+  /* Surface & state */
+  --color-surface:      #fefcf8;
+  --color-error:        #8b2e2e;
+  --color-success:      #2e5c2e;
+
+  /* Typography */
+  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-sans:  var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --forest:       var(--color-forest);
+    --forest-mid:   var(--color-forest-mid);
+    --forest-light: var(--color-forest-light);
+    --bark:         var(--color-bark);
+    --bark-light:   var(--color-bark-light);
+    --cream:        var(--color-cream);
+    --cream-dark:   var(--color-cream-dark);
+    --sand:         var(--color-sand);
+    --gold:         var(--color-gold);
+    --text-dark:    var(--color-text-dark);
+    --text-mid:     var(--color-text-mid);
+    --text-light:   var(--color-text-light);
+    --surface:      var(--color-surface);
+    --error:        var(--color-error);
+    --success:      var(--color-success);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-sans font-light bg-cream text-text-dark antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-serif font-normal tracking-tight;
+  }
 }
