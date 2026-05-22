@@ -151,9 +151,9 @@ export default function RegisterPage() {
 
             {/* Role selector */}
             <div>
-              <label className="block mb-2.5 text-[11px] font-medium tracking-[0.12em] uppercase text-text-mid">
+              <span className="block mb-2.5 text-[11px] font-medium tracking-[0.12em] uppercase text-text-mid">
                 Peran
-              </label>
+              </span>
               <div className="flex flex-col gap-2">
                 {ROLES.map((r) => (
                   <label key={r.value} className={`flex items-center gap-3 px-4 py-3 border rounded cursor-pointer transition-all duration-200 ${
@@ -162,6 +162,7 @@ export default function RegisterPage() {
                     <input type="radio" name="role" value={r.value}
                       checked={form.role === r.value}
                       onChange={() => set("role", r.value)}
+                      aria-label="Pilih peran"
                       className="hidden" />
                     <div className="flex-1">
                       <div className={`text-[13px] font-normal ${

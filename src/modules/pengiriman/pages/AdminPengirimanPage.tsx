@@ -31,7 +31,7 @@ export default function AdminPengirimanPage() {
     enabled: hasSession && role === "ADMIN",
   });
   const adminProcessDelivery = useAdminProcessDelivery();
-  const approvedDeliveries = approvedDeliveriesQuery.data ?? [];
+  const approvedDeliveries = Array.isArray(approvedDeliveriesQuery.data) ? approvedDeliveriesQuery.data : [];
 
   const approvedCount = approvedDeliveries.length;
 
@@ -183,6 +183,7 @@ export default function AdminPengirimanPage() {
               value={searchInput}
               onChange={(event) => setSearchInput(event.target.value)}
               placeholder="Contoh: Awan"
+              aria-label="Cari pengiriman"
               className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
             />
           </label>
@@ -195,6 +196,7 @@ export default function AdminPengirimanPage() {
               type="date"
               value={date}
               onChange={(event) => setDate(event.target.value)}
+              aria-label="Tanggal pengiriman"
               className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
             />
           </label>
@@ -227,6 +229,7 @@ export default function AdminPengirimanPage() {
                   value={partialWeightInput}
                   onChange={(event) => setPartialWeightInput(event.target.value)}
                   placeholder="Contoh: 175"
+                  aria-label="Berat parsial"
                   className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
                 />
               </label>
@@ -241,6 +244,7 @@ export default function AdminPengirimanPage() {
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
                 placeholder={actionState.mode === "PARTIAL" ? "Tuliskan alasan partial accept..." : "Tuliskan alasan penolakan..."}
+                aria-label="Alasan"
                 className="w-full rounded border border-sand bg-cream px-3 py-2.5 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
               />
             </label>

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { formatWeight } from '@/lib/formatters';
 import { usePanenByBuruh, type GetPanenByBuruhParams } from '../hooks/usePanenList';
 
 interface BuruhPanenSectionProps {
@@ -95,6 +96,7 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
             type="date"
             value={startDateInput}
             onChange={(e) => setStartDateInput(e.target.value)}
+            aria-label="Dari tanggal"
             className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white"
           />
         </div>
@@ -107,6 +109,7 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
             type="date"
             value={endDateInput}
             onChange={(e) => setEndDateInput(e.target.value)}
+            aria-label="Sampai tanggal"
             className="px-3 py-2 text-[13px] border border-cream-dark rounded focus:outline-none focus:ring-1 focus:ring-forest focus:border-forest transition-colors text-text-dark bg-white"
           />
         </div>
@@ -168,7 +171,7 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
               </div>
 
               <div className="text-[13px] text-text-mid font-medium">
-                {panen.weight.toLocaleString('id-ID')}
+                {formatWeight(panen.weight)}
               </div>
 
               <div>
@@ -201,7 +204,6 @@ export default function BuruhPanenSection({ buruhId }: BuruhPanenSectionProps) {
                         alt="Preview"
                         width={40}
                         height={40}
-                        unoptimized
                         className="w-full h-full object-cover transition-transform group-hover:scale-110"
                       />
                       <div className="absolute inset-0 bg-forest/0 group-hover:bg-forest/10 transition-colors" />

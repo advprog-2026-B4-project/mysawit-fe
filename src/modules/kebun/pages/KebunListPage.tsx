@@ -12,10 +12,8 @@ import {
     useKebunList,
 } from "../hooks/useKebun";
 import KebunFormModal from "../components/KebunFormModal";
+import { extractErrorMessage } from "@/lib/toast";
 
-function getErrorMessage(error: unknown) {
-    return error instanceof Error ? error.message : "Terjadi kesalahan yang tidak diketahui";
-}
 
 function formatCoordinates(kebun: KebunDTO) {
     return kebun.coordinates
@@ -162,7 +160,7 @@ export default function KebunListPage() {
 
             {error && (
                 <div className="mb-5 rounded border border-error/25 bg-error/[.06] px-4 py-3 text-[13px] text-error">
-                    {getErrorMessage(error)}
+                    {extractErrorMessage(error, "Terjadi kesalahan yang tidak diketahui")}
                 </div>
             )}
 
@@ -296,7 +294,7 @@ export default function KebunListPage() {
                     title="Tambah Kebun Sawit"
                     submitLabel="Simpan Kebun"
                     loading={createKebun.isPending}
-                    errorMessage={createKebun.error ? getErrorMessage(createKebun.error) : undefined}
+                    errorMessage={createKebun.error ? extractErrorMessage(createKebun.error) : undefined}
                     onClose={() => setIsCreateOpen(false)}
                     onSubmit={handleCreate}
                 />
@@ -309,7 +307,7 @@ export default function KebunListPage() {
                     title={`Edit ${editingKebun.nama}`}
                     submitLabel="Simpan Perubahan"
                     loading={editKebun.isPending}
-                    errorMessage={editKebun.error ? getErrorMessage(editKebun.error) : undefined}
+                    errorMessage={editKebun.error ? extractErrorMessage(editKebun.error) : undefined}
                     initialValue={editingKebun}
                     onClose={() => setEditingKebun(null)}
                     onSubmit={handleEdit}
@@ -322,7 +320,7 @@ export default function KebunListPage() {
                     description={`Anda yakin ingin menghapus kebun ${deletingKebun.nama}? Proses ini akan gagal jika kebun masih memiliki mandor terikat.`}
                     confirmLabel="Hapus Kebun"
                     loading={deleteKebun.isPending}
-                    errorMessage={deleteKebun.error ? getErrorMessage(deleteKebun.error) : undefined}
+                    errorMessage={deleteKebun.error ? extractErrorMessage(deleteKebun.error) : undefined}
                     onClose={() => setDeletingKebun(null)}
                     onConfirm={handleDelete}
                 />
@@ -352,9 +350,15 @@ function ConfirmDialog({
         <div
             className="fixed inset-0 z-[120] flex items-center justify-center bg-forest/40 backdrop-blur-sm"
             onClick={onClose}
+            role="presentation"
+            onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
         >
+            {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
             <div
                 onClick={(event) => event.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label={title}
                 className="w-[460px] max-w-[92vw] rounded-lg border border-cream-dark bg-white p-8 shadow-[0_24px_64px_rgba(26,46,26,0.18)]"
             >
                 <h2 className="font-serif text-[24px] font-normal text-text-dark">{title}</h2>

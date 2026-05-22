@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { getRole, getToken, getUserIdFromToken } from "@/lib/api/tokenStorage";
 import { DEFAULT_PAYROLL_PAGE_SIZE, type PayrollListFilter } from "../api/pembayaranApi";
+import { formatNumber, formatWeight } from "@/lib/formatters";
 import { usePayrollsByUser } from "../hooks/usePayroll";
 import { useWalletBalance } from "../hooks/useWallet";
 import {
@@ -98,7 +99,7 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 							Ringkasan Payroll
 						</p>
 						<p className="font-serif text-[38px] leading-none text-forest">
-							{(payrolls.data?.totalElements ?? 0).toLocaleString("id-ID")}
+							{formatNumber(payrolls.data?.totalElements ?? 0)}
 						</p>
 						<p className="mt-2 font-sans text-[12px] text-text-light">
 							Total riwayat payroll berdasarkan filter aktif.
@@ -176,10 +177,9 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 							)}
 
 							{!payrolls.isLoading && !payrolls.isError && payrollItems.map((payroll) => (
-								<div
+								<button
 									key={payroll.payrollId}
-									role="button"
-									tabIndex={0}
+									type="button"
 									onClick={() => setSelectedPayrollId(payroll.payrollId)}
 									onKeyDown={(event) => {
 										if (event.key === "Enter" || event.key === " ") {
@@ -187,7 +187,7 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 											setSelectedPayrollId(payroll.payrollId);
 										}
 									}}
-									className={`grid grid-cols-[1.1fr_1fr_0.8fr_0.9fr_0.8fr] gap-4 items-center px-6 py-4 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors ${
+									className={`grid grid-cols-[1.1fr_1fr_0.8fr_0.9fr_0.8fr] gap-4 items-center px-6 py-4 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors bg-transparent text-left ${
 										selectedPayrollId === payroll.payrollId ? "bg-forest/5" : "hover:bg-cream"
 									}`}
 								>
@@ -204,7 +204,7 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 							</div>
 
 							<div className="text-right font-sans text-[13px] text-text-dark">
-								{(payroll.weight / 1000).toLocaleString("id-ID")} kg
+								{formatWeight(payroll.weight)}
 							</div>
 
 							<div className="text-right font-serif text-[24px] leading-none text-forest">
@@ -219,7 +219,7 @@ function WorkerPayrollPageContent({ userId, role }: { userId: string; role: stri
 									<p className="mt-1 font-sans text-[11px] text-error">{payroll.rejectionReason}</p>
 								)}
 							</div>
-								</div>
+								</button>
 							))}
 						</div>
 					</div>

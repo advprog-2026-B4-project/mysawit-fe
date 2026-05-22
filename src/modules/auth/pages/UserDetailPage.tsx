@@ -79,7 +79,7 @@ export default function UserDetailPage() {
       return [];
     }
 
-    const referenceLink = resolvePayrollReferenceLink(selectedPayroll);
+    const referenceLink = resolvePayrollReferenceLink(selectedPayroll, true);
     return [
       {
         label: "Pekerja terkait",
@@ -153,7 +153,7 @@ export default function UserDetailPage() {
             <h1 className="font-serif text-[34px] font-normal text-text-dark">
               {user.name}
             </h1>
-            <RoleBadge role={user.role} />
+            <RoleBadge userRole={user.role} />
           </div>
           <p className="text-[13px] font-light text-text-light">
             @{user.username} - {user.email}
@@ -185,10 +185,11 @@ export default function UserDetailPage() {
             <Input label="Email" type="email" value={form.email}
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
             <div>
-              <label className="block mb-2 text-[11px] font-medium tracking-[0.12em] uppercase text-text-mid">
+              <label htmlFor="user-role-select" className="block mb-2 text-[11px] font-medium tracking-[0.12em] uppercase text-text-mid">
                 Peran
               </label>
               <select
+                id="user-role-select"
                 value={form.role}
                 onChange={(e) => {
                   const nextRole = e.target.value as UserRole;
@@ -240,11 +241,11 @@ export default function UserDetailPage() {
                 </div>
                 <div className="text-[14px] font-light text-text-dark">
                   {value}
-                </div>
               </div>
+            </div>
             ))}
-          </div>
-        )}
+            </div>
+          )}
       </div>
 
       <div className="bg-white border border-cream-dark rounded-md p-8 mb-6">
@@ -302,11 +303,12 @@ export default function UserDetailPage() {
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto] gap-3 items-end mb-5">
-            <label className="block">
+            <label htmlFor="payroll-date-start" className="block">
               <span className="block text-[10px] font-medium tracking-[0.12em] uppercase text-text-light mb-1.5">
                 Dari tanggal
               </span>
               <input
+                id="payroll-date-start"
                 type="date"
                 value={payrollStartDate}
                 onChange={(e) => {
@@ -314,15 +316,17 @@ export default function UserDetailPage() {
                   setPayrollPage(0);
                   setSelectedPayrollId(null);
                 }}
+                aria-label="Dari tanggal"
                 className="w-full px-3 py-2.5 font-sans text-[13px] text-text-dark bg-cream border border-sand rounded-sm outline-none focus:border-forest-mid"
               />
             </label>
 
-            <label className="block">
+            <label htmlFor="payroll-date-end" className="block">
               <span className="block text-[10px] font-medium tracking-[0.12em] uppercase text-text-light mb-1.5">
                 Sampai tanggal
               </span>
               <input
+                id="payroll-date-end"
                 type="date"
                 value={payrollEndDate}
                 onChange={(e) => {
@@ -330,6 +334,7 @@ export default function UserDetailPage() {
                   setPayrollPage(0);
                   setSelectedPayrollId(null);
                 }}
+                aria-label="Sampai tanggal"
                 className="w-full px-3 py-2.5 font-sans text-[13px] text-text-dark bg-cream border border-sand rounded-sm outline-none focus:border-forest-mid"
               />
             </label>
@@ -382,18 +387,11 @@ export default function UserDetailPage() {
               )}
 
               {!payrolls.isLoading && !payrolls.isError && payrollItems.map((payroll) => (
-                <div
+                <button
                   key={payroll.payrollId}
-                  role="button"
-                  tabIndex={0}
+                  type="button"
                   onClick={() => setSelectedPayrollId(payroll.payrollId)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      setSelectedPayrollId(payroll.payrollId);
-                    }
-                  }}
-                  className={`grid grid-cols-[1.1fr_1fr_1fr_0.8fr_0.75fr] gap-4 items-center px-5 py-3 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors ${
+                  className={`grid grid-cols-[1.1fr_1fr_1fr_0.8fr_0.75fr] gap-4 items-center px-5 py-3 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors text-left w-full ${
                     selectedPayrollId === payroll.payrollId ? "bg-forest/5" : "hover:bg-cream"
                   }`}
                 >
@@ -425,7 +423,7 @@ export default function UserDetailPage() {
                       {payroll.status}
                     </span>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
             </div>

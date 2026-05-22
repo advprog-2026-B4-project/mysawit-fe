@@ -59,10 +59,16 @@ export default function KebunSelectionModal({
         <div
             className="fixed inset-0 z-[120] flex items-center justify-center bg-forest/40 backdrop-blur-sm"
             onClick={onClose}
+            role="presentation"
+            onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
         >
             <div
                 onClick={(event) => event.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-label={title}
                 className="w-[460px] max-w-[92vw] rounded-lg border border-cream-dark bg-white p-8 shadow-[0_24px_64px_rgba(26,46,26,0.18)]"
+                // oxlint-disable-next-line jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role)
             >
                 <h2 className="font-serif text-[24px] font-normal text-text-dark">{title}</h2>
                 <p className="mt-2 text-[13px] font-light text-text-light">{description}</p>
@@ -90,7 +96,7 @@ export default function KebunSelectionModal({
 
                                         return (
                                             <button
-                                                key={`${option.value}-${index}`}
+                                                key={option.value}
                                                 type="button"
                                                 onClick={() => onChange(option.value)}
                                                 className={`block w-full border-0 px-4 py-3 text-left transition-colors ${

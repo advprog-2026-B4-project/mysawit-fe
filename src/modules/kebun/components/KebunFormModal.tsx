@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import type { CoordinateDTO } from "../api/kebunApi";
 
 interface CoordinateField {
+    id: string;
     lat: string;
     lng: string;
 }
@@ -41,11 +42,12 @@ interface KebunFormState {
 }
 
 function createEmptyCoordinates(): CoordinateField[] {
+    const base = Date.now().toString();
     return [
-        { lat: "", lng: "" },
-        { lat: "", lng: "" },
-        { lat: "", lng: "" },
-        { lat: "", lng: "" },
+        { id: `${base}-0`, lat: "", lng: "" },
+        { id: `${base}-1`, lat: "", lng: "" },
+        { id: `${base}-2`, lat: "", lng: "" },
+        { id: `${base}-3`, lat: "", lng: "" },
     ];
 }
 
@@ -54,7 +56,9 @@ function toCoordinateFields(coordinates?: CoordinateDTO[]): CoordinateField[] {
         return createEmptyCoordinates();
     }
 
-    return coordinates.map((coordinate) => ({
+    const base = Date.now().toString();
+    return coordinates.map((coordinate, idx) => ({
+        id: `${base}-${idx}`,
         lat: String(coordinate.lat),
         lng: String(coordinate.lng),
     }));
@@ -205,11 +209,12 @@ export default function KebunFormModal({
     }
 
     function fillExampleSquare() {
+        const base = Date.now().toString();
         setCoordinates([
-            { lat: "0", lng: "0" },
-            { lat: "0", lng: "10" },
-            { lat: "10", lng: "0" },
-            { lat: "10", lng: "10" },
+            { id: `${base}-0`, lat: "0", lng: "0" },
+            { id: `${base}-1`, lat: "0", lng: "10" },
+            { id: `${base}-2`, lat: "10", lng: "0" },
+            { id: `${base}-3`, lat: "10", lng: "10" },
         ]);
         setErrors((current) => ({ ...current, coordinates: undefined }));
     }
@@ -217,11 +222,17 @@ export default function KebunFormModal({
     return (
         <div
             className="fixed inset-0 z-[120] flex items-center justify-center bg-forest/40 backdrop-blur-sm"
-            onClick={requestClose}
+            onClick={onClose}
+            role="presentation"
+            onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
         >
+            {/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
             <div
                 onClick={(event) => event.stopPropagation()}
-                className="max-h-[92vh] w-[860px] max-w-[94vw] overflow-y-auto rounded-lg border border-cream-dark bg-white p-8 shadow-[0_24px_64px_rgba(26,46,26,0.18)]"
+                role="dialog"
+                aria-modal="true"
+                aria-label={title}
+                className="w-[760px] max-w-[94vw] rounded-lg border border-cream-dark bg-white p-8 shadow-[0_24px_64px_rgba(26,46,26,0.18)]"
             >
                 <div className="mb-6">
                     <h2 className="font-serif text-[26px] font-normal text-text-dark">{title}</h2>
@@ -283,7 +294,7 @@ export default function KebunFormModal({
                     <div className="grid gap-5 lg:grid-cols-[1fr_240px]">
                         <div className="grid gap-4 sm:grid-cols-2">
                             {coordinates.map((coordinate, index) => (
-                                <div key={`coordinate-${index}`} className="rounded border border-cream-dark bg-cream/50 p-4">
+                                <div key={coordinate.id} className="rounded border border-cream-dark bg-cream/50 p-4">
                                     <div className="mb-3 text-[11px] font-medium uppercase tracking-[0.12em] text-text-mid">
                                         Titik {index + 1}
                                     </div>
@@ -365,7 +376,7 @@ function CoordinatePreview({ coordinates }: { coordinates: CoordinateDTO[] | nul
 
                     return (
                         <div
-                            key={`${coordinate.lat}-${coordinate.lng}-${index}`}
+                            key={`${coordinate.lat}-${coordinate.lng}`}
                             className="absolute flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-forest text-[11px] text-cream"
                             style={{ left: `${left}%`, top: `${top}%` }}
                         >

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { WalletTransactionDTO } from "../api/pembayaranApi";
+import { formatRupiah, formatDollar } from "@/lib/formatters";
 import { formatPayrollDate, compactPayrollId } from "./PayrollShared";
 
 interface TransactionRowProps {
@@ -26,8 +27,10 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
 
   return (
     <div className="border-b border-cream-dark last:border-b-0">
-      <div
-        className="grid grid-cols-[1fr_auto] gap-4 px-6 py-4 items-center cursor-pointer hover:bg-cream/50 transition-colors"
+      <button
+        type="button"
+        aria-label={`Transaction ${transaction.transactionId}`}
+        className="grid grid-cols-[1fr_auto] gap-4 px-6 py-4 items-center cursor-pointer hover:bg-cream/50 transition-colors w-full text-left bg-transparent border-0"
         onClick={handleClick}
       >
         <div>
@@ -54,12 +57,12 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
           <p className={`font-sans text-[16px] font-semibold ${
             isCredit ? "text-green" : "text-text-dark"
           }`}>
-            {isCredit ? "+" : "-"} Rp {rupiahAmount.toLocaleString("id-ID")}
+            {isCredit ? "+" : "-"} {formatRupiah(rupiahAmount)}
           </p>
           <p className={`font-sans text-[12px] ${
             isCredit ? "text-green/70" : "text-text-mid"
           }`}>
-            {isCredit ? "+" : "-"} ${(internalCents / 100).toFixed(2)}
+            {isCredit ? "+" : "-"} {formatDollar(internalCents / 100)}
           </p>
           <div className="mt-1">
             {expanded ? (
@@ -69,7 +72,7 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
             )}
           </div>
         </div>
-      </div>
+      </button>
 
       {expanded && (
         <div className="px-6 pb-4 bg-cream/30">
@@ -84,11 +87,11 @@ export default function TransactionRow({ transaction, onClick }: TransactionRowP
             </div>
             <div>
               <p className="text-text-light font-sans">Internal Amount</p>
-              <p className="text-text-dark font-sans">${(internalCents / 100).toFixed(2)}</p>
+              <p className="text-text-dark font-sans">{formatDollar(internalCents / 100)}</p>
             </div>
             <div>
               <p className="text-text-light font-sans">Rupiah Equivalent</p>
-              <p className="text-text-dark font-sans">Rp {rupiahAmount.toLocaleString("id-ID")}</p>
+              <p className="text-text-dark font-sans">{formatRupiah(rupiahAmount)}</p>
             </div>
           </div>
         </div>

@@ -90,6 +90,7 @@ export default function SupirPengirimanPage() {
               type="date"
               value={startDate}
               onChange={(event) => setStartDate(event.target.value)}
+              aria-label="Tanggal mulai"
               className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
             />
           </label>
@@ -102,6 +103,7 @@ export default function SupirPengirimanPage() {
               type="date"
               value={endDate}
               onChange={(event) => setEndDate(event.target.value)}
+              aria-label="Tanggal akhir"
               className="w-full rounded border border-sand bg-cream px-3 py-2 font-sans text-[13px] text-text-dark outline-none focus:border-forest"
             />
           </label>

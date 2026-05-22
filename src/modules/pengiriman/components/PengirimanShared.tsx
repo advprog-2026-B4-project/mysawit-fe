@@ -1,25 +1,14 @@
 "use client";
 
 import type { PengirimanStatus } from "../api/pengirimanApi";
-
-const GRAMS_PER_KILOGRAM = 1000;
+import { formatWeight as fmtWeight, formatDate } from "@/lib/formatters";
 
 export function formatWeight(weightInGrams: number) {
-  const kilograms = weightInGrams / GRAMS_PER_KILOGRAM;
-  return `${kilograms.toLocaleString("id-ID", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 3,
-  })} kg`;
+  return fmtWeight(weightInGrams / 1000);
 }
 
 export function formatTimestamp(timestamp: string) {
-  return new Date(timestamp).toLocaleString("id-ID", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  return formatDate(timestamp);
 }
 
 export function compactPengirimanId(id: string) {
@@ -44,6 +33,8 @@ export function deliveryStatusClass(status: PengirimanStatus): string {
   }
   return "text-forest border-forest/35 bg-forest/5";
 }
+
+const GRAMS_PER_KILOGRAM = 1000;
 
 export function kilogramsInputToGrams(value: string) {
   if (!value.trim()) {

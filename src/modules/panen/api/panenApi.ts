@@ -49,6 +49,16 @@ export interface GetPanenAdminParams {
   status?: string;
 }
 
+export interface PanenPageDTO {
+  items: PanenDTO[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export const panenApi = {
   createPanen: async (data: CreatePanenRequestDTO): Promise<PanenDTO> => {
     const response = await apiClient.post<unknown, AxiosResponse<PanenDTO>>('/api/panen', data);
@@ -109,8 +119,8 @@ export const panenApi = {
     return publicUrl;
   },
 
-  getPanenAdmin: async (params?: GetPanenAdminParams): Promise<PanenDTO[]> => {
-      const response = await apiClient.get<unknown, AxiosResponse<PanenDTO[]>>('/api/panen/admin/list', { params });
+  getPanenAdmin: async (params?: GetPanenAdminParams): Promise<PanenPageDTO> => {
+      const response = await apiClient.get<unknown, AxiosResponse<PanenPageDTO>>('/api/panen/admin/list', { params });
       return response.data; // Response interceptor akan otomatis unwrap 'data' dari ApiResponse
   },
 };

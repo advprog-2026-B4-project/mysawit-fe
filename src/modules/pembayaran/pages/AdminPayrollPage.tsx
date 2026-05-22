@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type KeyboardEvent } from "react";
+import Image from "next/image";
 import AdminGuard from "@/components/guards/AdminGuard";
 import { Button } from "@/components/ui/Button";
 import { notify } from "@/lib/toast";
 import { DEFAULT_PAYROLL_PAGE_SIZE, type PayrollDTO, type PayrollListFilter } from "../api/pembayaranApi";
+import { formatWeight } from "@/lib/formatters";
 import { useAllPayrolls, useApprovePayroll, useRejectPayroll } from "../hooks/usePayroll";
 import {
 	compactPayrollId,
@@ -44,18 +46,20 @@ function PayrollRow({
 		return Array.from(new Set(urls));
 	}, [payroll.evidencePhotoUrls]);
 
+	function handleRowKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault();
+			onOpenDetail(payroll);
+		}
+	}
+
 	return (
 		<div
+			onClick={() => onOpenDetail(payroll)}
+			onKeyDown={handleRowKeyDown}
 			role="button"
 			tabIndex={0}
-			onClick={() => onOpenDetail(payroll)}
-			onKeyDown={(event) => {
-				if (event.key === "Enter" || event.key === " ") {
-					event.preventDefault();
-					onOpenDetail(payroll);
-				}
-			}}
-			className={`grid grid-cols-[1.2fr_0.65fr_1.2fr_0.8fr_0.7fr_0.95fr] gap-4 items-center px-6 py-4 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors ${
+			className={`grid grid-cols-[1.2fr_0.65fr_1.2fr_0.8fr_0.7fr_0.95fr] gap-4 items-center px-6 py-4 border-b border-cream-dark last:border-b-0 cursor-pointer transition-colors text-left w-full ${
 				isSelected ? "bg-forest/5" : "hover:bg-cream"
 			}`}
 		>
@@ -84,7 +88,7 @@ function PayrollRow({
 
 			<div className="text-right">
 				<p className="font-serif text-[24px] leading-none text-forest">{formatPayrollMoney(payroll.netAmount)}</p>
-				<p className="font-sans text-[11px] text-text-light mt-0.5">{(payroll.weight / 1000).toLocaleString("id-ID")} kg</p>
+				<p className="font-sans text-[11px] text-text-light mt-0.5">{formatWeight(payroll.weight)}</p>
 			</div>
 
 			<div className="text-center">
@@ -135,7 +139,7 @@ function PayrollRow({
 									return (
 										<button
 											type="button"
-											key={`${photoUrl}-${index}`}
+											key={photoUrl}
 											onClick={(event) => {
 												event.stopPropagation();
 												onOpenEvidencePhoto(photoUrl, index + 1);
@@ -143,12 +147,12 @@ function PayrollRow({
 											className="block h-12 w-12 overflow-hidden rounded border border-cream-dark bg-cream"
 											title={`Lihat bukti foto ${index + 1}`}
 										>
-											{/* eslint-disable-next-line @next/next/no-img-element */}
-											<img
+											<Image
 												src={photoUrl}
 												alt={`Bukti panen ${index + 1}`}
+												width={48}
+												height={48}
 												className="h-full w-full object-cover"
-												loading="lazy"
 											/>
 										</button>
 									);
@@ -201,7 +205,7 @@ function AdminPayrollPageContent() {
 			return [];
 		}
 
-		const referenceLink = resolvePayrollReferenceLink(selectedPayroll);
+		const referenceLink = resolvePayrollReferenceLink(selectedPayroll, true);
 		return [
 			{
 				label: "Pekerja terkait",
@@ -300,6 +304,7 @@ function AdminPayrollPageContent() {
 						value={rejectReason}
 						onChange={(e) => setRejectReason(e.target.value)}
 						placeholder="Tuliskan alasan penolakan payroll..."
+						aria-label="Alasan penolakan payroll"
 						className="w-full px-3 py-2.5 font-sans text-[13px] text-text-dark bg-white border border-sand rounded-sm outline-none focus:border-forest-mid"
 					/>
 					<div className="mt-3 flex flex-wrap gap-2 justify-end">
@@ -388,7 +393,10 @@ function AdminPayrollPageContent() {
 				<div
 					className="fixed inset-0 z-[130] bg-forest/70 backdrop-blur-[1px] p-4 sm:p-8"
 					onClick={() => setSelectedEvidenceUrl(null)}
+					role="presentation"
+					onKeyDown={(e) => { if (e.key === 'Escape') setSelectedEvidenceUrl(null); }}
 				>
+					{/* oxlint-disable jsx-a11y(click-events-have-key-events,no-noninteractive-element-interactions,prefer-tag-over-role) */}
 					<div
 						role="dialog"
 						aria-modal="true"
@@ -420,12 +428,12 @@ function AdminPayrollPageContent() {
 								</div>
 							</div>
 
-							<div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto flex items-center justify-center">
-								{/* eslint-disable-next-line @next/next/no-img-element */}
-								<img
+							<div className="flex-1 min-h-0 rounded border border-cream-dark bg-cream/40 overflow-auto relative">
+								<Image
 									src={selectedEvidenceUrl}
 									alt={`Preview bukti panen ${selectedEvidenceIndex}`}
-									className="max-h-full max-w-full object-contain"
+									fill
+									className="object-contain"
 								/>
 							</div>
 						</div>
