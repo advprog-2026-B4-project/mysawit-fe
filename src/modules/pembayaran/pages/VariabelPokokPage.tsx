@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import AdminGuard from "@/components/guards/AdminGuard";
-import { formatCents } from "@/lib/formatters";
+import { formatRupiahAsDollar } from "@/lib/formatters";
 import { Button } from "@/components/ui/Button";
 import type { VariabelPokokDTO, VariableKey } from "@/modules/pembayaran/api/pembayaranApi";
 import {
@@ -31,7 +31,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
   const { mutate, isPending, isError, error, reset } = useUpdateVariabelPokok();
 
   function openEdit() {
-    setDraft(String(item.value / 100));
+    setDraft(String(item.value / 10000));
     setFieldError(null);
     reset();
     setEditing(true);
@@ -51,7 +51,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
       return;
     }
     mutate(
-      { key: item.key as VariableKey, newValue: parsed * 100 },
+      { key: item.key as VariableKey, newValue: parsed * 10000 },
       { onSuccess: () => setEditing(false) },
     );
   }
@@ -132,7 +132,7 @@ function VariabelPokokRow({ item }: { item: VariabelPokokDTO }) {
       <div className="text-right">
         <span className="font-sans text-xs text-text-light mr-0.5">$</span>
         <span className="font-serif text-[26px] font-semibold text-forest leading-none">
-          {formatCents(item.value)}
+          {formatRupiahAsDollar(item.value)}
         </span>
         <span className="font-sans text-xs text-text-light ml-1">/ kg</span>
       </div>

@@ -99,7 +99,7 @@ export const CreatePanenForm: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    createPanen({ ...formData, weight: formData.weight * 1000 } as CreatePanenRequestDTO, {
+    createPanen({ ...formData, weight: formData.weight } as CreatePanenRequestDTO, {
       onSuccess: () => {
         toast.success('Laporan panen berhasil disimpan!');
         router.back();

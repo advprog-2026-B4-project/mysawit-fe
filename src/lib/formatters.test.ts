@@ -5,6 +5,7 @@ import {
   formatRupiah,
   formatDollar,
   formatCents,
+  formatRupiahAsDollar,
   formatWeight,
   formatDate,
   formatNumber,
@@ -64,25 +65,47 @@ describe("formatCents", () => {
   });
 });
 
+describe("formatRupiahAsDollar", () => {
+  it("formats zero rupiah as $0.00", () => {
+    expect(formatRupiahAsDollar(0)).toBe("$0,00");
+  });
+
+  it("formats Rp 10,000 as $1.00", () => {
+    expect(formatRupiahAsDollar(10000)).toBe("$1,00");
+  });
+
+  it("formats Rp 12,000 as $1.20", () => {
+    expect(formatRupiahAsDollar(12000)).toBe("$1,20");
+  });
+
+  it("formats Rp 3,060,000 as $306.00", () => {
+    expect(formatRupiahAsDollar(3060000)).toBe("$306,00");
+  });
+
+  it("formats Rp 1,500,000 as $150.00", () => {
+    expect(formatRupiahAsDollar(1500000)).toBe("$150,00");
+  });
+});
+
 describe("formatWeight", () => {
-  it("formats zero grams", () => {
+  it("formats zero kg", () => {
     expect(formatWeight(0)).toBe("0 kg");
   });
 
-  it("formats 1000 grams as 1 kg", () => {
-    expect(formatWeight(1000)).toBe("1 kg");
+  it("formats 130 kg", () => {
+    expect(formatWeight(130)).toBe("130 kg");
   });
 
-  it("formats 1500 grams as 1,5 kg", () => {
-    expect(formatWeight(1500)).toBe("1,5 kg");
+  it("formats 255 kg", () => {
+    expect(formatWeight(255)).toBe("255 kg");
   });
 
-  it("formats 250 grams with three decimal places", () => {
-    expect(formatWeight(250)).toBe("0,25 kg");
+  it("formats 1500 kg with thousand separator", () => {
+    expect(formatWeight(1500)).toBe("1.500 kg");
   });
 
-  it("formats 50000 grams as 50 kg", () => {
-    expect(formatWeight(50000)).toBe("50 kg");
+  it("formats 50000 kg", () => {
+    expect(formatWeight(50000)).toBe("50.000 kg");
   });
 });
 
